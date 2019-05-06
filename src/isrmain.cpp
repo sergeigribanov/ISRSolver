@@ -9,6 +9,7 @@
 #include "TGraphErrors.h"
 #include "radiatorFadinKuraev.h"
 #include "RadSolver.h"
+#include "TAxis.h"
 
 namespace po = boost::program_options;
 
@@ -78,8 +79,8 @@ int main(int argc, char* argv[]) {
     fl->Close();
     if (bfcn) {
       int n = 1000;
-      double a = bfcn->GetMinimumX();
-      double b = bfcn->GetMaximumX();
+      double a = 1.e-3 * bfcn->GetXaxis()->GetXmin();
+      double b = 1.e-3 * bfcn->GetXaxis()->GetXmax();
       double h = (b - a) / n;
       double min_s = (a + h) * (a + h);
       TFile* fout = TFile::Open(opts.ofname.c_str(), "recreate");
@@ -93,15 +94,15 @@ int main(int argc, char* argv[]) {
       std::function<double(double)> bornfcn = [bfcn, min_s](double s) {
 	if (s <= min_s) {
 	   return 0.;
-	}
-	return bfcn->Eval(sqrt(s));
+	} 
+	return bfcn->Eval(1.e+3 * sqrt(s));
       };
       for (int i = 1; i < n; ++i) {
 	en = a + h * i;
 	s = en * en;
 	bcs = bornfcn(s);
 	if (bcs > 0) {
-	  rad->SetPoint(c, a + h * i, getFadinIntegral(s, bornfcn, 1.) / bornfcn(s));
+	  rad->SetPoint(c, en, getFadinIntegral(s, bornfcn, 1. - min_s / s) / bcs);
 	  c++;
 	}
       }
