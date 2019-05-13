@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project(ISRSolver)
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "~/install/ISRSolver")
+endif()
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 find_package(ROOT REQUIRED COMPONENTS RIO Net Core)
 include(${ROOT_USE_FILE})
@@ -29,3 +32,8 @@ target_include_directories(isrsolver
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/inc
   PRIVATE ${GSL_INCLUDE_DIR}
   PRIVATE ${Boost_INCLUDE_DIRS})
+set_target_properties(isrsolver
+  PROPERTIES
+  RUNTIME "$${PROJECT_BINARY_DIR}/isrsolver")
+install(TARGETS isrsolver
+  RUNTIME DESTINATION bin)
