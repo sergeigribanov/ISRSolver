@@ -13,16 +13,16 @@
 
 namespace po = boost::program_options;
 
-struct cmdOptions {
+typedef struct {
   double thsd;
   std::string gname;
   std::string fcnname;
   std::string ifname;
   std::string ofname;
-};
+} CmdOptions;
 
 void setOptions(po::options_description* desc,
-                struct cmdOptions* opts) {
+		CmdOptions* opts) {
   desc->add_options()
     ("help", "A simple tool, designed to find numerical"
      "solution of the Kuraev-Fadin equation.")
@@ -43,19 +43,19 @@ void help(const po::options_description& desc) {
 
 int main(int argc, char* argv[]) {
   po::options_description desc("Allowed options:");
-  struct cmdOptions opts;
+  CmdOptions opts;
   setOptions(&desc, &opts);
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  if (vm.count("help")) {
+  po::variables_map vmap;
+  po::store(po::parse_command_line(argc, argv, desc), vmap);
+  po::notify(vmap);
+  if (vmap.count("help")) {
     help(desc);
     return 0;
   }
-  if (vm.count("thsd") &&
-      vm.count("gname") &&
-      vm.count("ifname") &&
-      vm.count("ofname")) {
+  if (vmap.count("thsd") &&
+      vmap.count("gname") &&
+      vmap.count("ifname") &&
+      vmap.count("ofname")) {
     TMatrixT<double> invErrM;
     TMatrixT<double> integralOperatorMatrix;
     auto fl0 = TFile::Open(opts.ifname.c_str(), "read");
@@ -70,9 +70,9 @@ int main(int argc, char* argv[]) {
     invErrM.Write("invBornErrMatrix");
     integralOperatorMatrix.Write("integralOperatorMatrix");
     fl1->Close();
-  } else if(vm.count("fcnname") &&
-	     vm.count("ifname") &&
-	     vm.count("ofname")) {
+  } else if(vmap.count("fcnname") &&
+	    vmap.count("ifname") &&
+	    vmap.count("ofname")) {
     TGraph* rad;
     TFile* fl = TFile::Open(opts.ifname.c_str(), "read");
     TF1* bfcn = dynamic_cast<TF1*>(fl->Get(opts.fcnname.c_str())->Clone("bfcn"));
