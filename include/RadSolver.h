@@ -6,10 +6,10 @@
 #include <TMatrixT.h>
 
 struct RightPart {
-  double s_;
-  double y_;
-  double ex_;
-  double ey_;
+  double s;
+  double y;
+  double ex;
+  double ey;
 };
 
 

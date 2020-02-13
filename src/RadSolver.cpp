@@ -21,14 +21,14 @@ RadSolver::~RadSolver() {
 }
 
 double RadSolver::getX(int n, int i) const {
-  return 1 - _measured_cs_data[i].s_ / _measured_cs_data[n].s_;
+  return 1 - _measured_cs_data[i].s / _measured_cs_data[n].s;
 }
 
 TMatrixT<double> RadSolver::getEqMatrix () const {
   int N = _measured_cs_data.size() - 1;
   TMatrixT<double> A (N, N);
   for (int n = 1; n <= N; ++n) {
-    double sn = _measured_cs_data[n].s_;
+    double sn = _measured_cs_data[n].s;
     for (int i = 1; i <= n; ++i) {
 	double xm = getX (n, i - 1);
 	double xi = getX(n, i);
@@ -54,10 +54,10 @@ void RadSolver::solve() {
   TVectorT<double> vcs_err (N);
 
   for (int i = 0; i < N; ++i) {
-    ecm (i) = sqrt(_measured_cs_data[i + 1].s_);
-    ecm_err (i) = _measured_cs_data[i + 1].ex_;
-    vcs (i) =  _measured_cs_data[i + 1].y_;
-    vcs_err (i) = _measured_cs_data[i + 1].ey_;
+    ecm (i) = sqrt(_measured_cs_data[i + 1].s);
+    ecm_err (i) = _measured_cs_data[i + 1].ex;
+    vcs (i) =  _measured_cs_data[i + 1].y;
+    vcs_err (i) = _measured_cs_data[i + 1].ey;
   }
 
   TMatrixT<double> eqMT (N, N);
@@ -90,7 +90,6 @@ void RadSolver::solve() {
   for (int i = 0; i < N; ++i) {
     cs_err (i) = sqrt(errM (i, i));
   }
-
   _born_cs =  TGraphErrors(N, ecm.GetMatrixArray(),
 			   cs.GetMatrixArray(),
 			   ecm_err.GetMatrixArray(),
@@ -100,27 +99,31 @@ void RadSolver::solve() {
 void RadSolver::setMeasuredCrossSection(const TGraphErrors* graph) {
   const int N = graph->GetN();
   _measured_cs_data.resize(N + 1);
-  _measured_cs_data[0].s_ = _threshold_energy * _threshold_energy;
-  _measured_cs_data[0].y_ = 0;
-  _measured_cs_data[0].ex_ = 0;
-  _measured_cs_data[0].ey_ = 0;
+  _measured_cs_data[0].s = _start_point_enrgy * _start_point_enrgy;
+  if (_left_side_bcs) {
+    _measured_cs_data[0].y = _left_side_bcs->Eval(_start_point_enrgy);
+  } else {
+    _measured_cs_data[0].y = 0;
+  }
+  _measured_cs_data[0].ex = 0;
+  _measured_cs_data[0].ey = 0;
   for (int i = 0; i < N; ++i) {
     double ecm = graph->GetX() [i];
-    _measured_cs_data[i + 1].s_ = ecm * ecm;
-    _measured_cs_data[i + 1].y_ = graph->GetY()[i];
-    _measured_cs_data[i + 1].ex_ = graph->GetEX()[i];
-    _measured_cs_data[i + 1].ey_ = graph->GetEY()[i];
+    _measured_cs_data[i + 1].s = ecm * ecm;
+    _measured_cs_data[i + 1].y = graph->GetY()[i];
+    _measured_cs_data[i + 1].ex = graph->GetEX()[i];
+    _measured_cs_data[i + 1].ey = graph->GetEY()[i];
   }
   std::sort(_measured_cs_data.begin(),
 	    _measured_cs_data.end(),
 	    [](const RightPart& x, const RightPart& y)
-	    {return x.s_ < y.s_;});
+	    {return x.s < y.s;});
   _measured_cs.Set(0);
   for (int i = 0; i < N; ++i) {
-    _measured_cs.SetPoint(i, sqrt(_measured_cs_data[i+1].s_),
-			  _measured_cs_data[i+1].y_);
-    _measured_cs.SetPointError(i, _measured_cs_data[i+1].ex_,
-			       _measured_cs_data[i+1].ey_);
+    _measured_cs.SetPoint(i, sqrt(_measured_cs_data[i+1].s),
+			  _measured_cs_data[i+1].y);
+    _measured_cs.SetPointError(i, _measured_cs_data[i+1].ex,
+			       _measured_cs_data[i+1].ey);
   }
 }
 
@@ -234,5 +237,7 @@ void RadSolver::check() {
     std::cerr << "[!] You need to set a threshold energy" << std::endl;
     exit(1);
   }
-  
+  if (_threshold && !_left_side_bcs) {
+    _start_point_enrgy = _threshold_energy;
+  }
 }
