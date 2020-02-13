@@ -3,13 +3,13 @@
 #include <iostream>
 #include <string>
 #include <boost/program_options.hpp>
-#include "TFile.h"
-#include "TF1.h"
-#include "TGraph.h"
-#include "TGraphErrors.h"
-#include "radiatorFadinKuraev.h"
-#include "RadSolver.h"
-#include "TAxis.h"
+#include <TFile.h>
+#include <TF1.h>
+#include <TGraph.h>
+#include <TGraphErrors.h>
+#include <radiatorFadinKuraev.h>
+#include <RadSolver.h>
+#include <TAxis.h>
 
 namespace po = boost::program_options;
 
@@ -27,13 +27,13 @@ void setOptions(po::options_description* desc,
     ("help", "A simple tool, designed to find numerical"
      "solution of the Kuraev-Fadin equation.")
     ("thsd", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
-    ("gname", po::value<std::string>(&(opts->gname)),
+    ("gname", po::value<std::string>(&(opts->gname))->default_value("vcs"),
      "Name of the measured cross section graph.")
     ("fcnname", po::value<std::string>(&(opts->fcnname)),
        "Name of the Born cross section function.")
-    ("ifname", po::value<std::string>(&(opts->ifname)),
+    ("ifname", po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
      "Path to input file.")
-    ("ofname", po::value<std::string>(&(opts->ofname)),
+    ("ofname", po::value<std::string>(&(opts->ofname))->default_value("bcs.root"),
      "Path to output file.");
 }
 

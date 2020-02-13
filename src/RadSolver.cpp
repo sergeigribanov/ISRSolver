@@ -55,8 +55,7 @@ TMatrixT<double> RadSolver::getEqMatrix () const {
     for (int i = 1; i <= n; ++i) {
 	double xm = getX (n, i - 1);
 	double xi = getX(n, i);
-	auto linc = getLinearSigmaCoeffs(xm, xi,
-					 sn, xm, xi);
+	auto linc = getLinearSigmaCoeffs(xm, xi, sn, xm, xi);
 	A (n - 1 , i - 1) += linc [1];
 	if (i > 1) {
 	  A (n - 1 , i - 2) += linc [0];
