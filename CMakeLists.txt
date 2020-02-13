@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project(ISRSolver)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+set(CMAKE_CXX_FLAGS "-Wall")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+find_package(Eigen3 REQUIRED NO_MODULE)
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 find_package(ROOT REQUIRED COMPONENTS RIO Net Core)
 include(${ROOT_USE_FILE})
@@ -16,8 +23,9 @@ target_include_directories(isrsolver
   ${Boost_INCLUDE_DIRS})
 target_link_libraries(isrsolver
   PRIVATE
-  ${ROOT_LIBRARIES}
   GSL::gsl GSL::gslcblas
-  ${Boost_LIBRARIES})
+  Eigen3::Eigen
+  ${Boost_LIBRARIES}
+  ${ROOT_LIBRARIES})
 install(TARGETS isrsolver
   RUNTIME DESTINATION bin)

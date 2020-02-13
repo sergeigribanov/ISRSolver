@@ -1,6 +1,9 @@
-#ifndef __RAD_SOLVER_H__
-#define __RAD_SOLVER_H__
+#ifndef __RADSOLVER_HPP__
+#define __RADSOLVER_HPP__
 #include <vector>
+#include <utility>
+#include <string>
+#include <Eigen/Dense>
 #include <TF1.h>
 #include <TGraphErrors.h>
 #include <TMatrixT.h>
@@ -11,7 +14,6 @@ struct RightPart {
   double ex;
   double ey;
 };
-
 
 class RadSolver {
  public:
@@ -36,7 +38,10 @@ class RadSolver {
   void enableStartPoint();
   void save(const std::string&);
 private:
-  void check();
+  Eigen::MatrixXd getEqMatrix () const;
+  double getX(int, int) const;
+  static std::pair<double, double> coeffs(double, double, double);
+  void check(); 
   bool _threshold;
   bool _start_point;
   double _threshold_energy;
@@ -46,10 +51,6 @@ private:
   TF1* _left_side_bcs;
   TMatrixT<double> _inverse_error_matrix;
   TMatrixT<double> _integral_operator_matrix;
-  TMatrixT<double> getEqMatrix () const;
-  double getX(int, int) const;
   std::vector<RightPart> _measured_cs_data;
 };
-
-
 #endif

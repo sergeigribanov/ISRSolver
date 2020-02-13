@@ -1,10 +1,9 @@
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <algorithm>
-#include <TVectorT.h>
 #include <TFile.h>
+#include "radiatorFadinKuraev.h"
 #include "RadSolver.h"
-#include "sigmaCoefficients.h"
 
 RadSolver::RadSolver() :
   _threshold(false),
@@ -24,89 +23,69 @@ double RadSolver::getX(int n, int i) const {
   return 1 - _measured_cs_data[i].s / _measured_cs_data[n].s;
 }
 
-TMatrixT<double> RadSolver::getEqMatrix () const {
+Eigen::MatrixXd RadSolver::getEqMatrix() const {
   int N = _measured_cs_data.size() - 1;
-  TMatrixT<double> A (N, N);
+  Eigen::MatrixXd matrix = Eigen::MatrixXd::Zero(N, N);
   for (int n = 1; n <= N; ++n) {
     double sn = _measured_cs_data[n].s;
     for (int i = 1; i <= n; ++i) {
-	double xm = getX (n, i - 1);
-	double xi = getX(n, i);
-	auto linc = getLinearSigmaCoeffs(xm, xi, sn, xm, xi);
-	A (n - 1 , i - 1) += linc [1];
-	if (i > 1) {
-	  A (n - 1 , i - 2) += linc [0];
-	}	
+      double xm = getX(n, i - 1);
+      double xi = getX(n, i);
+      auto linc = coeffs(xm, xi, sn);
+      matrix(n - 1 , i - 1) += linc.second;
+      if (i > 1) {
+	matrix(n - 1 , i - 2) += linc.first;
+      }	
     }
   }
-  return (-1.)* A;
+  return -matrix;
 }
 
 void RadSolver::solve() {
   check();
-  auto eqM = getEqMatrix ();
+  auto eqM = getEqMatrix();
   int N = _measured_cs_data.size() - 1;
-  TVectorT<double> ecm (N);
-  TVectorT<double> ecm_err (N);
-  TVectorT<double> cs (N);
-  TVectorT<double> cs_err (N);
-  TVectorT<double> vcs (N);
-  TVectorT<double> vcs_err (N);
-
+  Eigen::VectorXd ecm = Eigen::VectorXd::Zero(N);
+  Eigen::VectorXd ecm_err = Eigen::VectorXd::Zero(N);
+  Eigen::VectorXd mcs = Eigen::VectorXd::Zero(N);
+  Eigen::VectorXd mcs_err = Eigen::VectorXd::Zero(N);
+  Eigen::VectorXd cs;
+  Eigen::VectorXd cs_err;
+  std::function<double(double)> lsbcs =
+    [this](double s) {
+      return this->_left_side_bcs->Eval(std::sqrt(s));
+    };
+  double s_start = _start_point_enrgy * _start_point_enrgy;
+  double s_threshold = _threshold_energy * _threshold_energy;
   for (int i = 0; i < N; ++i) {
-    ecm (i) = sqrt(_measured_cs_data[i + 1].s);
-    ecm_err (i) = _measured_cs_data[i + 1].ex;
-    vcs (i) =  _measured_cs_data[i + 1].y;
-    vcs_err (i) = _measured_cs_data[i + 1].ey;
+    ecm(i) = sqrt(_measured_cs_data[i + 1].s);
+    ecm_err(i) = _measured_cs_data[i + 1].ex;
+    mcs(i) =  _measured_cs_data[i + 1].y;
+    if (_left_side_bcs) {
+      mcs(i) -= getFadinIntegral(_measured_cs_data[i + 1].s, lsbcs,
+				 1 - s_start / _measured_cs_data[i + 1].s,
+				 1 - s_threshold / _measured_cs_data[i + 1].s);
+    }
+    mcs_err(i) = _measured_cs_data[i + 1].ey;
   }
-
-  TMatrixT<double> eqMT (N, N);
-  eqMT.Transpose (eqM);
-  
-  TMatrixT<double> eqMI (N, N);
-  eqMI = eqM;
-  eqMI.Invert ();
-
-  cs = eqMI * vcs;
-
-  TMatrixT<double> Lam (N, N);
-  for (int i = 0; i < N; ++i) {
-    Lam (i, i) = 1. / vcs_err (i) / vcs_err (i);
-  }
-
-  _inverse_error_matrix.ResizeTo (N, N);
-  _inverse_error_matrix = eqMT * Lam * eqM;
-
-  _integral_operator_matrix.ResizeTo (N, N);
-  _integral_operator_matrix = eqM;
-
-  
-  TMatrixT<double> errM (N, N);
-
-  errM = _inverse_error_matrix;
-
-  errM.Invert();
-
-  for (int i = 0; i < N; ++i) {
-    cs_err (i) = sqrt(errM (i, i));
-  }
-  _born_cs =  TGraphErrors(N, ecm.GetMatrixArray(),
-			   cs.GetMatrixArray(),
-			   ecm_err.GetMatrixArray(),
-			   cs_err.GetMatrixArray());
+  cs = eqM.completeOrthogonalDecomposition().solve(mcs);
+  Eigen::MatrixXd lam = Eigen::MatrixXd::Zero(N, N);
+  lam.diagonal() = mcs_err.array().square().inverse();
+  Eigen::MatrixXd invErrM;
+  invErrM = eqM.transpose() * lam * eqM;
+  _inverse_error_matrix.ResizeTo(N, N);
+  _integral_operator_matrix.ResizeTo(N, N);
+  _integral_operator_matrix.SetMatrixArray(eqM.data());
+  _integral_operator_matrix.Transpose(_integral_operator_matrix);
+  _inverse_error_matrix.SetMatrixArray(invErrM.data());
+  _inverse_error_matrix.Transpose(_inverse_error_matrix);
+  cs_err = invErrM.inverse().diagonal().array().sqrt();
+  _born_cs =  TGraphErrors(N, ecm.data(), cs.data(),ecm_err.data(), cs_err.data());
 }
 
 void RadSolver::setMeasuredCrossSection(const TGraphErrors* graph) {
   const int N = graph->GetN();
   _measured_cs_data.resize(N + 1);
-  _measured_cs_data[0].s = _start_point_enrgy * _start_point_enrgy;
-  if (_left_side_bcs) {
-    _measured_cs_data[0].y = _left_side_bcs->Eval(_start_point_enrgy);
-  } else {
-    _measured_cs_data[0].y = 0;
-  }
-  _measured_cs_data[0].ex = 0;
-  _measured_cs_data[0].ey = 0;
   for (int i = 0; i < N; ++i) {
     double ecm = graph->GetX() [i];
     _measured_cs_data[i + 1].s = ecm * ecm;
@@ -240,4 +219,21 @@ void RadSolver::check() {
   if (_threshold && !_left_side_bcs) {
     _start_point_enrgy = _threshold_energy;
   }
+  _measured_cs_data[0].s = _start_point_enrgy * _start_point_enrgy;
+  if (_left_side_bcs) {
+    _measured_cs_data[0].y = _left_side_bcs->Eval(_start_point_enrgy);
+  } else {
+    _measured_cs_data[0].y = 0;
+  }
+  _measured_cs_data[0].ex = 0;
+  _measured_cs_data[0].ey = 0;
+}
+
+std::pair<double, double> RadSolver::coeffs(double xm, double xi, double s) {
+  double det = xm - xi;
+  double integral0 = radIntegral(s, xm, xi, 0);
+  double integral1 = radIntegral(s, xm, xi, 1);
+  double cm = (integral1 - xi * integral0) / det;
+  double ci = (-integral1 + xm * integral0) / det;
+  return std::make_pair(cm, ci);
 }

@@ -88,13 +88,20 @@ double getFadinConv(double x,
 
 double getFadinIntegral(double s,
                         const std::function<double(double)>& fcn,
-                        double max_x) {
+			double min_x,
+			double max_x) {
   std::function<double(double)> fcnConv = [s, &fcn] (double x) {
     return getFadinConv(x, s, fcn);
   };
   double error;
   double E = sqrt(s);
-  double part1 = getIntegralS(fcnConv, 0, 2 * ELECTRON_M / E, error);
-  double part2 = getIntegral(fcnConv, 2 * ELECTRON_M / E, max_x, error);
-  return part1 + part2;
+  double x0 = 2 * ELECTRON_M / E;
+  double result;
+  if (min_x < x0) {
+    result = getIntegralS(fcnConv, min_x, x0, error) +
+      getIntegral(fcnConv, x0, max_x, error);
+  } else {
+    result = getIntegral(fcnConv, min_x, max_x, error);
+  }
+  return result;
 }
