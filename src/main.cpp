@@ -29,7 +29,7 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
     ("thsd", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
     ("gname", po::value<std::string>(&(opts->gname))->default_value("mcs"),
      "Name of the measured cross section graph.")
-    ("lbcs", po::value<std::string>(&(opts->lbcs))->default_value("lbcs"),
+    ("lbcs", po::value<std::string>(&(opts->lbcs)),
      "Name of a TF1 object, which represents a left part of Born cross section "
      "if needed. The meaning of this function is the Bron cross section measured in "
      "previous experiments. Use this option, when you have Born cross section measurement, "
@@ -48,6 +48,18 @@ void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }
 
+template <class T>
+T* find_object(TFile* fl, const std::string& object_name) {
+  T* object = dynamic_cast<T*>(fl->Get(object_name.c_str()));
+  if (!object) {
+    std::cerr << "[!] Object with name \"" << object_name <<
+      "\" of class " << T::Class_Name() << " is not found in file " <<
+      fl->GetName() << std::endl;
+    exit(1);
+  }
+  return object;
+}
+
 int main(int argc, char* argv[]) {
   po::options_description desc("Allowed options:");
   CmdOptions opts;
@@ -59,12 +71,17 @@ int main(int argc, char* argv[]) {
     help(desc);
     return 0;
   }
-  auto fl0 = TFile::Open(opts.ifname.c_str(), "read");
-  auto measured_cs = reinterpret_cast<TGraphErrors*>(fl0->Get(opts.gname.c_str()));
+  auto fl = TFile::Open(opts.ifname.c_str(), "read");
+  auto measured_cs = find_object<TGraphErrors>(fl, opts.gname);
   RadSolver solver;
-  solver.setThresholdS(opts.thsd * opts.thsd);
+  solver.setThresholdEnergy(opts.thsd);
   solver.setMeasuredCrossSection(measured_cs);
-  fl0->Close();
+  if (vmap.count("lbcs")) {
+    auto left_side_bcs = find_object<TF1>(fl, opts.lbcs);
+    solver.setLeftSideOfBornCrossSection(left_side_bcs);
+  }
+  fl->Close();
+  delete fl;
   solver.solve();
   solver.save(opts.ofname);
   return 0;
