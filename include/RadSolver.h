@@ -14,15 +14,26 @@ struct RightPart {
 
 class RadSolver {
  public:
-  RadSolver(TGraphErrors*, double);
-  ~RadSolver();
-  TGraphErrors* getBornCS(TMatrixT<double>&,
-			  TMatrixT<double>&) const;
-  TGraphErrors* visible_cs;
- private:
+  RadSolver();
+  virtual ~RadSolver();
+  double getThresholdS() const;
+  const TGraphErrors& getBornCrossSection() const;
+  const TGraphErrors& getMeasuredCrossSection() const;
+  const TMatrixT<double>& getIntegralOeratorMatrix() const;
+  const TMatrixT<double>& getInverseErrorMatrix() const;
+  void solve();
+  void setThresholdS(double);
+  void setMeasuredCrossSection(TGraphErrors*);
+  void save(const std::string&);
+private:
+  double _s_threshold;
+  TGraphErrors _measured_cs;
+  TGraphErrors _born_cs;
+  TMatrixT<double> _inverse_error_matrix;
+  TMatrixT<double> _integral_operator_matrix;
   TMatrixT<double> getEqMatrix () const;
   double getX(int, int) const;
-  std::vector<RightPart> rightPart_;
+  std::vector<RightPart> _measured_cs_data;
 };
 
 

@@ -1,57 +1,26 @@
-#include "RadSolver.h"
-#include "sigmaCoefficients.h"
-#include <algorithm>
-#include "TVectorT.h"
 #include <math.h>
 #include <iostream>
+#include <algorithm>
+#include <TVectorT.h>
+#include <TFile.h>
+#include "RadSolver.h"
+#include "sigmaCoefficients.h"
 
-RadSolver::RadSolver(TGraphErrors* gr, double s_treshold) {
-  int N = gr->GetN();
-  rightPart_.resize(N + 1);
-  rightPart_[0].s_ = s_treshold;
-  rightPart_[0].y_ = 0;
-  rightPart_[0].ex_ = 0;
-  rightPart_[0].ey_ = 0;
-  for (int i = 0; i < N; ++i) {
-    double ecm = gr->GetX() [i];
-    rightPart_[i + 1].s_ = ecm * ecm;
-    rightPart_[i + 1].y_ = gr->GetY()[i];
-    rightPart_[i + 1].ex_ = gr->GetEX()[i];
-    rightPart_[i + 1].ey_ = gr->GetEY()[i];
-  }
-  std::sort(rightPart_.begin(),  rightPart_.end(), [](const RightPart& x,
-						      const RightPart& y) {
-	      return x.s_ < y.s_;
-	    });
-  double X[N];
-  double Y[N];
-  double EX[N];
-  double EY[N];
-  
-  for (int i = 0; i < N; ++i) {
-    X[i] = sqrt(rightPart_[i+1].s_);
-    Y[i] = rightPart_[i+1].y_;
-    EX[i] = rightPart_[i+1].ex_;
-    EY[i] = rightPart_[i+1].ey_;
-  }
-  visible_cs = new TGraphErrors (N, X, Y, 0, EY);
+RadSolver::RadSolver() : _s_threshold(0) {
 }
 
 RadSolver::~RadSolver() {
-  if (visible_cs != 0) {
-    delete visible_cs;
-  }
 }
 
 double RadSolver::getX(int n, int i) const {
-  return 1 - rightPart_[i].s_ / rightPart_[n].s_;
+  return 1 - _measured_cs_data[i].s_ / _measured_cs_data[n].s_;
 }
 
 TMatrixT<double> RadSolver::getEqMatrix () const {
-  int N = rightPart_.size() - 1;
+  int N = _measured_cs_data.size() - 1;
   TMatrixT<double> A (N, N);
   for (int n = 1; n <= N; ++n) {
-    double sn = rightPart_[n].s_;
+    double sn = _measured_cs_data[n].s_;
     for (int i = 1; i <= n; ++i) {
 	double xm = getX (n, i - 1);
 	double xi = getX(n, i);
@@ -65,10 +34,9 @@ TMatrixT<double> RadSolver::getEqMatrix () const {
   return (-1.)* A;
 }
 
-TGraphErrors* RadSolver::getBornCS(TMatrixT<double>& invErrM,
-				   TMatrixT<double>& integralOperatorMatrix) const {
+void RadSolver::solve() {
   auto eqM = getEqMatrix ();
-  int N = rightPart_.size() - 1;
+  int N = _measured_cs_data.size() - 1;
   TVectorT<double> ecm (N);
   TVectorT<double> ecm_err (N);
   TVectorT<double> cs (N);
@@ -77,10 +45,10 @@ TGraphErrors* RadSolver::getBornCS(TMatrixT<double>& invErrM,
   TVectorT<double> vcs_err (N);
 
   for (int i = 0; i < N; ++i) {
-    ecm (i) = sqrt (rightPart_[i + 1].s_);
-    ecm_err (i) = rightPart_[i + 1].ex_;
-    vcs (i) =  rightPart_[i + 1].y_;
-    vcs_err (i) = rightPart_[i + 1].ey_;
+    ecm (i) = sqrt (_measured_cs_data[i + 1].s_);
+    ecm_err (i) = _measured_cs_data[i + 1].ex_;
+    vcs (i) =  _measured_cs_data[i + 1].y_;
+    vcs_err (i) = _measured_cs_data[i + 1].ey_;
   }
 
   TMatrixT<double> eqMT (N, N);
@@ -97,16 +65,16 @@ TGraphErrors* RadSolver::getBornCS(TMatrixT<double>& invErrM,
     Lam (i, i) = 1. / vcs_err (i) / vcs_err (i);
   }
 
-  invErrM.ResizeTo (N, N);
-  invErrM = eqMT * Lam * eqM;
+  _inverse_error_matrix.ResizeTo (N, N);
+  _inverse_error_matrix = eqMT * Lam * eqM;
 
-  integralOperatorMatrix.ResizeTo (N, N);
-  integralOperatorMatrix = eqM;
+  _integral_operator_matrix.ResizeTo (N, N);
+  _integral_operator_matrix = eqM;
 
   
   TMatrixT<double> errM (N, N);
 
-  errM = invErrM;
+  errM = _inverse_error_matrix;
 
   errM.Invert();
 
@@ -114,10 +82,70 @@ TGraphErrors* RadSolver::getBornCS(TMatrixT<double>& invErrM,
     cs_err (i) = sqrt(errM (i, i));
   }
 
-  TGraphErrors* gr = new TGraphErrors(N, ecm.GetMatrixArray(),
-                                      cs.GetMatrixArray(),
-                                      ecm_err.GetMatrixArray(),
-                                      cs_err.GetMatrixArray());
-  
-  return gr;
+  _born_cs =  TGraphErrors(N, ecm.GetMatrixArray(),
+			   cs.GetMatrixArray(),
+			   ecm_err.GetMatrixArray(),
+			   cs_err.GetMatrixArray());
+}
+
+void RadSolver::setMeasuredCrossSection(TGraphErrors* graph) {
+  const int N = graph->GetN();
+  _measured_cs_data.resize(N + 1);
+  _measured_cs_data[0].s_ = _s_threshold;
+  _measured_cs_data[0].y_ = 0;
+  _measured_cs_data[0].ex_ = 0;
+  _measured_cs_data[0].ey_ = 0;
+  for (int i = 0; i < N; ++i) {
+    double ecm = graph->GetX() [i];
+    _measured_cs_data[i + 1].s_ = ecm * ecm;
+    _measured_cs_data[i + 1].y_ = graph->GetY()[i];
+    _measured_cs_data[i + 1].ex_ = graph->GetEX()[i];
+    _measured_cs_data[i + 1].ey_ = graph->GetEY()[i];
+  }
+  std::sort(_measured_cs_data.begin(),
+	    _measured_cs_data.end(),
+	    [](const RightPart& x, const RightPart& y)
+	    {return x.s_ < y.s_;});
+  _measured_cs.Set(0);
+  for (int i = 0; i < N; ++i) {
+    _measured_cs.SetPoint(i, sqrt(_measured_cs_data[i+1].s_),
+			  _measured_cs_data[i+1].y_);
+    _measured_cs.SetPointError(i, _measured_cs_data[i+1].ex_,
+			       _measured_cs_data[i+1].ey_);
+  }
+}
+
+const TGraphErrors& RadSolver::getBornCrossSection() const {
+  return _born_cs;
+}
+
+const TGraphErrors& RadSolver::getMeasuredCrossSection() const {
+  return _measured_cs;
+}
+
+const TMatrixT<double>& RadSolver::getIntegralOeratorMatrix() const {
+  return _integral_operator_matrix;
+}
+
+const TMatrixT<double>& RadSolver::getInverseErrorMatrix() const {
+  return _inverse_error_matrix;
+}
+
+void RadSolver::save(const std::string& path) {
+  auto fl = TFile::Open(path.c_str(), "recreate");
+  fl->cd();
+  _measured_cs.Write("measured_cs");
+  _born_cs.Write("born_cs");
+  _integral_operator_matrix.Write("integral_operator_matrix");
+  _inverse_error_matrix.Write("inverse_error_matrix");
+  fl->Close();
+  delete fl;
+}
+
+double RadSolver::getThresholdS() const {
+  return _s_threshold;
+}
+
+void RadSolver::setThresholdS(double s_threshold) {
+  _s_threshold = s_threshold;
 }
