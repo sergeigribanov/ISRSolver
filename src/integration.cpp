@@ -10,8 +10,8 @@ double wrapper(double x, void* fcnp) {
   return (*fp)(x);
 }
 
-double getIntegralS(std::function<double(double)>& fcn, double a, double b,
-                    double& error) {
+double integrateS(std::function<double(double)>& fcn, double a, double b,
+                  double& error) {
   int N = 100000;
   gsl_error_handler_t* old_handler = gsl_set_error_handler_off();
   gsl_integration_workspace* w = gsl_integration_workspace_alloc(N);
@@ -41,8 +41,8 @@ double getIntegralS(std::function<double(double)>& fcn, double a, double b,
   return result;
 }
 
-double getIntegral(std::function<double(double)>& fcn, double a, double b,
-                   double& error) {
+double integrate(std::function<double(double)>& fcn, double a, double b,
+                 double& error) {
   int N = 1000000;
   gsl_error_handler_t* old_handler = gsl_set_error_handler_off();
   gsl_integration_workspace* w = gsl_integration_workspace_alloc(N);

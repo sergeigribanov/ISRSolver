@@ -63,9 +63,10 @@ void RadSolver::solve() {
     ecm_err(i) = _measured_cs_data[i + 1].ex;
     mcs(i) = _measured_cs_data[i + 1].y;
     if (_left_side_bcs) {
-      mcs(i) -= getFadinIntegral(_measured_cs_data[i + 1].s, lsbcs,
-                                 1 - s_start / _measured_cs_data[i + 1].s,
-                                 1 - s_threshold / _measured_cs_data[i + 1].s);
+      mcs(i) -= kuraev_fadin_convolution(
+          _measured_cs_data[i + 1].s, lsbcs,
+          1 - s_start / _measured_cs_data[i + 1].s,
+          1 - s_threshold / _measured_cs_data[i + 1].s);
     }
     mcs_err(i) = _measured_cs_data[i + 1].ey;
   }
@@ -223,8 +224,8 @@ void RadSolver::check() {
 
 std::pair<double, double> RadSolver::coeffs(double xm, double xi, double s) {
   double det = xm - xi;
-  double integral0 = radIntegral(s, xm, xi, 0);
-  double integral1 = radIntegral(s, xm, xi, 1);
+  double integral0 = kuraev_fadin_polinomial_convolution(s, xm, xi, 0);
+  double integral1 = kuraev_fadin_polinomial_convolution(s, xm, xi, 1);
   double cm = (integral1 - xi * integral0) / det;
   double ci = (-integral1 + xm * integral0) / det;
   return std::make_pair(cm, ci);

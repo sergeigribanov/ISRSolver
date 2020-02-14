@@ -4,11 +4,11 @@
 
 #include <functional>
 
-double radIntegral(double, double, double, int);
+double kuraev_fadin_polinomial_convolution(double, double, double, int);
 
-double getFadinIntegral(double, const std::function<double(double)>&, double,
-                        double);
+double kuraev_fadin_convolution(double, const std::function<double(double)>&,
+                                double, double);
 
-double radiatorFadinKuraev(double, double);
+double kuraev_fadin_kernel(double, double);
 
 #endif

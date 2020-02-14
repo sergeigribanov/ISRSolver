@@ -11,7 +11,7 @@ double fLog(double s) { return std::log(s / ELECTRON_M / ELECTRON_M); }
 
 double fBeta(double s) { return (2 * ALPHA_QED) / M_PI * (fLog(s) - 1); }
 
-double radiatorFadinKuraev(double x, double s) {
+double kuraev_fadin_kernel(double x, double s) {
   double lnX = std::log(x);
   double mX = 1 - x;
   double lnMX = std::log(mX);
@@ -48,21 +48,22 @@ double radiatorFadinKuraev(double x, double s) {
   return res;
 }
 
-double polRadiator(double x, double s, int n) {
+double kernel_polinomial(double x, double s, int n) {
   if (n == 0) {
-    return radiatorFadinKuraev(x, s);
+    return kuraev_fadin_kernel(x, s);
   } else if (n == 1) {
-    return x * radiatorFadinKuraev(x, s);
+    return x * kuraev_fadin_kernel(x, s);
   } else if (n == 2) {
-    return x * x * radiatorFadinKuraev(x, s);
+    return x * x * kuraev_fadin_kernel(x, s);
   } else {
-    return std::pow(x, n) * radiatorFadinKuraev(x, s);
+    return std::pow(x, n) * kuraev_fadin_kernel(x, s);
   }
 }
 
-double radIntegral(double s, double min_x, double max_x, int n) {
+double kuraev_fadin_polinomial_convolution(double s, double min_x, double max_x,
+                                           int n) {
   std::function<double(double)> fcn = [s, n](double x) {
-    return polRadiator(x, s, n);
+    return kernel_polinomial(x, s, n);
   };
   double error;
   double part1;
@@ -70,34 +71,35 @@ double radIntegral(double s, double min_x, double max_x, int n) {
   double E = std::sqrt(s);
   double x1 = 2 * ELECTRON_M / E;
   if (min_x < x1) {
-    part1 = getIntegralS(fcn, min_x, x1, error);
-    part2 = getIntegral(fcn, x1, max_x, error);
+    part1 = integrateS(fcn, min_x, x1, error);
+    part2 = integrate(fcn, x1, max_x, error);
   } else {
     part1 = 0;
-    part2 = getIntegral(fcn, min_x, max_x, error);
+    part2 = integrate(fcn, min_x, max_x, error);
   }
   return part1 + part2;
 }
 
-double getFadinConv(double x, double s,
-                    const std::function<double(double)>& fcn) {
-  return fcn(s * (1 - x)) * radiatorFadinKuraev(x, s);
+double kuraev_fadin_kernel_multiplication(
+    double x, double s, const std::function<double(double)>& fcn) {
+  return fcn(s * (1 - x)) * kuraev_fadin_kernel(x, s);
 }
 
-double getFadinIntegral(double s, const std::function<double(double)>& fcn,
-                        double min_x, double max_x) {
+double kuraev_fadin_convolution(double s,
+                                const std::function<double(double)>& fcn,
+                                double min_x, double max_x) {
   std::function<double(double)> fcnConv = [s, &fcn](double x) {
-    return getFadinConv(x, s, fcn);
+    return kuraev_fadin_kernel_multiplication(x, s, fcn);
   };
   double error;
   double E = std::sqrt(s);
   double x0 = 2 * ELECTRON_M / E;
   double result;
   if (min_x < x0) {
-    result = getIntegralS(fcnConv, min_x, x0, error) +
-             getIntegral(fcnConv, x0, max_x, error);
+    result = integrateS(fcnConv, min_x, x0, error) +
+             integrate(fcnConv, x0, max_x, error);
   } else {
-    result = getIntegral(fcnConv, min_x, max_x, error);
+    result = integrate(fcnConv, min_x, max_x, error);
   }
   return result;
 }
