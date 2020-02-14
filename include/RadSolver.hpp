@@ -1,12 +1,13 @@
 #ifndef __RADSOLVER_HPP__
 #define __RADSOLVER_HPP__
-#include <vector>
-#include <utility>
-#include <string>
-#include <Eigen/Dense>
 #include <TF1.h>
 #include <TGraphErrors.h>
 #include <TMatrixT.h>
+
+#include <Eigen/Dense>
+#include <string>
+#include <utility>
+#include <vector>
 
 struct RightPart {
   double s;
@@ -37,11 +38,12 @@ class RadSolver {
   void disableStartPoint();
   void enableStartPoint();
   void save(const std::string&);
-private:
-  Eigen::MatrixXd getEqMatrix () const;
+
+ private:
+  Eigen::MatrixXd getEqMatrix() const;
   double getX(int, int) const;
   static std::pair<double, double> coeffs(double, double, double);
-  void check(); 
+  void check();
   bool _threshold;
   bool _start_point;
   double _threshold_energy;

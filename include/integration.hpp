@@ -1,5 +1,5 @@
-#ifndef __GET_INTEGRAL_H__
-#define __GET_INTEGRAL_H__
+#ifndef __INTEGRATION_HPP__
+#define __INTEGRATION_HPP__
 #include <functional>
 
 double getIntegral(std::function<double(double)>&, double, double, double&);

@@ -1,16 +1,15 @@
-#include <math.h>
+#include <TAxis.h>
+#include <TF1.h>
+#include <TFile.h>
+#include <TGraph.h>
+#include <TGraphErrors.h>
+
+#include <boost/program_options.hpp>
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <boost/program_options.hpp>
-#include <TFile.h>
-#include <TF1.h>
-#include <TGraph.h>
-#include <TGraphErrors.h>
-#include <radiatorFadinKuraev.h>
-#include <RadSolver.h>
-#include <TAxis.h>
 
+#include "RadSolver.hpp"
 namespace po = boost::program_options;
 
 typedef struct {
@@ -23,25 +22,32 @@ typedef struct {
 } CmdOptions;
 
 void setOptions(po::options_description* desc, CmdOptions* opts) {
-  desc->add_options()
-    ("help", "A simple tool, designed to find numerical"
-     "solution of the Kuraev-Fadin equation.")
-    ("thsd", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
-    ("gname", po::value<std::string>(&(opts->gname))->default_value("mcs"),
-     "Name of the measured cross section graph.")
-    ("lbcs", po::value<std::string>(&(opts->lbcs)),
-     "Name of a TF1 object, which represents a left part of Born cross section "
-     "if needed. The meaning of this function is the Bron cross section measured in "
-     "previous experiments. Use this option, when you have Born cross section measurement, "
-     "which is too far from threshold.")
-    ("spoint", po::value<double>(&(opts->spoint)),
-     "A value of a center-of-mass energy point, which is a start point for interpolation. "
-     "Use this paramer in case if the left part of cross section is represented by the data "
-     "obtained from the previous experiments.")
-    ("ifname", po::value<std::string>(&(opts->ifname))->default_value("mcs.root"),
-     "Path to input file.")
-    ("ofname", po::value<std::string>(&(opts->ofname))->default_value("bcs.root"),
-     "Path to output file.");
+  desc->add_options()("help",
+                      "A simple tool, designed to find numerical"
+                      "solution of the Kuraev-Fadin equation.")(
+      "thsd", po::value<double>(&(opts->thsd)), "Threshold (GeV).")(
+      "gname", po::value<std::string>(&(opts->gname))->default_value("mcs"),
+      "Name of the measured cross section graph.")(
+      "lbcs", po::value<std::string>(&(opts->lbcs)),
+      "Name of a TF1 object, which represents a left part of Born cross "
+      "section "
+      "if needed. The meaning of this function is the Bron cross section "
+      "measured in "
+      "previous experiments. Use this option, when you have Born cross section "
+      "measurement, "
+      "which is too far from threshold.")(
+      "spoint", po::value<double>(&(opts->spoint)),
+      "A value of a center-of-mass energy point, which is a start point for "
+      "interpolation. "
+      "Use this paramer in case if the left part of cross section is "
+      "represented by the data "
+      "obtained from the previous experiments.")(
+      "ifname",
+      po::value<std::string>(&(opts->ifname))->default_value("mcs.root"),
+      "Path to input file.")(
+      "ofname",
+      po::value<std::string>(&(opts->ofname))->default_value("bcs.root"),
+      "Path to output file.");
 }
 
 void help(const po::options_description& desc) {
@@ -52,9 +58,9 @@ template <class T>
 T* find_object(TFile* fl, const std::string& object_name) {
   T* object = dynamic_cast<T*>(fl->Get(object_name.c_str()));
   if (!object) {
-    std::cerr << "[!] Object with name \"" << object_name <<
-      "\" of class " << T::Class_Name() << " is not found in file " <<
-      fl->GetName() << std::endl;
+    std::cerr << "[!] Object with name \"" << object_name << "\" of class "
+              << T::Class_Name() << " is not found in file " << fl->GetName()
+              << std::endl;
     exit(1);
   }
   return object;
