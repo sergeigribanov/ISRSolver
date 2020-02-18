@@ -58,10 +58,11 @@ void RadSolver::solve() {
     {
       double e0 = this->getThresholdEnergy();
       double e1 = this->_left_side_bcs->GetXmin();
-      if (e0 < e1) { 
-	return this->_left_side_bcs->Eval(e0) * (std::sqrt(s) - e0) / (e1 - e0);
+      double en = std::sqrt(s);
+      if (e0 < e1 && en < e1) { 
+	return this->_left_side_bcs->Eval(e1) * (en - e0) / (e1 - e0);
       }
-      return this->_left_side_bcs->Eval(std::sqrt(s));
+      return this->_left_side_bcs->Eval(en);
   };
   double s_start = _start_point_energy * _start_point_energy;
   double s_threshold = _threshold_energy * _threshold_energy;
