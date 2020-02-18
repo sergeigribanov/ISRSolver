@@ -83,6 +83,9 @@ int main(int argc, char* argv[]) {
   solver.setThresholdEnergy(opts.thsd);
   solver.setMeasuredCrossSection(measured_cs);
   if (vmap.count("lbcs")) {
+    if (vmap.count("spoint")) {
+      solver.setStartPointEnergy(opts.spoint);
+    }
     auto left_side_bcs = find_object<TF1>(fl, opts.lbcs);
     solver.setLeftSideOfBornCrossSection(left_side_bcs);
   }

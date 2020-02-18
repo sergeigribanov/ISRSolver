@@ -12,7 +12,7 @@ RadSolver::RadSolver()
     : _threshold(false),
       _start_point(false),
       _threshold_energy(0),
-      _start_point_enrgy(0),
+      _start_point_energy(0),
       _left_side_bcs(nullptr) {}
 
 RadSolver::~RadSolver() {
@@ -56,7 +56,7 @@ void RadSolver::solve() {
   std::function<double(double)> lsbcs = [this](double s) {
     return this->_left_side_bcs->Eval(std::sqrt(s));
   };
-  double s_start = _start_point_enrgy * _start_point_enrgy;
+  double s_start = _start_point_energy * _start_point_energy;
   double s_threshold = _threshold_energy * _threshold_energy;
   for (int i = 0; i < N; ++i) {
     ecm(i) = sqrt(_measured_cs_data[i + 1].s);
@@ -65,8 +65,8 @@ void RadSolver::solve() {
     if (_left_side_bcs) {
       mcs(i) -= kuraev_fadin_convolution(
           _measured_cs_data[i + 1].s, lsbcs,
-          1 - s_start / _measured_cs_data[i + 1].s,
-          1 - s_threshold / _measured_cs_data[i + 1].s);
+          1 - s_threshold / _measured_cs_data[i + 1].s,
+          1 - s_start / _measured_cs_data[i + 1].s);
     }
     mcs_err(i) = _measured_cs_data[i + 1].ey;
   }
@@ -159,7 +159,7 @@ void RadSolver::disableStartPoint() { _start_point = false; }
 void RadSolver::enableStartPoint() { _start_point = true; }
 
 void RadSolver::setStartPointEnergy(double energy) {
-  _start_point_enrgy = energy;
+  _start_point_energy = energy;
   _start_point = true;
 }
 
@@ -189,15 +189,14 @@ void RadSolver::check() {
       }
     }
     if (!_start_point) {
-      _start_point_enrgy = _left_side_bcs->GetXmax();
+      _start_point_energy = _left_side_bcs->GetXmax();
     }
-
-    if (_start_point_enrgy <= _threshold_energy) {
+    if (_start_point_energy <= _threshold_energy) {
       std::cerr << "[!] Start energy can not be equal or lower than threshold."
                 << std::endl;
       exit(1);
     }
-    if (_start_point_enrgy > _left_side_bcs->GetXmax()) {
+    if (_start_point_energy > _left_side_bcs->GetXmax()) {
       std::cerr
           << "[!] Start energy can not be higher than threshold."
           << "than maximum X value of left side Born cross section function."
@@ -210,11 +209,11 @@ void RadSolver::check() {
     exit(1);
   }
   if (_threshold && !_left_side_bcs) {
-    _start_point_enrgy = _threshold_energy;
+    _start_point_energy = _threshold_energy;
   }
-  _measured_cs_data[0].s = _start_point_enrgy * _start_point_enrgy;
+  _measured_cs_data[0].s = _start_point_energy * _start_point_energy;
   if (_left_side_bcs) {
-    _measured_cs_data[0].y = _left_side_bcs->Eval(_start_point_enrgy);
+    _measured_cs_data[0].y = _left_side_bcs->Eval(_start_point_energy);
   } else {
     _measured_cs_data[0].y = 0;
   }

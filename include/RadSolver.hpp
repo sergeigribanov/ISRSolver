@@ -47,7 +47,7 @@ class RadSolver {
   bool _threshold;
   bool _start_point;
   double _threshold_energy;
-  double _start_point_enrgy;
+  double _start_point_energy;
   TGraphErrors _measured_cs;
   TGraphErrors _born_cs;
   TF1* _left_side_bcs;
