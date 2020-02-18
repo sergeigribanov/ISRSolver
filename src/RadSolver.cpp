@@ -53,8 +53,15 @@ void RadSolver::solve() {
   Eigen::VectorXd mcs_err = Eigen::VectorXd::Zero(N);
   Eigen::VectorXd cs;
   Eigen::VectorXd cs_err;
-  std::function<double(double)> lsbcs = [this](double s) {
-    return this->_left_side_bcs->Eval(std::sqrt(s));
+  std::function<double(double)> lsbcs =
+    [this](double s)
+    {
+      double e0 = this->getThresholdEnergy();
+      double e1 = this->_left_side_bcs->GetXmin();
+      if (e0 < e1) { 
+	return this->_left_side_bcs->Eval(e0) * (std::sqrt(s) - e0) / (e1 - e0);
+      }
+      return this->_left_side_bcs->Eval(std::sqrt(s));
   };
   double s_start = _start_point_energy * _start_point_energy;
   double s_threshold = _threshold_energy * _threshold_energy;
@@ -173,13 +180,6 @@ void RadSolver::check() {
     if (!_threshold) {
       _threshold_energy = _left_side_bcs->GetXmin();
     } else {
-      if (_threshold_energy < _left_side_bcs->GetXmin()) {
-        std::cerr
-            << "[!] Threshold energy can not be lower than minimum X value "
-               "of left side Born cross section function."
-            << std::endl;
-        exit(1);
-      }
       if (_threshold_energy >= _left_side_bcs->GetXmax()) {
         std::cerr
             << "[!] Threshold energy can not be equal or higher "
