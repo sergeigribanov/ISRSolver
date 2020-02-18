@@ -73,8 +73,8 @@ void RadSolver::solve() {
     if (_left_side_bcs) {
       mcs(i) -= kuraev_fadin_convolution(
           _measured_cs_data[i + 1].s, lsbcs,
-          1 - s_threshold / _measured_cs_data[i + 1].s,
-          1 - s_start / _measured_cs_data[i + 1].s);
+	  1 - s_start / _measured_cs_data[i + 1].s,
+          1 - s_threshold / _measured_cs_data[i + 1].s);
     }
     mcs_err(i) = _measured_cs_data[i + 1].ey;
   }
