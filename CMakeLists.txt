@@ -13,6 +13,9 @@ include(${ROOT_USE_FILE})
 find_package(GSL REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/convolution.cpp)
+file(GLOB CONV_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+list(REMOVE_ITEM CONV_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 add_executable(isrsolver ${SOURCES})
 target_include_directories(isrsolver
   PUBLIC
@@ -27,5 +30,19 @@ target_link_libraries(isrsolver
   Eigen3::Eigen
   ${Boost_LIBRARIES}
   ${ROOT_LIBRARIES})
-install(TARGETS isrsolver
-  RUNTIME DESTINATION bin)
+add_executable(isrconv ${CONV_SOURCES})
+target_include_directories(isrconv
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  PRIVATE
+  ${GSL_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIRS})
+target_link_libraries(isrconv
+  PRIVATE
+  GSL::gsl GSL::gslcblas
+  Eigen3::Eigen
+  ${Boost_LIBRARIES}
+  ${ROOT_LIBRARIES})
+install(TARGETS isrsolver DESTINATION bin)
+install(TARGETS isrconv DESTINATION bin)
