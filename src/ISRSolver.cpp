@@ -1,4 +1,4 @@
-#include "RadSolver.hpp"
+#include "ISRSolver.hpp"
 
 #include <TFile.h>
 
@@ -8,24 +8,24 @@
 
 #include "kuraev_fadin.hpp"
 
-RadSolver::RadSolver()
+ISRSolver::ISRSolver()
     : _threshold(false),
       _start_point(false),
       _threshold_energy(0),
       _start_point_energy(0),
       _left_side_bcs(nullptr) {}
 
-RadSolver::~RadSolver() {
+ISRSolver::~ISRSolver() {
   if (_left_side_bcs) {
     delete _left_side_bcs;
   }
 }
 
-double RadSolver::getX(int n, int i) const {
+double ISRSolver::getX(int n, int i) const {
   return 1 - _measured_cs_data[i].s / _measured_cs_data[n].s;
 }
 
-Eigen::MatrixXd RadSolver::getEqMatrix() const {
+Eigen::MatrixXd ISRSolver::getEqMatrix() const {
   int N = _measured_cs_data.size() - 1;
   Eigen::MatrixXd matrix = Eigen::MatrixXd::Zero(N, N);
   for (int n = 1; n <= N; ++n) {
@@ -43,7 +43,7 @@ Eigen::MatrixXd RadSolver::getEqMatrix() const {
   return -matrix;
 }
 
-void RadSolver::solve() {
+void ISRSolver::solve() {
   check();
   auto eqM = getEqMatrix();
   int N = _measured_cs_data.size() - 1;
@@ -94,7 +94,7 @@ void RadSolver::solve() {
       TGraphErrors(N, ecm.data(), cs.data(), ecm_err.data(), cs_err.data());
 }
 
-void RadSolver::setMeasuredCrossSection(const TGraphErrors* graph) {
+void ISRSolver::setMeasuredCrossSection(const TGraphErrors* graph) {
   const int N = graph->GetN();
   _measured_cs_data.resize(N + 1);
   for (int i = 0; i < N; ++i) {
@@ -115,28 +115,28 @@ void RadSolver::setMeasuredCrossSection(const TGraphErrors* graph) {
   }
 }
 
-void RadSolver::setLeftSideOfBornCrossSection(const TF1* lbcs) {
+void ISRSolver::setLeftSideOfBornCrossSection(const TF1* lbcs) {
   if (_left_side_bcs) {
     delete _left_side_bcs;
   }
   _left_side_bcs = dynamic_cast<TF1*>(lbcs->Clone("left_side_bcs"));
 }
 
-const TGraphErrors& RadSolver::getBornCrossSection() const { return _born_cs; }
+const TGraphErrors& ISRSolver::getBornCrossSection() const { return _born_cs; }
 
-const TGraphErrors& RadSolver::getMeasuredCrossSection() const {
+const TGraphErrors& ISRSolver::getMeasuredCrossSection() const {
   return _measured_cs;
 }
 
-const TMatrixT<double>& RadSolver::getIntegralOeratorMatrix() const {
+const TMatrixT<double>& ISRSolver::getIntegralOeratorMatrix() const {
   return _integral_operator_matrix;
 }
 
-const TMatrixT<double>& RadSolver::getInverseErrorMatrix() const {
+const TMatrixT<double>& ISRSolver::getInverseErrorMatrix() const {
   return _inverse_error_matrix;
 }
 
-void RadSolver::save(const std::string& path) {
+void ISRSolver::save(const std::string& path) {
   auto fl = TFile::Open(path.c_str(), "recreate");
   fl->cd();
   _measured_cs.Write("measured_cs");
@@ -147,31 +147,31 @@ void RadSolver::save(const std::string& path) {
   delete fl;
 }
 
-double RadSolver::getThresholdEnergy() const { return _threshold_energy; }
+double ISRSolver::getThresholdEnergy() const { return _threshold_energy; }
 
-void RadSolver::setThresholdEnergy(double energy) {
+void ISRSolver::setThresholdEnergy(double energy) {
   _threshold_energy = energy;
   _threshold = true;
 }
 
-bool RadSolver::isThresholdSEnabled() const { return _threshold; }
+bool ISRSolver::isThresholdSEnabled() const { return _threshold; }
 
-bool RadSolver::isStartSEnabled() const { return _start_point; }
+bool ISRSolver::isStartSEnabled() const { return _start_point; }
 
-void RadSolver::disableThreshold() { _threshold = false; }
+void ISRSolver::disableThreshold() { _threshold = false; }
 
-void RadSolver::enableThreshold() { _threshold = true; }
+void ISRSolver::enableThreshold() { _threshold = true; }
 
-void RadSolver::disableStartPoint() { _start_point = false; }
+void ISRSolver::disableStartPoint() { _start_point = false; }
 
-void RadSolver::enableStartPoint() { _start_point = true; }
+void ISRSolver::enableStartPoint() { _start_point = true; }
 
-void RadSolver::setStartPointEnergy(double energy) {
+void ISRSolver::setStartPointEnergy(double energy) {
   _start_point_energy = energy;
   _start_point = true;
 }
 
-void RadSolver::check() {
+void ISRSolver::check() {
   if (_threshold && _measured_cs.GetX()[0] <= _threshold_energy) {
     std::cerr << "[!] Energies can not be equal or lower than threshold."
               << std::endl;
@@ -222,7 +222,7 @@ void RadSolver::check() {
   _measured_cs_data[0].ey = 0;
 }
 
-std::pair<double, double> RadSolver::coeffs(double xm, double xi, double s) {
+std::pair<double, double> ISRSolver::coeffs(double xm, double xi, double s) {
   double det = xm - xi;
   double integral0 = kuraev_fadin_polinomial_convolution(s, xm, xi, 0);
   double integral1 = kuraev_fadin_polinomial_convolution(s, xm, xi, 1);

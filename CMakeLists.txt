@@ -12,15 +12,29 @@ find_package(ROOT REQUIRED COMPONENTS RIO Net Core)
 include(${ROOT_USE_FILE})
 find_package(GSL REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
+include_directories(${GSL_INCLUDE_DIR})
+include_directories(${Boost_INCLUDE_DIRS})
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/convolution.cpp)
-file(GLOB CONV_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-list(REMOVE_ITEM CONV_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
-add_executable(isrsolver ${SOURCES})
+file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/env.sh.in env.sh)
+add_library(isr SHARED ${SOURCES})
+target_include_directories(isr
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/ISRSolver>)
+target_link_libraries(isr
+  PRIVATE
+  GSL::gsl GSL::gslcblas
+  Eigen3::Eigen
+  ${Boost_LIBRARIES}
+  ${ROOT_LIBRARIES})
+add_executable(isrsolver ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 target_include_directories(isrsolver
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:include/ISRSolver>
   PRIVATE
   ${GSL_INCLUDE_DIR}
   ${Boost_INCLUDE_DIRS})
@@ -29,12 +43,12 @@ target_link_libraries(isrsolver
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
   ${Boost_LIBRARIES}
-  ${ROOT_LIBRARIES})
-add_executable(isrconv ${CONV_SOURCES})
+  ${ROOT_LIBRARIES} isr)
+add_executable(isrconv ${CMAKE_CURRENT_SOURCE_DIR}/src/convolution.cpp)
 target_include_directories(isrconv
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:include/ISRSolver>
   PRIVATE
   ${GSL_INCLUDE_DIR}
   ${Boost_INCLUDE_DIRS})
@@ -43,6 +57,33 @@ target_link_libraries(isrconv
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
   ${Boost_LIBRARIES}
-  ${ROOT_LIBRARIES})
+  ${ROOT_LIBRARIES} isr)
+set_target_properties(isr
+PROPERTIES
+PUBLIC_HEADER "${HEADERS}")
 install(TARGETS isrsolver DESTINATION bin)
 install(TARGETS isrconv DESTINATION bin)
+install(FILES ${PROJECT_BINARY_DIR}/env.sh DESTINATION bin)
+install(TARGETS isr
+  EXPORT ISRSolverTargets
+  LIBRARY DESTINATION lib
+  PUBLIC_HEADER DESTINATION include/ISRSolver)
+install(EXPORT ISRSolverTargets
+  FILE ISRSolverTargets.cmake
+  DESTINATION lib/cmake)
+include(CMakePackageConfigHelpers)
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/ISRSolverConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/ISRSolverConfig.cmake"
+  INSTALL_DESTINATION "lib/cmake/example"
+  NO_SET_AND_CHECK_MACRO
+  NO_CHECK_REQUIRED_COMPONENTS_MACRO)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/ISRSolverConfigVersion.cmake"
+  VERSION "${ISRSolver_VERSION_MAJOR}.${ISRSolver_VERSION_MINOR}"
+  COMPATIBILITY AnyNewerVersion)
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/ISRSolverConfig.cmake
+  DESTINATION lib/cmake)
+export(EXPORT ISRSolverTargets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/ISRSolverTargets.cmake")
+export(PACKAGE ISRSolver)

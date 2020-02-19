@@ -1,5 +1,5 @@
-#ifndef __RADSOLVER_HPP__
-#define __RADSOLVER_HPP__
+#ifndef __ISRSOLVER_HPP__
+#define __ISRSOLVER_HPP__
 #include <TF1.h>
 #include <TGraphErrors.h>
 #include <TMatrixT.h>
@@ -16,10 +16,10 @@ struct RightPart {
   double ey;
 };
 
-class RadSolver {
+class ISRSolver {
  public:
-  RadSolver();
-  virtual ~RadSolver();
+  ISRSolver();
+  virtual ~ISRSolver();
   double getThresholdEnergy() const;
   const TGraphErrors& getBornCrossSection() const;
   const TGraphErrors& getMeasuredCrossSection() const;

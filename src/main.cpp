@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 #include "utils.hpp"
-#include "RadSolver.hpp"
+#include "ISRSolver.hpp"
 namespace po = boost::program_options;
 
 typedef struct {
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
   }
   auto fl = TFile::Open(opts.ifname.c_str(), "read");
   auto measured_cs = find_object<TGraphErrors>(fl, opts.gname);
-  RadSolver solver;
+  ISRSolver solver;
   solver.setThresholdEnergy(opts.thsd);
   solver.setMeasuredCrossSection(measured_cs);
   if (vmap.count("lbcs")) {
