@@ -23,7 +23,7 @@ typedef struct {
 
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()("help",
-                      "A simple tool, designed to find numerical"
+                      "A simple tool designed in order to find numerical"
                       "solution of the Kuraev-Fadin equation.")(
       "thsd", po::value<double>(&(opts->thsd)), "Threshold (GeV).")(
       "gname", po::value<std::string>(&(opts->gname))->default_value("mcs"),
