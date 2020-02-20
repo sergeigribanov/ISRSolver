@@ -1,7 +1,5 @@
 #ifndef __KURAEV_FADIN_HPP__
 #define __KURAEV_FADIN_HPP__
-#include <TGraphErrors.h>
-
 #include <functional>
 
 double kuraev_fadin_polinomial_convolution(double, double, double, int);
