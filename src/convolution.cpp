@@ -1,6 +1,7 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include <functional>
 #include <TF1.h>
 #include <TFile.h>
@@ -17,8 +18,8 @@ typedef struct {
 
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()("help",
-                      "A simple tool, designed to find numerical"
-                      "solution of the Kuraev-Fadin equation.")(
+                  "A simple tool designed in order to find convolution of a Born cross section "
+		      "with the Kuraev-Fadin kernel.")(
       "thsd", po::value<double>(&(opts->thsd)), "Threshold (GeV).")(
       "fcn", po::value<std::string>(&(opts->fcn)),
       "fcn is a name of a function used to describe a Born cross section, "
@@ -64,7 +65,7 @@ int main(int argc, char* argv[]) {
       double s_threshold = opts.thsd * opts.thsd;
       return kuraev_fadin_convolution(s, born_fcn, 0, 1 - s_threshold / s);
     };
-  auto f_vcs = new TF1("f_vcs", vcs_fcn, fcn->GetXmin(), fcn->GetXmax(), 0);
+  auto f_vcs = new TF1("f_vcs", vcs_fcn, std::max(opts.thsd, fcn->GetXmin()), fcn->GetXmax(), 0);
   fl->Close();
   delete fl;
   auto fl_out = TFile::Open(opts.ofname.c_str(), "recreate");
