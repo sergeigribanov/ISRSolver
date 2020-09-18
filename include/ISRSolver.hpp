@@ -9,50 +9,63 @@
 #include <utility>
 #include <vector>
 
-struct RightPart {
-  double s;
-  double y;
-  double ex;
-  double ey;
-};
+typedef struct {
+  double cmEnergy;
+  double cs;
+  double cmEnergyError;
+  double csError;
+} CSData;
+
+typedef struct {
+  Eigen::VectorXd cmEnergy;
+  Eigen::VectorXd s;
+  Eigen::VectorXd cs;
+  Eigen::VectorXd cmEnergyError;
+  Eigen::MatrixXd invCSErrMatrix;
+} CSVecData;
+
+typedef struct {
+  std::size_t numCoeffs;
+  std::size_t nPointsLeft;
+} InterpPtSettings;
+
+typedef struct {
+  std::string measuredCSGraphName;
+  double thresholdEnergy;
+  bool energyUnitMeVs;
+} InputOptions;
+
+typedef struct {
+  std::string measuredCSGraphName;
+  std::string bornCSGraphName;
+} OutputOptions;
 
 class ISRSolver {
  public:
-  ISRSolver();
+  ISRSolver(const std::string& inputPath,
+	    const InputOptions& inputOpts);
   virtual ~ISRSolver();
-  double getThresholdEnergy() const;
-  const TGraphErrors& getBornCrossSection() const;
-  const TGraphErrors& getMeasuredCrossSection() const;
-  const TMatrixT<double>& getIntegralOeratorMatrix() const;
-  const TMatrixT<double>& getInverseErrorMatrix() const;
-  bool isThresholdSEnabled() const;
-  bool isStartSEnabled() const;
-  void solve();
-  void setThresholdEnergy(double);
-  void setStartPointEnergy(double);
-  void setStartPoint(double);
-  void setMeasuredCrossSection(const TGraphErrors*);
-  void setLeftSideOfBornCrossSection(const TF1*);
-  void disableThreshold();
-  void enableThreshold();
-  void disableStartPoint();
-  void enableStartPoint();
-  void save(const std::string&);
-
+  std::size_t getN() const;
+  // void solve();
+  // void save(const std::string& outputPath,
+  // 	    const OutputOptions& outputOpts);
+  void testPrint() const;
  private:
-  Eigen::MatrixXd getEqMatrix() const;
-  double getX(int, int) const;
-  static std::pair<double, double> coeffs(double, double, double);
-  void check();
-  bool _threshold;
-  bool _start_point;
-  double _threshold_energy;
-  double _start_point_energy;
-  TGraphErrors _measured_cs;
-  TGraphErrors _born_cs;
-  TF1* _left_side_bcs;
-  TMatrixT<double> _inverse_error_matrix;
-  TMatrixT<double> _integral_operator_matrix;
-  std::vector<RightPart> _measured_cs_data;
+  double getXmin(int) const;
+  double getXmax(int) const;
+  double getNumCoeffs(int) const;
+  double getNPointsLeft(int) const;
+  Eigen::MatrixXd permutation(int) const;
+  Eigen::MatrixXd interpInvMatrix(int) const;
+  Eigen::MatrixXd polConvKuraevFadinMatrix(int) const;
+  Eigen::MatrixXd evalA(int) const;
+  Eigen::MatrixXd evalEqMatrix() const;
+  void setDefaultInterpSettings();
+  InputOptions _inputOpts;
+  double _sT;
+  std::size_t _n;
+  std::vector<InterpPtSettings> _interpSettings;
+  CSVecData _measuredCSData;
+  std::vector<double> _xPoints;
 };
 #endif

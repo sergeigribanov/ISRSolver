@@ -48,38 +48,6 @@ double kuraev_fadin_kernel(double x, double s) {
   return res;
 }
 
-double kernel_polinomial(double x, double s, int n) {
-  if (n == 0) {
-    return kuraev_fadin_kernel(x, s);
-  } else if (n == 1) {
-    return x * kuraev_fadin_kernel(x, s);
-  } else if (n == 2) {
-    return x * x * kuraev_fadin_kernel(x, s);
-  } else {
-    return std::pow(x, n) * kuraev_fadin_kernel(x, s);
-  }
-}
-
-double kuraev_fadin_polinomial_convolution(double s, double min_x, double max_x,
-                                           int n) {
-  std::function<double(double)> fcn = [s, n](double x) {
-    return kernel_polinomial(x, s, n);
-  };
-  double error;
-  double part1;
-  double part2;
-  double E = std::sqrt(s);
-  double x1 = 2 * ELECTRON_M / E;
-  if (min_x < x1) {
-    part1 = integrateS(fcn, min_x, x1, error);
-    part2 = integrate(fcn, x1, max_x, error);
-  } else {
-    part1 = 0;
-    part2 = integrate(fcn, min_x, max_x, error);
-  }
-  return part1 + part2;
-}
-
 double kuraev_fadin_kernel_multiplication(
     double x, double s, const std::function<double(double)>& fcn) {
   return fcn(s * (1 - x)) * kuraev_fadin_kernel(x, s);

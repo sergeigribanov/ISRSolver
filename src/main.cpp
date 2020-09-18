@@ -65,21 +65,26 @@ int main(int argc, char* argv[]) {
     help(desc);
     return 0;
   }
-  auto fl = TFile::Open(opts.ifname.c_str(), "read");
-  auto measured_cs = find_object<TGraphErrors>(fl, opts.gname);
-  ISRSolver solver;
-  solver.setThresholdEnergy(opts.thsd);
-  solver.setMeasuredCrossSection(measured_cs);
-  if (vmap.count("lbcs")) {
-    if (vmap.count("spoint")) {
-      solver.setStartPointEnergy(opts.spoint);
-    }
-    auto left_side_bcs = find_object<TF1>(fl, opts.lbcs);
-    solver.setLeftSideOfBornCrossSection(left_side_bcs);
-  }
-  fl->Close();
-  delete fl;
-  solver.solve();
-  solver.save(opts.ofname);
+  ISRSolver solver(opts.ifname.c_str(),
+		   {.measuredCSGraphName = opts.gname,
+		    .thresholdEnergy = opts.thsd,
+		    .energyUnitMeVs = false});
+  solver.testPrint();
+  // auto fl = TFile::Open(opts.ifname.c_str(), "read");
+  // auto measured_cs = find_object<TGraphErrors>(fl, opts.gname);
+  // ISRSolver solver;
+  // solver.setThresholdEnergy(opts.thsd);
+  // solver.setMeasuredCrossSection(measured_cs);
+  // if (vmap.count("lbcs")) {
+  //   if (vmap.count("spoint")) {
+  //     solver.setStartPointEnergy(opts.spoint);
+  //   }
+  //   auto left_side_bcs = find_object<TF1>(fl, opts.lbcs);
+  //   solver.setLeftSideOfBornCrossSection(left_side_bcs);
+  // }
+  // fl->Close();
+  // delete fl;
+  // solver.solve();
+  // solver.save(opts.ofname);
   return 0;
 }
