@@ -35,7 +35,9 @@ typedef struct {
 } OutputOptions;
 
 typedef struct : std::exception {
-  const char* what() const noexcept {return "[!] Wrong size of interpolation settings vector.\n";}
+  const char* what() const noexcept {
+    return "[!] Wrong size of interpolation settings vector.\n";
+  }
 } InterpSettingsSizeException;
 
 #endif

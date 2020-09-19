@@ -8,8 +8,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include "utils.hpp"
+
 #include "ISRSolver.hpp"
+#include "utils.hpp"
 namespace po = boost::program_options;
 
 typedef struct {
@@ -51,18 +52,16 @@ int main(int argc, char* argv[]) {
     help(desc);
     return 0;
   }
-  ISRSolver solver(opts.ifname,
-		   {.measuredCSGraphName = opts.gname,
-		    .thresholdEnergy = opts.thsd,
-		    .energyUnitMeVs = false});
-  // std::vector<InterpPtSettings> interpSettings(30, {.numCoeffs = 5, .nPointsLeft = 2});
-  // interpSettings[0] = {.numCoeffs = 2, .nPointsLeft = 1};
+  ISRSolver solver(opts.ifname, {.measuredCSGraphName = opts.gname,
+                                 .thresholdEnergy = opts.thsd,
+                                 .energyUnitMeVs = false});
+  // std::vector<InterpPtSettings> interpSettings(30, {.numCoeffs = 5,
+  // .nPointsLeft = 2}); interpSettings[0] = {.numCoeffs = 2, .nPointsLeft = 1};
   // interpSettings[28] = {.numCoeffs = 3, .nPointsLeft = 1};
   // interpSettings[29] = {.numCoeffs = 2, .nPointsLeft = 1};
   // solver.setInterpSettings(interpSettings);
   solver.solve();
   solver.save(opts.ofname,
-	       {.measuredCSGraphName = opts.gname,
-		.bornCSGraphName = "bcs"});
+              {.measuredCSGraphName = opts.gname, .bornCSGraphName = "bcs"});
   return 0;
 }

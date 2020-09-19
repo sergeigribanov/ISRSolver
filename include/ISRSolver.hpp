@@ -1,10 +1,12 @@
 #ifndef __ISRSOLVER_HPP__
 #define __ISRSOLVER_HPP__
 
+#include <TF1.h>
+
+#include <Eigen/Dense>
 #include <string>
 #include <vector>
-#include <Eigen/Dense>
-#include <TF1.h>
+
 #include "ISRSolverStructs.hpp"
 
 class ISRSolver {
@@ -15,6 +17,7 @@ class ISRSolver {
   void solve();
   void save(const std::string& outputPath, const OutputOptions& outputOpts);
   void setInterpSettings(const std::vector<InterpPtSettings>&) noexcept(false);
+
  private:
   double getXmin(int, int) const;
   double getXmax(int, int) const;

@@ -65,7 +65,7 @@ double kuraev_fadin_convolution(double s,
   double result;
   if (min_x < x0) {
     result = integrateS(fcnConv, min_x, x0, error) +
-      integrate(fcnConv, x0, max_x, error);
+             integrate(fcnConv, x0, max_x, error);
   } else {
     result = integrate(fcnConv, min_x, max_x, error);
   }
