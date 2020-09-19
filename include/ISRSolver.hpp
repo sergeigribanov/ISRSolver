@@ -51,8 +51,8 @@ class ISRSolver {
   // 	    const OutputOptions& outputOpts);
   void testPrint() const;
  private:
-  double getXmin(int) const;
-  double getXmax(int) const;
+  double getXmin(int, int) const;
+  double getXmax(int, int) const;
   double getNumCoeffs(int) const;
   double getNPointsLeft(int) const;
   Eigen::MatrixXd permutation(int) const;
@@ -66,6 +66,5 @@ class ISRSolver {
   std::size_t _n;
   std::vector<InterpPtSettings> _interpSettings;
   CSVecData _measuredCSData;
-  std::vector<double> _xPoints;
 };
 #endif
