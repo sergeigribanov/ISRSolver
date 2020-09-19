@@ -28,20 +28,6 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
       "thsd", po::value<double>(&(opts->thsd)), "Threshold (GeV).")(
       "gname", po::value<std::string>(&(opts->gname))->default_value("mcs"),
       "Name of the measured cross section graph.")(
-      "lbcs", po::value<std::string>(&(opts->lbcs)),
-      "Name of a TF1 object, which represents a left part of Born cross "
-      "section "
-      "if needed. The meaning of this function is the Bron cross section "
-      "measured in "
-      "previous experiments. Use this option, when you have Born cross section "
-      "measurement, "
-      "which is too far from threshold.")(
-      "spoint", po::value<double>(&(opts->spoint)),
-      "A value of a center-of-mass energy point, which is a start point for "
-      "interpolation. "
-      "Use this paramer in case if the left part of cross section is "
-      "represented by the data "
-      "obtained from the previous experiments.")(
       "ifname",
       po::value<std::string>(&(opts->ifname))->default_value("mcs.root"),
       "Path to input file.")(
@@ -65,26 +51,18 @@ int main(int argc, char* argv[]) {
     help(desc);
     return 0;
   }
-  ISRSolver solver(opts.ifname.c_str(),
+  ISRSolver solver(opts.ifname,
 		   {.measuredCSGraphName = opts.gname,
 		    .thresholdEnergy = opts.thsd,
 		    .energyUnitMeVs = false});
-  solver.testPrint();
-  // auto fl = TFile::Open(opts.ifname.c_str(), "read");
-  // auto measured_cs = find_object<TGraphErrors>(fl, opts.gname);
-  // ISRSolver solver;
-  // solver.setThresholdEnergy(opts.thsd);
-  // solver.setMeasuredCrossSection(measured_cs);
-  // if (vmap.count("lbcs")) {
-  //   if (vmap.count("spoint")) {
-  //     solver.setStartPointEnergy(opts.spoint);
-  //   }
-  //   auto left_side_bcs = find_object<TF1>(fl, opts.lbcs);
-  //   solver.setLeftSideOfBornCrossSection(left_side_bcs);
-  // }
-  // fl->Close();
-  // delete fl;
-  // solver.solve();
-  // solver.save(opts.ofname);
+  // std::vector<InterpPtSettings> interpSettings(30, {.numCoeffs = 5, .nPointsLeft = 2});
+  // interpSettings[0] = {.numCoeffs = 2, .nPointsLeft = 1};
+  // interpSettings[28] = {.numCoeffs = 3, .nPointsLeft = 1};
+  // interpSettings[29] = {.numCoeffs = 2, .nPointsLeft = 1};
+  // solver.setInterpSettings(interpSettings);
+  solver.solve();
+  solver.save(opts.ofname,
+	       {.measuredCSGraphName = opts.gname,
+		.bornCSGraphName = "bcs"});
   return 0;
 }

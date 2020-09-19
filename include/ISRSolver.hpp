@@ -1,55 +1,20 @@
 #ifndef __ISRSOLVER_HPP__
 #define __ISRSOLVER_HPP__
-#include <TF1.h>
-#include <TGraphErrors.h>
-#include <TMatrixT.h>
 
-#include <Eigen/Dense>
 #include <string>
-#include <utility>
 #include <vector>
-
-typedef struct {
-  double cmEnergy;
-  double cs;
-  double cmEnergyError;
-  double csError;
-} CSData;
-
-typedef struct {
-  Eigen::VectorXd cmEnergy;
-  Eigen::VectorXd s;
-  Eigen::VectorXd cs;
-  Eigen::VectorXd cmEnergyError;
-  Eigen::MatrixXd invCSErrMatrix;
-} CSVecData;
-
-typedef struct {
-  std::size_t numCoeffs;
-  std::size_t nPointsLeft;
-} InterpPtSettings;
-
-typedef struct {
-  std::string measuredCSGraphName;
-  double thresholdEnergy;
-  bool energyUnitMeVs;
-} InputOptions;
-
-typedef struct {
-  std::string measuredCSGraphName;
-  std::string bornCSGraphName;
-} OutputOptions;
+#include <Eigen/Dense>
+#include <TF1.h>
+#include "ISRSolverStructs.hpp"
 
 class ISRSolver {
  public:
-  ISRSolver(const std::string& inputPath,
-	    const InputOptions& inputOpts);
+  ISRSolver(const std::string& inputPath, const InputOptions& inputOpts);
   virtual ~ISRSolver();
   std::size_t getN() const;
-  // void solve();
-  // void save(const std::string& outputPath,
-  // 	    const OutputOptions& outputOpts);
-  void testPrint() const;
+  void solve();
+  void save(const std::string& outputPath, const OutputOptions& outputOpts);
+  void setInterpSettings(const std::vector<InterpPtSettings>&) noexcept(false);
  private:
   double getXmin(int, int) const;
   double getXmax(int, int) const;
@@ -60,11 +25,15 @@ class ISRSolver {
   Eigen::MatrixXd polConvKuraevFadinMatrix(int) const;
   Eigen::MatrixXd evalA(int) const;
   Eigen::MatrixXd evalEqMatrix() const;
+  TF1* createInterpFunction() const;
   void setDefaultInterpSettings();
   InputOptions _inputOpts;
   double _sT;
   std::size_t _n;
   std::vector<InterpPtSettings> _interpSettings;
   CSVecData _measuredCSData;
+  Eigen::MatrixXd _integralOperatorMatrix;
+  Eigen::VectorXd _bornCS;
+  Eigen::MatrixXd _invBornCSErrorMatrix;
 };
 #endif

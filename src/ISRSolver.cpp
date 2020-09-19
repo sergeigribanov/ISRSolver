@@ -1,17 +1,11 @@
-#include "ISRSolver.hpp"
-
-#include <TFile.h>
-#include <TF1.h>
-#include <TGraph.h>
-#include <TRandom.h>
-
+#include <cmath>
 #include <functional>
 #include <algorithm>
-#include <cmath>
-#include <iostream>
-#include <Eigen/Core>
-
+#include <TFile.h>
+#include <TMatrixD.h>
+#include <TGraphErrors.h>
 #include "kuraev_fadin.hpp"
+#include "ISRSolver.hpp"
 
 ISRSolver::ISRSolver(const std::string& inputPath,
 		     const InputOptions& inputOpts) :
@@ -36,6 +30,7 @@ ISRSolver::ISRSolver(const std::string& inputPath,
 	.cmEnergyError = graph->GetEX()[i] * energyKoeff,
 	.csError = graph->GetEY()[i]});
   fl->Close();
+  delete fl;
   std::sort(measuredCS.begin(), measuredCS.end(),
 	    [](const CSData& x, const CSData& y)
 	    {return x.cmEnergy < y.cmEnergy;});
@@ -76,13 +71,9 @@ ISRSolver::ISRSolver(const std::string& inputPath,
 
 ISRSolver::~ISRSolver() {}
 
-void ISRSolver::testPrint() const {
-  Eigen::VectorXd y(getN());
-  for (std::size_t i = 0; i < _n; ++i) {
-    y(i) = gRandom->Gaus(std::sin(10. * (_measuredCSData.cmEnergy(i) - _inputOpts.thresholdEnergy)), 1.e-1);
-  }
+TF1* ISRSolver::createInterpFunction() const {
   std::function<double(double*, double*)> fcn = 
-    [this, y](double* x, double* par) {
+    [this](double* x, double* par) {
       double en = x[0];
       if (en <= _inputOpts.thresholdEnergy)
 	return 0.;
@@ -100,21 +91,16 @@ void ISRSolver::testPrint() const {
       
       Eigen::VectorXd coeffs =
 	this->interpInvMatrix(i) *
-	this->permutation(i) * y;
+	this->permutation(i) * this->_bornCS;
       double result = 0;
       for (int k = 0; k < coeffs.size(); ++k)
 	result += coeffs(k) * std::pow(en * en, k);
       return result;
     };
-  auto f1 = new TF1("f1", fcn, 1.19, 2., 0);
-  f1->SetNpx(1000);
-  TGraph gr(this->getN(), _measuredCSData.cmEnergy.data(), y.data());
-  auto fl = TFile::Open("test.root", "recreate");
-  fl->cd();
-  f1->Write("f1");
-  gr.Write("gr");
-  fl->Close();
-  std::cout << evalEqMatrix() << std::endl;
+  auto f1 = new TF1("interpFCN", fcn, this->_inputOpts.thresholdEnergy,
+		    this->_measuredCSData.cmEnergy(getN() - 1), 0);
+  f1->SetNpx(1.e+4);
+  return f1;
 }
 
 double ISRSolver::getXmin(int i, int j) const {
@@ -133,10 +119,14 @@ std::size_t ISRSolver::getN() const {
 
 void ISRSolver::setDefaultInterpSettings() {
   _interpSettings.resize(_n, {.numCoeffs = 2, .nPointsLeft = 1});
-  // _interpSettings.resize(_n, {.numCoeffs = 5, .nPointsLeft = 2});
-  // _interpSettings[0] = {.numCoeffs = 2, .nPointsLeft = 1};
-  // _interpSettings[_n - 2] = {.numCoeffs = 3, .nPointsLeft = 1};
-  // _interpSettings[_n - 1] = {.numCoeffs = 2, .nPointsLeft = 1};
+}
+
+void ISRSolver::setInterpSettings(const std::vector<InterpPtSettings>& interpSettings) {
+  if (interpSettings.size() != getN()) {
+    InterpSettingsSizeException ex;
+    throw ex;
+  }
+  _interpSettings = interpSettings;
 }
 
 double ISRSolver::getNumCoeffs(int j) const {
@@ -188,8 +178,6 @@ Eigen::MatrixXd ISRSolver::polConvKuraevFadinMatrix(int j) const {
       return std::pow(t, k);
     };
   for (std::size_t i = j; i < getN(); ++i) {
-    // std::cout << "xmin(" << i << ", " << j << ") = " << getXmin(i, j) << std::endl;
-    // std::cout << "xmax(" << i << ", " << j << ") = " << getXmax(i, j) << std::endl;
     for (k = 0; k < nc; ++k) {
       result(i, k) = 
 	kuraev_fadin_convolution(_measuredCSData.s(i), fcn, getXmin(i, j), getXmax(i, j));
@@ -205,14 +193,10 @@ Eigen::MatrixXd ISRSolver::evalA(int j) const {
 Eigen::MatrixXd ISRSolver::evalEqMatrix() const {
   std::vector<Eigen::MatrixXd> ai;
   ai.reserve(getN());
-  Eigen::MatrixXd tmpM;
+  Eigen::MatrixXd tmpV = Eigen::MatrixXd::Zero(getN(), getN());
   for (std::size_t i = 0; i < getN(); ++i) {
-    if (i == 0) {
-      tmpM = evalA(i);
-    } else {
-      tmpM += evalA(i);
-    }
-    ai.push_back(tmpM);
+    tmpV += evalA(i);
+    ai.push_back(tmpV);
   }
   Eigen::MatrixXd result = Eigen::MatrixXd::Zero(getN(), getN());
   for (std::size_t i = 0; i < getN(); ++i) {
@@ -223,75 +207,39 @@ Eigen::MatrixXd ISRSolver::evalEqMatrix() const {
   return result;
 }
 
-// void ISRSolver::solve() { 
-//   auto eqM = getEqMatrix();
-//   int N = _measured_cs_data.size() - 1;
-//   Eigen::VectorXd ecm = Eigen::VectorXd::Zero(N);
-//   Eigen::VectorXd ecm_err = Eigen::VectorXd::Zero(N);
-//   Eigen::VectorXd mcs = Eigen::VectorXd::Zero(N);
-//   Eigen::VectorXd mcs_err = Eigen::VectorXd::Zero(N);
-//   Eigen::VectorXd cs;
-//   Eigen::VectorXd cs_err;
-//   std::function<double(double)> lsbcs =
-//     [this](double s)
-//     {
-//       double e0 = this->getThresholdEnergy();
-//       double e1 = this->_left_side_bcs->GetXmin();
-//       double en = std::sqrt(s);
-//       if (e0 < e1 && en < e1) { 
-// 	return this->_left_side_bcs->Eval(e1) * (en - e0) / (e1 - e0);
-//       }
-//       return this->_left_side_bcs->Eval(en);
-//   };
-//   double s_start = _start_point_energy * _start_point_energy;
-//   double s_threshold = _threshold_energy * _threshold_energy;
-//   for (int i = 0; i < N; ++i) {
-//     ecm(i) = sqrt(_measured_cs_data[i + 1].s);
-//     ecm_err(i) = _measured_cs_data[i + 1].ex;
-//     mcs(i) = _measured_cs_data[i + 1].y;
-//     if (_left_side_bcs) {
-//       mcs(i) -= kuraev_fadin_convolution(
-//           _measured_cs_data[i + 1].s, lsbcs,
-// 	  1 - s_start / _measured_cs_data[i + 1].s,
-//           1 - s_threshold / _measured_cs_data[i + 1].s);
-//     }
-//     mcs_err(i) = _measured_cs_data[i + 1].ey;
-//   }
-//   cs = eqM.completeOrthogonalDecomposition().solve(mcs);
-//   Eigen::MatrixXd lam = Eigen::MatrixXd::Zero(N, N);
-//   lam.diagonal() = mcs_err.array().square().inverse();
-//   Eigen::MatrixXd invErrM;
-//   invErrM = eqM.transpose() * lam * eqM;
-//   _inverse_error_matrix.ResizeTo(N, N);
-//   _integral_operator_matrix.ResizeTo(N, N);
-//   _integral_operator_matrix.SetMatrixArray(eqM.data());
-//   _integral_operator_matrix.Transpose(_integral_operator_matrix);
-//   _inverse_error_matrix.SetMatrixArray(invErrM.data());
-//   _inverse_error_matrix.Transpose(_inverse_error_matrix);
-//   cs_err = invErrM.inverse().diagonal().array().sqrt();
-//   _born_cs =
-//       TGraphErrors(N, ecm.data(), cs.data(), ecm_err.data(), cs_err.data());
-// }
+void ISRSolver::solve() {
+  _integralOperatorMatrix = evalEqMatrix();
+  _bornCS = _integralOperatorMatrix.completeOrthogonalDecomposition().solve(_measuredCSData.cs);
+  _invBornCSErrorMatrix = _integralOperatorMatrix.transpose() * _measuredCSData.invCSErrMatrix *
+    _integralOperatorMatrix;
+}
 
-
-// void ISRSolver::save(const std::string& path) {
-//   auto fl = TFile::Open(path.c_str(), "recreate");
-//   fl->cd();
-//   _measured_cs.Write("measured_cs");
-//   _born_cs.Write("born_cs");
-//   _integral_operator_matrix.Write("integral_operator_matrix");
-//   _inverse_error_matrix.Write("inverse_error_matrix");
-//   fl->Close();
-//   delete fl;
-// }
-
-
-
-// std::pair<double, double> ISRSolver::coeffs(double xm, double xi, double s) {
-//   double det = xm - xi;
-//   double integral0 = kuraev_fadin_polinomial_convolution(s, xm, xi, 0);
-//   double integral1 = kuraev_fadin_polinomial_convolution(s, xm, xi, 1);
-//   double cm = (integral1 - xi * integral0) / det;
-//   double ci = (-integral1 + xm * integral0) / det;
-//   return std::make_pair(cm, ci);
-// }
+void ISRSolver::save(const std::string& outputPath, const OutputOptions& outputOpts) {
+  Eigen::VectorXd bornCSError = _invBornCSErrorMatrix.diagonal().array().pow(-0.5);
+  Eigen::VectorXd measuredCSError =
+    _measuredCSData.invCSErrMatrix.diagonal().array().pow(-0.5);
+  TGraphErrors vcs(getN(), _measuredCSData.cmEnergy.data(),
+		   _measuredCSData.cs.data(),
+		   _measuredCSData.cmEnergyError.data(),
+		   measuredCSError.data());
+  TGraphErrors bcs(getN(), _measuredCSData.cmEnergy.data(),
+		   _bornCS.data(), _measuredCSData.cmEnergyError.data(),
+		   bornCSError.data());
+  TMatrixD intergalOperatorMatrix(getN(), getN());
+  Eigen::MatrixXd tmpIntOpM = _integralOperatorMatrix.transpose();
+  intergalOperatorMatrix.SetMatrixArray(tmpIntOpM.data());
+  TMatrixD bornCSInverseErrorMatrix(getN(), getN());
+  Eigen::MatrixXd tmpInvErrM = _invBornCSErrorMatrix.transpose();
+  bornCSInverseErrorMatrix.SetMatrixArray(tmpInvErrM.data());
+  auto f1 = createInterpFunction();
+  auto fl = TFile::Open(outputPath.c_str(), "recreate");
+  fl->cd();
+  vcs.Write(outputOpts.measuredCSGraphName.c_str());
+  bcs.Write(outputOpts.bornCSGraphName.c_str());
+  intergalOperatorMatrix.Write("intergalOperatorMatrix");
+  bornCSInverseErrorMatrix.Write("bornCSInverseErrorMatrix");
+  f1->Write();
+  fl->Close();
+  delete f1;
+  delete fl;
+}
