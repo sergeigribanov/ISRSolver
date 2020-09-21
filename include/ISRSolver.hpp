@@ -17,6 +17,7 @@ class ISRSolver {
   void solve();
   void save(const std::string& outputPath, const OutputOptions& outputOpts);
   void setInterpSettings(const std::vector<InterpPtSettings>&) noexcept(false);
+  void setInterpSettings(const std::string&) noexcept(false);
 
  private:
   double getXmin(int, int) const;

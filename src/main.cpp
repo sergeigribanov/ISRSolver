@@ -20,6 +20,7 @@ typedef struct {
   std::string lbcs;
   std::string ifname;
   std::string ofname;
+  std::string interp;
 } CmdOptions;
 
 void setOptions(po::options_description* desc, CmdOptions* opts) {
@@ -34,7 +35,8 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
       "Path to input file.")(
       "ofname",
       po::value<std::string>(&(opts->ofname))->default_value("bcs.root"),
-      "Path to output file.");
+      "Path to output file.")("interp", po::value<std::string>(&(opts->interp)),
+                              "Path to JSON file with interpolation settings.");
 }
 
 void help(const po::options_description& desc) {
@@ -55,11 +57,9 @@ int main(int argc, char* argv[]) {
   ISRSolver solver(opts.ifname, {.measuredCSGraphName = opts.gname,
                                  .thresholdEnergy = opts.thsd,
                                  .energyUnitMeVs = false});
-  // std::vector<InterpPtSettings> interpSettings(30, {.numCoeffs = 5,
-  // .nPointsLeft = 2}); interpSettings[0] = {.numCoeffs = 2, .nPointsLeft = 1};
-  // interpSettings[28] = {.numCoeffs = 3, .nPointsLeft = 1};
-  // interpSettings[29] = {.numCoeffs = 2, .nPointsLeft = 1};
-  // solver.setInterpSettings(interpSettings);
+  if (vmap.count("interp")) {
+    solver.setInterpSettings(opts.interp);
+  }
   solver.solve();
   solver.save(opts.ofname,
               {.measuredCSGraphName = opts.gname, .bornCSGraphName = "bcs"});

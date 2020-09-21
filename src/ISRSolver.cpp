@@ -5,10 +5,16 @@
 #include <TMatrixD.h>
 
 #include <algorithm>
+#include <boost/lexical_cast.hpp>
 #include <cmath>
+#include <fstream>
 #include <functional>
+#include <nlohmann/json.hpp>
+#include <set>
 
 #include "kuraev_fadin.hpp"
+
+using json = nlohmann::json;
 
 ISRSolver::ISRSolver(const std::string& inputPath,
                      const InputOptions& inputOpts)
@@ -104,6 +110,26 @@ void ISRSolver::setDefaultInterpSettings() {
 void ISRSolver::setInterpSettings(
     const std::vector<InterpPtSettings>& interpSettings) {
   if (interpSettings.size() != getN()) {
+    InterpSettingsSizeException ex;
+    throw ex;
+  }
+  _interpSettings = interpSettings;
+}
+
+void ISRSolver::setInterpSettings(const std::string& pathToJSON) {
+  std::ifstream fl(pathToJSON);
+  json s;
+  fl >> s;
+  std::vector<InterpPtSettings> interpSettings(getN());
+  std::set<std::size_t> keys;
+  std::size_t key;
+  for (const auto& el : s.items()) {
+    key = boost::lexical_cast<std::size_t>(el.key());
+    keys.insert(key);
+    interpSettings[key] = {.numCoeffs = el.value()[0],
+                           .nPointsLeft = el.value()[1]};
+  }
+  if (keys.size() != getN()) {
     InterpSettingsSizeException ex;
     throw ex;
   }

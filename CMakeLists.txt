@@ -12,6 +12,7 @@ find_package(ROOT REQUIRED COMPONENTS RIO Net Core)
 include(${ROOT_USE_FILE})
 find_package(GSL REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
+find_package(nlohmann_json REQUIRED)
 include_directories(${GSL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
@@ -29,7 +30,8 @@ target_link_libraries(isr
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
   ${Boost_LIBRARIES}
-  ${ROOT_LIBRARIES})
+  ${ROOT_LIBRARIES}
+  nlohmann_json::nlohmann_json)
 add_executable(isrsolver ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 target_include_directories(isrsolver
   PUBLIC
@@ -43,7 +45,9 @@ target_link_libraries(isrsolver
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
   ${Boost_LIBRARIES}
-  ${ROOT_LIBRARIES} isr)
+  ${ROOT_LIBRARIES}
+  nlohmann_json::nlohmann_json
+  isr)
 add_executable(isrconv ${CMAKE_CURRENT_SOURCE_DIR}/src/convolution.cpp)
 target_include_directories(isrconv
   PUBLIC
@@ -57,7 +61,9 @@ target_link_libraries(isrconv
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
   ${Boost_LIBRARIES}
-  ${ROOT_LIBRARIES} isr)
+  ${ROOT_LIBRARIES}
+  nlohmann_json::nlohmann_json
+  isr)
 set_target_properties(isr
 PROPERTIES
 PUBLIC_HEADER "${HEADERS}")
