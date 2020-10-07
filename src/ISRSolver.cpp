@@ -91,6 +91,17 @@ TF1* ISRSolver::createInterpFunction() const {
   return f1;
 }
 
+TF1* ISRSolver::createDerivativeInterpFunction(unsigned p, const std::string& name) const {
+  std::function<double(double*, double*)> fcn = [p, this](double* x, double* par) {
+    double en = x[0];
+    return this->interpDerivativeProjector(en, p) * this->_bornCS;
+  };
+  auto f1 = new TF1(name.c_str(), fcn, _inputOpts.thresholdEnergy,
+                    _measuredCSData.cmEnergy(getN() - 1), 0);
+  f1->SetNpx(1.e+4);
+  return f1;
+}
+
 double ISRSolver::getXmin(int i, int j) const {
   return 1 - _measuredCSData.s(j) / _measuredCSData.s(i);
 }
@@ -236,16 +247,25 @@ void ISRSolver::save(const std::string& outputPath,
   TMatrixD bornCSInverseErrorMatrix(getN(), getN());
   Eigen::MatrixXd tmpInvErrM = _invBornCSErrorMatrix.transpose();
   bornCSInverseErrorMatrix.SetMatrixArray(tmpInvErrM.data());
-  auto f1 = createInterpFunction();
+  auto f0 = createInterpFunction();
+  auto f1 = createDerivativeInterpFunction(1, "interp1DivFCN");
+  auto f2 = createDerivativeInterpFunction(2, "interp2DivFCN");
+  auto f3 = createDerivativeInterpFunction(3, "interp3DivFCN");
   auto fl = TFile::Open(outputPath.c_str(), "recreate");
   fl->cd();
   vcs.Write(outputOpts.measuredCSGraphName.c_str());
   bcs.Write(outputOpts.bornCSGraphName.c_str());
   intergalOperatorMatrix.Write("intergalOperatorMatrix");
   bornCSInverseErrorMatrix.Write("bornCSInverseErrorMatrix");
+  f0->Write();
   f1->Write();
+  f2->Write();
+  f3->Write();
   fl->Close();
+  delete f0;
   delete f1;
+  delete f2;
+  delete f3;
   delete fl;
 }
 
@@ -266,7 +286,7 @@ Eigen::RowVectorXd ISRSolver::interpProjector(double en) const {
   return result;
 }
 
-Eigen::RowVectorXd ISRSolver::interpDerivativeProjector(double en) const {
+Eigen::RowVectorXd ISRSolver::interpDerivativeProjector(double en, unsigned p) const {
   Eigen::RowVectorXd result = Eigen::RowVectorXd::Zero(getN());
   if (en <= _inputOpts.thresholdEnergy) return result;
   std::size_t i = 0;
@@ -278,8 +298,8 @@ Eigen::RowVectorXd ISRSolver::interpDerivativeProjector(double en) const {
   }
   if (i == getN()) i--;
   Eigen::MatrixXd coeffs = interpInvMatrix(i) * permutation(i);
-  for (int k = 1; k < coeffs.rows(); ++k)
-    result += coeffs.row(k) * k * std::pow(en * en, k - 1);
+  for (int k = p; k < coeffs.rows(); ++k)
+    result += coeffs.row(k) * k * std::pow(en * en, k - p);
   return result;
 }
 
