@@ -15,6 +15,7 @@ class ISRSolver {
   virtual ~ISRSolver();
   std::size_t getN() const;
   void solve();
+  void solveTikhonov();
   void save(const std::string& outputPath, const OutputOptions& outputOpts);
   void setInterpSettings(const std::vector<InterpPtSettings>&) noexcept(false);
   void setInterpSettings(const std::string&) noexcept(false);
@@ -29,8 +30,12 @@ class ISRSolver {
   Eigen::MatrixXd polConvKuraevFadinMatrix(int) const;
   Eigen::MatrixXd evalA(int) const;
   Eigen::MatrixXd evalEqMatrix() const;
+  double evalRegFuncNorm2(const Eigen::VectorXd&) const;
+  Eigen::VectorXd evalRegFuncGradNorm2(const Eigen::VectorXd&) const;
   TF1* createInterpFunction() const;
   void setDefaultInterpSettings();
+  friend double objectiveFCN(unsigned, const double*, double*, void*);
+  double _alpha;
   InputOptions _inputOpts;
   double _sT;
   std::size_t _n;

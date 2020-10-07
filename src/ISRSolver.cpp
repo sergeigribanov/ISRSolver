@@ -11,14 +11,27 @@
 #include <functional>
 #include <nlohmann/json.hpp>
 #include <set>
+#include <nlopt.hpp>
 
 #include "kuraev_fadin.hpp"
 
 using json = nlohmann::json;
 
+double objectiveFCN(unsigned n, const double* z, double* grad, void* solver) {
+  auto sp = reinterpret_cast<ISRSolver*>(solver);
+  Eigen::Map<const Eigen::VectorXd> vm(z, n);
+  if (grad) {
+    Eigen::VectorXd vgrad = sp->evalRegFuncGradNorm2(vm);
+    for (unsigned i = 0; i < n; ++i) {
+      grad[i] = vgrad(i);
+    }
+  }
+  return sp->evalRegFuncNorm2(vm);
+}
+
 ISRSolver::ISRSolver(const std::string& inputPath,
                      const InputOptions& inputOpts)
-    : _inputOpts(inputOpts),
+  : _alpha(1.e-3), _inputOpts(inputOpts),
       _sT(inputOpts.thresholdEnergy * inputOpts.thresholdEnergy) {
   auto fl = TFile::Open(inputPath.c_str(), "read");
   auto graph = dynamic_cast<TGraphErrors*>(
@@ -248,4 +261,41 @@ void ISRSolver::save(const std::string& outputPath,
   fl->Close();
   delete f1;
   delete fl;
+}
+
+double ISRSolver::evalRegFuncNorm2(const Eigen::VectorXd& z) const {
+  // TO DO: add derivative, insert integral norm
+  Eigen::VectorXd dv = _integralOperatorMatrix * z - _measuredCSData.cs;
+  return dv.dot(dv) + _alpha * z.dot(z);
+}
+
+Eigen::VectorXd ISRSolver::evalRegFuncGradNorm2(const Eigen::VectorXd& z) const {
+  Eigen::VectorXd dv = _integralOperatorMatrix * z - _measuredCSData.cs;
+  Eigen::VectorXd res = 2 * (_integralOperatorMatrix.transpose() * dv  + _alpha * z);
+  return res;
+}
+
+void ISRSolver::solveTikhonov() {
+  _integralOperatorMatrix = evalEqMatrix();
+  std::vector<double> lowerBounds(_n, 0);
+  nlopt::opt opt(nlopt::LD_MMA, _n);
+  opt.set_lower_bounds(lowerBounds);
+  opt.set_min_objective(objectiveFCN, this);
+  opt.set_xtol_rel(1.e-4);
+  std::vector<double> z(_measuredCSData.cs.data(), _measuredCSData.cs.data() + _n);
+  double minf;
+  try {
+    opt.optimize(z, minf);
+    _bornCS = Eigen::Map<Eigen::VectorXd>(z.data(), _n);
+    std::cout << _bornCS << std::endl;
+    TGraphErrors bcs(getN(), _measuredCSData.cmEnergy.data(), _bornCS.data(),
+		     _measuredCSData.cmEnergyError.data(), 0);
+    auto fl = TFile::Open("bcs_test.root", "recreate");
+    fl->cd();
+    bcs.Write("bcs");
+    fl->Close();
+  }
+  catch (std::exception &e) {
+    std::cout << "nlopt failed: " << e.what() << std::endl;
+  }
 }

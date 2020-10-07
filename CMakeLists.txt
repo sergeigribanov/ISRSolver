@@ -7,6 +7,9 @@ set(CMAKE_CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 find_package(Eigen3 REQUIRED NO_MODULE)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+find_package(NLOPT REQUIRED)
+
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 find_package(ROOT REQUIRED COMPONENTS RIO Net Core)
 include(${ROOT_USE_FILE})
@@ -15,9 +18,11 @@ find_package(Boost COMPONENTS program_options REQUIRED)
 find_package(nlohmann_json REQUIRED)
 include_directories(${GSL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${NLOPT_INCLUDE_DIRS})
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/convolution.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp)
 file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/env.sh.in env.sh)
 add_library(isr SHARED ${SOURCES})
@@ -30,21 +35,34 @@ target_link_libraries(isr
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
   ${Boost_LIBRARIES}
+  ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json)
 add_executable(isrsolver ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 target_include_directories(isrsolver
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>
-  PRIVATE
-  ${GSL_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIRS})
+  $<INSTALL_INTERFACE:include/ISRSolver>)
 target_link_libraries(isrsolver
   PRIVATE
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
   ${Boost_LIBRARIES}
+  ${NLOPT_LIBRARIES}
+  ${ROOT_LIBRARIES}
+  nlohmann_json::nlohmann_json
+  isr)
+add_executable(isrtest ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp)
+target_include_directories(isrtest
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/ISRSolver>)
+target_link_libraries(isrtest
+  PRIVATE
+  GSL::gsl GSL::gslcblas
+  Eigen3::Eigen
+  ${Boost_LIBRARIES}
+  ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
   isr)
@@ -52,15 +70,13 @@ add_executable(isrconv ${CMAKE_CURRENT_SOURCE_DIR}/src/convolution.cpp)
 target_include_directories(isrconv
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>
-  PRIVATE
-  ${GSL_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIRS})
+  $<INSTALL_INTERFACE:include/ISRSolver>)
 target_link_libraries(isrconv
   PRIVATE
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
   ${Boost_LIBRARIES}
+  ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
   isr)
