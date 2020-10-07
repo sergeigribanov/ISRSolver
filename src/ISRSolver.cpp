@@ -14,6 +14,7 @@
 #include <nlopt.hpp>
 
 #include "kuraev_fadin.hpp"
+#include "integration.hpp"
 
 using json = nlohmann::json;
 
@@ -82,25 +83,10 @@ ISRSolver::~ISRSolver() {}
 TF1* ISRSolver::createInterpFunction() const {
   std::function<double(double*, double*)> fcn = [this](double* x, double* par) {
     double en = x[0];
-    if (en <= _inputOpts.thresholdEnergy) return 0.;
-    std::size_t i = 0;
-    double enp = _inputOpts.thresholdEnergy;
-    while (i < this->getN()) {
-      if (en > enp && en <= _measuredCSData.cmEnergy(i)) break;
-      enp = _measuredCSData.cmEnergy(i);
-      i++;
-    }
-    if (i == this->getN()) i--;
-
-    Eigen::VectorXd coeffs =
-        this->interpInvMatrix(i) * this->permutation(i) * this->_bornCS;
-    double result = 0;
-    for (int k = 0; k < coeffs.size(); ++k)
-      result += coeffs(k) * std::pow(en * en, k);
-    return result;
+    return this->interpProjector(en) * this->_bornCS;
   };
-  auto f1 = new TF1("interpFCN", fcn, this->_inputOpts.thresholdEnergy,
-                    this->_measuredCSData.cmEnergy(getN() - 1), 0);
+  auto f1 = new TF1("interpFCN", fcn, _inputOpts.thresholdEnergy,
+                    _measuredCSData.cmEnergy(getN() - 1), 0);
   f1->SetNpx(1.e+4);
   return f1;
 }
@@ -263,10 +249,53 @@ void ISRSolver::save(const std::string& outputPath,
   delete fl;
 }
 
+Eigen::RowVectorXd ISRSolver::interpProjector(double en) const {
+  Eigen::RowVectorXd result = Eigen::RowVectorXd::Zero(getN());
+  if (en <= _inputOpts.thresholdEnergy) return result;
+  std::size_t i = 0;
+  double enp = _inputOpts.thresholdEnergy;
+  while (i < getN()) {
+    if (en > enp && en <= _measuredCSData.cmEnergy(i)) break;
+    enp = _measuredCSData.cmEnergy(i);
+    i++;
+  }
+  if (i == getN()) i--;
+  Eigen::MatrixXd coeffs = interpInvMatrix(i) * permutation(i);
+  for (int k = 0; k < coeffs.rows(); ++k)
+    result += coeffs.row(k) * std::pow(en * en, k);
+  return result;
+}
+
+Eigen::RowVectorXd ISRSolver::interpDerivativeProjector(double en) const {
+  Eigen::RowVectorXd result = Eigen::RowVectorXd::Zero(getN());
+  if (en <= _inputOpts.thresholdEnergy) return result;
+  std::size_t i = 0;
+  double enp = _inputOpts.thresholdEnergy;
+  while (i < getN()) {
+    if (en > enp && en <= _measuredCSData.cmEnergy(i)) break;
+    enp = _measuredCSData.cmEnergy(i);
+    i++;
+  }
+  if (i == getN()) i--;
+  Eigen::MatrixXd coeffs = interpInvMatrix(i) * permutation(i);
+  for (int k = 1; k < coeffs.rows(); ++k)
+    result += coeffs.row(k) * k * std::pow(en * en, k - 1);
+  return result;
+}
+
 double ISRSolver::evalRegFuncNorm2(const Eigen::VectorXd& z) const {
   // TO DO: add derivative, insert integral norm
   Eigen::VectorXd dv = _integralOperatorMatrix * z - _measuredCSData.cs;
-  return dv.dot(dv) + _alpha * z.dot(z);
+  std::function<double(double)> fcn =
+    [&dv, &z, this] (double en) {
+    Eigen::RowVectorXd op = this->interpProjector(en);
+    double en_dv = op * dv;
+    double en_z = op * z;
+    // double en_zDeriv = this->interpDerivativeProjector(en) * z;
+    return en_dv * en_dv + this->_alpha * (en_z * en_z); // + en_zDeriv * en_zDeriv);
+  };
+  double error;
+  return integrate(fcn, std::sqrt(_sT), _measuredCSData.cmEnergy(getN() - 1), error);
 }
 
 Eigen::VectorXd ISRSolver::evalRegFuncGradNorm2(const Eigen::VectorXd& z) const {
