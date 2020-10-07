@@ -37,7 +37,10 @@ class ISRSolver {
   void setDefaultInterpSettings();
   Eigen::RowVectorXd interpProjector(double) const;
   Eigen::RowVectorXd interpDerivativeProjector(double, unsigned) const;
-  // Eigen::MatrixXd c2IntepInteg(double, int, int) const;
+  Eigen::RowVectorXd polIntegralOp(int) const;
+  Eigen::RowVectorXd evalPolA(int) const;
+  Eigen::MatrixXd evalIntegralMatrix() const;
+  Eigen::RowVectorXd evalScalarProductOperator() const;
   friend double objectiveFCN(unsigned, const double*, double*, void*);
   double _alpha;
   

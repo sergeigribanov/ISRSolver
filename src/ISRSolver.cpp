@@ -32,7 +32,7 @@ double objectiveFCN(unsigned n, const double* z, double* grad, void* solver) {
 
 ISRSolver::ISRSolver(const std::string& inputPath,
                      const InputOptions& inputOpts)
-  : _alpha(1.e-3), _inputOpts(inputOpts),
+  : _alpha(1.e-5), _inputOpts(inputOpts),
       _sT(inputOpts.thresholdEnergy * inputOpts.thresholdEnergy) {
   auto fl = TFile::Open(inputPath.c_str(), "read");
   auto graph = dynamic_cast<TGraphErrors*>(
@@ -249,23 +249,21 @@ void ISRSolver::save(const std::string& outputPath,
   bornCSInverseErrorMatrix.SetMatrixArray(tmpInvErrM.data());
   auto f0 = createInterpFunction();
   auto f1 = createDerivativeInterpFunction(1, "interp1DivFCN");
-  auto f2 = createDerivativeInterpFunction(2, "interp2DivFCN");
-  auto f3 = createDerivativeInterpFunction(3, "interp3DivFCN");
+  Eigen::VectorXd vIntegral = evalIntegralMatrix() * _bornCS;
+  TGraphErrors gIntegral(getN(), _measuredCSData.cmEnergy.data(), vIntegral.data(), 0, 0);
+
   auto fl = TFile::Open(outputPath.c_str(), "recreate");
   fl->cd();
   vcs.Write(outputOpts.measuredCSGraphName.c_str());
   bcs.Write(outputOpts.bornCSGraphName.c_str());
   intergalOperatorMatrix.Write("intergalOperatorMatrix");
   bornCSInverseErrorMatrix.Write("bornCSInverseErrorMatrix");
+  gIntegral.Write("bcs_integral");
   f0->Write();
   f1->Write();
-  f2->Write();
-  f3->Write();
   fl->Close();
   delete f0;
   delete f1;
-  delete f2;
-  delete f3;
   delete fl;
 }
 
@@ -303,19 +301,59 @@ Eigen::RowVectorXd ISRSolver::interpDerivativeProjector(double en, unsigned p) c
   return result;
 }
 
+Eigen::RowVectorXd ISRSolver::polIntegralOp(int j) const {
+  const std::size_t nc = getNumCoeffs(j);
+  Eigen::VectorXd result(nc);
+  std::size_t k;
+  double error;
+  double sMin;
+  if (j == 0) {
+    sMin = _sT;
+  } else {
+    sMin = _measuredCSData.s(j - 1);
+  }
+  double sMax = _measuredCSData.s(j);
+  std::function<double(double)> fcn = [&k](double t) { return std::pow(t, k); };
+  for (k = 0; k < nc; ++k) {
+    result(k) = integrate(fcn, sMin, sMax, error);
+  }
+  return result.transpose();
+}
+
+Eigen::RowVectorXd ISRSolver::evalPolA(int j) const {
+  return polIntegralOp(j) * interpInvMatrix(j) * permutation(j);
+}
+
+Eigen::MatrixXd ISRSolver::evalIntegralMatrix() const {
+  std::vector<Eigen::RowVectorXd> ai;
+  ai.reserve(getN());
+  Eigen::MatrixXd tmpV = Eigen::RowVectorXd::Zero(getN());
+  for (std::size_t i = 0; i < getN(); ++i) {
+    tmpV += evalPolA(i);
+    ai.push_back(tmpV);
+  }
+  Eigen::MatrixXd result = Eigen::MatrixXd::Zero(getN(), getN());
+  for (std::size_t i = 0; i < getN(); ++i) {
+    for (std::size_t p = 0; p < getN(); ++p) {
+      result(i, p) += ai[i](p);
+    }
+  }
+  return result;
+}
+
+Eigen::RowVectorXd ISRSolver::evalScalarProductOperator() const {
+  Eigen::MatrixXd result = Eigen::RowVectorXd::Zero(getN());
+  for (std::size_t i = 0; i < getN(); ++i) {
+    result += evalPolA(i);
+  }
+  return result;
+}
+
 double ISRSolver::evalRegFuncNorm2(const Eigen::VectorXd& z) const {
   // TO DO: add derivative, insert integral norm
+  Eigen::RowVectorXd op = evalScalarProductOperator();
   Eigen::VectorXd dv = _integralOperatorMatrix * z - _measuredCSData.cs;
-  std::function<double(double)> fcn =
-    [&dv, &z, this] (double en) {
-    Eigen::RowVectorXd op = this->interpProjector(en);
-    double en_dv = op * dv;
-    double en_z = op * z;
-    // double en_zDeriv = this->interpDerivativeProjector(en) * z;
-    return en_dv * en_dv + this->_alpha * (en_z * en_z); // + en_zDeriv * en_zDeriv);
-  };
-  double error;
-  return integrate(fcn, std::sqrt(_sT), _measuredCSData.cmEnergy(getN() - 1), error);
+  return op * (dv.array() * dv.array() + _alpha * z.array() * z.array()).matrix();
 }
 
 Eigen::VectorXd ISRSolver::evalRegFuncGradNorm2(const Eigen::VectorXd& z) const {
@@ -330,7 +368,7 @@ void ISRSolver::solveTikhonov() {
   nlopt::opt opt(nlopt::LD_MMA, _n);
   opt.set_lower_bounds(lowerBounds);
   opt.set_min_objective(objectiveFCN, this);
-  opt.set_xtol_rel(1.e-4);
+  opt.set_xtol_rel(1.e-6);
   std::vector<double> z(_measuredCSData.cs.data(), _measuredCSData.cs.data() + _n);
   double minf;
   try {
