@@ -403,7 +403,7 @@ void ISRSolver::solveTikhonov() {
   opt.set_lower_bounds(lowerBounds);
   opt.set_min_objective(objectiveFCN, this);
   opt.set_xtol_rel(1.e-6);
-  std::vector<double> z(_measuredCSData.cs.data(), _measuredCSData.cs.data() + _n);
+  std::vector<double> z(_n, 0);
   double minf;
   try {
     opt.optimize(z, minf);
