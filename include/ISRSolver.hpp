@@ -33,16 +33,18 @@ class ISRSolver {
   double evalRegFuncNorm2(const Eigen::VectorXd&) const;
   Eigen::VectorXd evalRegFuncGradNorm2(const Eigen::VectorXd&) const;
   TF1* createInterpFunction() const;
-  TF1* createDerivativeInterpFunction(unsigned, const std::string&) const;
+  TF1* createDerivativeInterpFunction(std::size_t, const std::string&) const;
   void setDefaultInterpSettings();
   Eigen::RowVectorXd interpProjector(double) const;
-  Eigen::RowVectorXd interpDerivativeProjector(double, unsigned) const;
+  Eigen::RowVectorXd interpDerivativeProjector(double, std::size_t) const;
+  Eigen::MatrixXd interpPointWiseDerivativeProjector() const;
   Eigen::RowVectorXd polIntegralOp(int) const;
   Eigen::RowVectorXd evalPolA(int) const;
   Eigen::MatrixXd evalIntegralMatrix() const;
   Eigen::RowVectorXd evalScalarProductOperator() const;
   friend double objectiveFCN(unsigned, const double*, double*, void*);
   double _alpha;
+  double _beta;
   
   InputOptions _inputOpts;
   double _sT;

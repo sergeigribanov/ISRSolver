@@ -23,7 +23,7 @@ double objectiveFCN(unsigned n, const double* z, double* grad, void* solver) {
   Eigen::Map<const Eigen::VectorXd> vm(z, n);
   if (grad) {
     Eigen::VectorXd vgrad = sp->evalRegFuncGradNorm2(vm);
-    for (unsigned i = 0; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
       grad[i] = vgrad(i);
     }
   }
@@ -32,7 +32,7 @@ double objectiveFCN(unsigned n, const double* z, double* grad, void* solver) {
 
 ISRSolver::ISRSolver(const std::string& inputPath,
                      const InputOptions& inputOpts)
-  : _alpha(1.e-5), _inputOpts(inputOpts),
+  : _alpha(1.e-4), _beta(_alpha), _inputOpts(inputOpts),
       _sT(inputOpts.thresholdEnergy * inputOpts.thresholdEnergy) {
   auto fl = TFile::Open(inputPath.c_str(), "read");
   auto graph = dynamic_cast<TGraphErrors*>(
@@ -91,7 +91,7 @@ TF1* ISRSolver::createInterpFunction() const {
   return f1;
 }
 
-TF1* ISRSolver::createDerivativeInterpFunction(unsigned p, const std::string& name) const {
+TF1* ISRSolver::createDerivativeInterpFunction(std::size_t p, const std::string& name) const {
   std::function<double(double*, double*)> fcn = [p, this](double* x, double* par) {
     double en = x[0];
     return this->interpDerivativeProjector(en, p) * this->_bornCS;
@@ -251,7 +251,9 @@ void ISRSolver::save(const std::string& outputPath,
   auto f1 = createDerivativeInterpFunction(1, "interp1DivFCN");
   Eigen::VectorXd vIntegral = evalIntegralMatrix() * _bornCS;
   TGraphErrors gIntegral(getN(), _measuredCSData.cmEnergy.data(), vIntegral.data(), 0, 0);
-
+  Eigen::VectorXd vDerivative = interpPointWiseDerivativeProjector() * _bornCS;
+  TGraphErrors gDerivative(getN(), _measuredCSData.cmEnergy.data(), vDerivative.data(), 0, 0);
+  
   auto fl = TFile::Open(outputPath.c_str(), "recreate");
   fl->cd();
   vcs.Write(outputOpts.measuredCSGraphName.c_str());
@@ -259,6 +261,7 @@ void ISRSolver::save(const std::string& outputPath,
   intergalOperatorMatrix.Write("intergalOperatorMatrix");
   bornCSInverseErrorMatrix.Write("bornCSInverseErrorMatrix");
   gIntegral.Write("bcs_integral");
+  gDerivative.Write("bcs_deriv");
   f0->Write();
   f1->Write();
   fl->Close();
@@ -279,12 +282,13 @@ Eigen::RowVectorXd ISRSolver::interpProjector(double en) const {
   }
   if (i == getN()) i--;
   Eigen::MatrixXd coeffs = interpInvMatrix(i) * permutation(i);
-  for (int k = 0; k < coeffs.rows(); ++k)
+  const std::size_t nc = getNumCoeffs(i);
+  for (std::size_t k = 0; k < nc; ++k)
     result += coeffs.row(k) * std::pow(en * en, k);
   return result;
 }
 
-Eigen::RowVectorXd ISRSolver::interpDerivativeProjector(double en, unsigned p) const {
+Eigen::RowVectorXd ISRSolver::interpDerivativeProjector(double en, std::size_t p) const {
   Eigen::RowVectorXd result = Eigen::RowVectorXd::Zero(getN());
   if (en <= _inputOpts.thresholdEnergy) return result;
   std::size_t i = 0;
@@ -296,8 +300,24 @@ Eigen::RowVectorXd ISRSolver::interpDerivativeProjector(double en, unsigned p) c
   }
   if (i == getN()) i--;
   Eigen::MatrixXd coeffs = interpInvMatrix(i) * permutation(i);
-  for (int k = p; k < coeffs.rows(); ++k)
-    result += coeffs.row(k) * k * std::pow(en * en, k - p);
+  const std::size_t nc = getNumCoeffs(i);
+  for (std::size_t k = p; k < nc; ++k) {
+    double v = 1;
+    for (std::size_t o = 0; o < p; ++o) v *= k - o;
+    result += coeffs.row(k) * v * std::pow(en * en, k - p);
+  }
+  return result;
+}
+
+Eigen::MatrixXd ISRSolver::interpPointWiseDerivativeProjector() const {
+  Eigen::MatrixXd result = Eigen::MatrixXd::Zero(getN(), getN());
+  for (std::size_t j = 0; j < getN(); ++j) {
+      Eigen::MatrixXd coeffs = interpInvMatrix(j) * permutation(j);
+      const std::size_t nc = getNumCoeffs(j);
+      for (std::size_t k = 1; k < nc; ++k) {
+	result.row(j) += coeffs.row(k) * k * std::pow(_measuredCSData.s(j), k - 1);
+      }
+  }
   return result;
 }
 
@@ -353,13 +373,27 @@ double ISRSolver::evalRegFuncNorm2(const Eigen::VectorXd& z) const {
   // TO DO: add derivative, insert integral norm
   Eigen::RowVectorXd op = evalScalarProductOperator();
   Eigen::VectorXd dv = _integralOperatorMatrix * z - _measuredCSData.cs;
-  return op * (dv.array() * dv.array() + _alpha * z.array() * z.array()).matrix();
+  Eigen::VectorXd dz = interpPointWiseDerivativeProjector() * z;
+  return op * (dv.array() * dv.array() + _alpha * z.array() * z.array() +
+	       _beta * dz.array() * dz.array()).matrix();
 }
 
 Eigen::VectorXd ISRSolver::evalRegFuncGradNorm2(const Eigen::VectorXd& z) const {
   Eigen::VectorXd dv = _integralOperatorMatrix * z - _measuredCSData.cs;
-  Eigen::VectorXd res = 2 * (_integralOperatorMatrix.transpose() * dv  + _alpha * z);
-  return res;
+  Eigen::RowVectorXd op = evalScalarProductOperator();
+  Eigen::VectorXd result = Eigen::VectorXd::Zero(getN());
+  Eigen::MatrixXd dzOp = interpPointWiseDerivativeProjector();
+  Eigen::VectorXd dz = dzOp * z;
+  for (std::size_t l = 0; l < getN(); ++l) {
+    for (std::size_t i = 0; i < getN(); ++i) {
+      result(l) += 2 * op(i) * _integralOperatorMatrix(i, l) * dv(i) +
+	2 * _beta * op(i) * dzOp(i, l) * dz(i);
+      if (l == i) {
+	result(l) += 2 * _alpha * op(l) * z(l);
+      }
+    }
+  }
+  return result;
 }
 
 void ISRSolver::solveTikhonov() {
