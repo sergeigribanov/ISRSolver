@@ -32,8 +32,8 @@ double objectiveFCN(unsigned n, const double* z, double* grad, void* solver) {
 
 ISRSolver::ISRSolver(const std::string& inputPath,
                      const InputOptions& inputOpts)
-  : _alpha(1.e-4), _beta(_alpha), _inputOpts(inputOpts),
-      _sT(inputOpts.thresholdEnergy * inputOpts.thresholdEnergy) {
+  : _alpha(1.0e-2), _beta(_alpha), _inputOpts(inputOpts),
+    _sT(inputOpts.thresholdEnergy * inputOpts.thresholdEnergy) {
   auto fl = TFile::Open(inputPath.c_str(), "read");
   auto graph = dynamic_cast<TGraphErrors*>(
       fl->Get(_inputOpts.measuredCSGraphName.c_str()));
@@ -370,27 +370,72 @@ Eigen::RowVectorXd ISRSolver::evalScalarProductOperator() const {
 }
 
 double ISRSolver::evalRegFuncNorm2(const Eigen::VectorXd& z) const {
-  // TO DO: add derivative, insert integral norm
   Eigen::RowVectorXd op = evalScalarProductOperator();
   Eigen::VectorXd dv = _integralOperatorMatrix * z - _measuredCSData.cs;
+  Eigen::VectorXd invVCSErr2 = _measuredCSData.invCSErrMatrix.diagonal();
   Eigen::VectorXd dz = interpPointWiseDerivativeProjector() * z;
-  return op * (dv.array() * dv.array() + _alpha * z.array() * z.array() +
+  return op * (dv.array() * dv.array() * invVCSErr2.array() + _alpha * z.array() * z.array() +
 	       _beta * dz.array() * dz.array()).matrix();
+}
+
+double ISRSolver::evalDifferenceNorm2() const {
+  Eigen::RowVectorXd op = evalScalarProductOperator();
+  Eigen::VectorXd dv = _integralOperatorMatrix * _bornCS - _measuredCSData.cs;
+  return op * (dv.array() * dv.array()).matrix(); 
+}
+
+double ISRSolver::evalSolDSolNorm2() const {
+  Eigen::RowVectorXd op = evalScalarProductOperator();
+  Eigen::VectorXd dz = interpPointWiseDerivativeProjector() * _bornCS;
+  return op * (_bornCS.array() * _bornCS.array() +
+	       dz.array() * dz.array()).matrix();
+}
+
+double ISRSolver::evalSolNorm2() const {
+  Eigen::RowVectorXd op = evalScalarProductOperator();
+  return op * (_bornCS.array() * _bornCS.array()).matrix();
+}
+
+double ISRSolver::evalDSolNorm2() const {
+  Eigen::RowVectorXd op = evalScalarProductOperator();
+  Eigen::VectorXd dz = interpPointWiseDerivativeProjector() * _bornCS;
+  return op * (dz.array() * dz.array()).matrix();
 }
 
 Eigen::VectorXd ISRSolver::evalRegFuncGradNorm2(const Eigen::VectorXd& z) const {
   Eigen::VectorXd dv = _integralOperatorMatrix * z - _measuredCSData.cs;
+  Eigen::VectorXd invVCSErr2 = _measuredCSData.invCSErrMatrix.diagonal();
   Eigen::RowVectorXd op = evalScalarProductOperator();
   Eigen::VectorXd result = Eigen::VectorXd::Zero(getN());
   Eigen::MatrixXd dzOp = interpPointWiseDerivativeProjector();
   Eigen::VectorXd dz = dzOp * z;
   for (std::size_t l = 0; l < getN(); ++l) {
     for (std::size_t i = 0; i < getN(); ++i) {
-      result(l) += 2 * op(i) * _integralOperatorMatrix(i, l) * dv(i) +
+      result(l) += 2 * op(i) * _integralOperatorMatrix(i, l) * dv(i) * invVCSErr2(i) +
 	2 * _beta * op(i) * dzOp(i, l) * dz(i);
       if (l == i) {
 	result(l) += 2 * _alpha * op(l) * z(l);
       }
+    }
+  }
+  return result;
+}
+
+Eigen::MatrixXd ISRSolver::evalHessian() const {
+  Eigen::VectorXd invVCSErr2 = _measuredCSData.invCSErrMatrix.diagonal();
+  Eigen::RowVectorXd op = evalScalarProductOperator();
+  Eigen::MatrixXd dzOp = interpPointWiseDerivativeProjector();
+  Eigen::MatrixXd result = Eigen::MatrixXd::Zero(getN(), getN());
+  for (std::size_t l = 0; l < getN(); ++l) {
+    for (std::size_t m = 0; m < getN(); ++m) {
+      for (std::size_t i = 0; i < getN(); ++i) {
+	result(l, m) += 2 * _integralOperatorMatrix(i, l) * _integralOperatorMatrix(i, m) *
+	  invVCSErr2(i) + 2 * _beta * dzOp(i, l) * dzOp(i, m);
+	if (l == i && m == i) {
+          result(l, m) += 2 * _alpha;
+	}
+      }
+      
     }
   }
   return result;
@@ -408,9 +453,18 @@ void ISRSolver::solveTikhonov() {
   try {
     opt.optimize(z, minf);
     _bornCS = Eigen::Map<Eigen::VectorXd>(z.data(), _n);
-    std::cout << _bornCS << std::endl;
+    std::cout << _alpha << "\t" << 
+      std::sqrt(evalDifferenceNorm2()) << "\t" <<
+      std::sqrt(evalSolNorm2()) << "\t" <<
+      std::sqrt(evalDSolNorm2()) << "\t" <<
+      std::sqrt(evalSolDSolNorm2()) << std::endl;
+    // std::cout << _bornCS << std::endl;
+    _invBornCSErrorMatrix = 0.5 * evalHessian();
+    Eigen::VectorXd tmpInvErr2 = _invBornCSErrorMatrix.diagonal();
+    Eigen::VectorXd tmpErr = tmpInvErr2.array().pow(-0.5);
     TGraphErrors bcs(getN(), _measuredCSData.cmEnergy.data(), _bornCS.data(),
-		     _measuredCSData.cmEnergyError.data(), 0);
+		     _measuredCSData.cmEnergyError.data(), tmpErr.data());
+    
     auto fl = TFile::Open("bcs_test.root", "recreate");
     fl->cd();
     bcs.Write("bcs");

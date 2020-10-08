@@ -31,7 +31,12 @@ class ISRSolver {
   Eigen::MatrixXd evalA(int) const;
   Eigen::MatrixXd evalEqMatrix() const;
   double evalRegFuncNorm2(const Eigen::VectorXd&) const;
+  double evalDifferenceNorm2() const;
+  double evalSolDSolNorm2() const;
+  double evalSolNorm2() const;
+  double evalDSolNorm2() const;
   Eigen::VectorXd evalRegFuncGradNorm2(const Eigen::VectorXd&) const;
+  Eigen::MatrixXd evalHessian() const;
   TF1* createInterpFunction() const;
   TF1* createDerivativeInterpFunction(std::size_t, const std::string&) const;
   void setDefaultInterpSettings();
