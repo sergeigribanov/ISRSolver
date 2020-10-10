@@ -12,10 +12,9 @@ typedef struct {
 
 typedef struct {
   Eigen::VectorXd cmEnergy;
-  Eigen::VectorXd s;
-  Eigen::VectorXd cs;
   Eigen::VectorXd cmEnergyError;
-  Eigen::MatrixXd invCSErrMatrix;
+  Eigen::VectorXd cs;
+  Eigen::VectorXd csError;
 } CSVecData;
 
 typedef struct {

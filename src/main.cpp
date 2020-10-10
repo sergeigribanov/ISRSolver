@@ -9,33 +9,41 @@
 #include <iostream>
 #include <string>
 
-#include "ISRSolver.hpp"
+#include "ISRSolverSLAE.hpp"
+#include "ISRSolverTikhonov.hpp"
 #include "utils.hpp"
 namespace po = boost::program_options;
 
 typedef struct {
   double thsd;
+  double alpha;
   double spoint;
   std::string gname;
   std::string lbcs;
   std::string ifname;
   std::string ofname;
   std::string interp;
+  std::string solver;
 } CmdOptions;
 
 void setOptions(po::options_description* desc, CmdOptions* opts) {
-  desc->add_options()("help",
+  desc->add_options()("help,h",
                       "A simple tool designed in order to find numerical"
                       "solution of the Kuraev-Fadin equation.")(
-      "thsd", po::value<double>(&(opts->thsd)), "Threshold (GeV).")(
-      "gname", po::value<std::string>(&(opts->gname))->default_value("mcs"),
+      "thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")(
+      "alpha,a", po::value<double>(&(opts->alpha)),
+      "Thikhonov's regularization parameter.")(
+      "solver,s", po::value<std::string>(&(opts->solver)),
+      "Solver: SLAE, Tikhonov")(
+      "gname,g", po::value<std::string>(&(opts->gname))->default_value("mcs"),
       "Name of the measured cross section graph.")(
-      "ifname",
+      "ifname,i",
       po::value<std::string>(&(opts->ifname))->default_value("mcs.root"),
       "Path to input file.")(
-      "ofname",
+      "ofname,o",
       po::value<std::string>(&(opts->ofname))->default_value("bcs.root"),
-      "Path to output file.")("interp", po::value<std::string>(&(opts->interp)),
+      "Path to output file.")("interp,r",
+                              po::value<std::string>(&(opts->interp)),
                               "Path to JSON file with interpolation settings.");
 }
 
@@ -54,14 +62,32 @@ int main(int argc, char* argv[]) {
     help(desc);
     return 0;
   }
-  ISRSolver solver(opts.ifname, {.measuredCSGraphName = opts.gname,
-                                 .thresholdEnergy = opts.thsd,
-                                 .energyUnitMeVs = false});
-  if (vmap.count("interp")) {
-    solver.setInterpSettings(opts.interp);
+  BaseISRSolver* solver = nullptr;
+  if (opts.solver == "SLAE") {
+    solver = new ISRSolverSLAE(opts.ifname, {.measuredCSGraphName = opts.gname,
+                                             .thresholdEnergy = opts.thsd,
+                                             .energyUnitMeVs = false});
+  } else if (opts.solver == "Tikhonov") {
+    solver =
+        new ISRSolverTikhonov(opts.ifname, {.measuredCSGraphName = opts.gname,
+                                            .thresholdEnergy = opts.thsd,
+                                            .energyUnitMeVs = false});
   }
-  solver.solve();
-  solver.save(opts.ofname,
-              {.measuredCSGraphName = opts.gname, .bornCSGraphName = "bcs"});
+  if (!solver) {
+    std::cerr << "[!] Solver is not set." << std::endl;
+    return 1;
+  }
+  ISRSolverSLAE* solverSLAE = dynamic_cast<ISRSolverSLAE*>(solver);
+  if (vmap.count("interp") && solverSLAE) {
+    solverSLAE->setInterpSettings(opts.interp);
+  }
+  ISRSolverTikhonov* solverTikhonov = dynamic_cast<ISRSolverTikhonov*>(solver);
+  if (vmap.count("alpha") && solverTikhonov) {
+    solverTikhonov->setAlpha(opts.alpha);
+  }
+  solver->solve();
+  solver->save(opts.ofname,
+               {.measuredCSGraphName = opts.gname, .bornCSGraphName = "bcs"});
+  delete solver;
   return 0;
 }
