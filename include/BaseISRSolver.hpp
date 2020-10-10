@@ -36,7 +36,7 @@ class BaseISRSolver {
  private:
   double _energyT;
   std::size_t _n;
-  CSVecData _measuredCSData;
+  CSVecData _visibleCSData;
   Eigen::VectorXd _bornCS;
 };
 

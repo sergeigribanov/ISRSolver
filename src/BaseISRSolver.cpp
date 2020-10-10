@@ -11,40 +11,40 @@ BaseISRSolver::BaseISRSolver(const std::string& inputPath,
     : _energyT(inputOpts.thresholdEnergy) {
   auto fl = TFile::Open(inputPath.c_str(), "read");
   auto graph = dynamic_cast<TGraphErrors*>(
-      fl->Get(inputOpts.measuredCSGraphName.c_str()));
+      fl->Get(inputOpts.visibleCSGraphName.c_str()));
   _n = graph->GetN();
   double energyKoeff;
   if (inputOpts.energyUnitMeVs)
     energyKoeff = 1.e-3;
   else
     energyKoeff = 1;
-  std::vector<CSData> measuredCS;
-  measuredCS.reserve(_n);
+  std::vector<CSData> visibleCS;
+  visibleCS.reserve(_n);
   for (std::size_t i = 0; i < _n; ++i)
-    measuredCS.push_back({.cmEnergy = graph->GetX()[i] * energyKoeff,
+    visibleCS.push_back({.cmEnergy = graph->GetX()[i] * energyKoeff,
                           .cs = graph->GetY()[i],
                           .cmEnergyError = graph->GetEX()[i] * energyKoeff,
                           .csError = graph->GetEY()[i]});
   fl->Close();
   delete fl;
   std::sort(
-      measuredCS.begin(), measuredCS.end(),
+      visibleCS.begin(), visibleCS.end(),
       [](const CSData& x, const CSData& y) { return x.cmEnergy < y.cmEnergy; });
-  _measuredCSData = {.cmEnergy = Eigen::VectorXd(_n),
+  _visibleCSData = {.cmEnergy = Eigen::VectorXd(_n),
                      .cmEnergyError = Eigen::VectorXd(_n),
                      .cs = Eigen::VectorXd(_n),
                      .csError = Eigen::VectorXd(_n)};
-  std::transform(measuredCS.begin(), measuredCS.end(),
-                 _measuredCSData.cmEnergy.data(),
+  std::transform(visibleCS.begin(), visibleCS.end(),
+                 _visibleCSData.cmEnergy.data(),
                  [](const CSData& x) { return x.cmEnergy; });
-  std::transform(measuredCS.begin(), measuredCS.end(),
-                 _measuredCSData.cmEnergyError.data(),
+  std::transform(visibleCS.begin(), visibleCS.end(),
+                 _visibleCSData.cmEnergyError.data(),
                  [](const CSData& x) { return x.cmEnergyError; });
-  std::transform(measuredCS.begin(), measuredCS.end(),
-                 _measuredCSData.cs.data(),
+  std::transform(visibleCS.begin(), visibleCS.end(),
+                 _visibleCSData.cs.data(),
                  [](const CSData& x) { return x.cs; });
-  std::transform(measuredCS.begin(), measuredCS.end(),
-                 _measuredCSData.csError.data(),
+  std::transform(visibleCS.begin(), visibleCS.end(),
+                 _visibleCSData.csError.data(),
                  [](const CSData& x) { return x.csError; });
 }
 
@@ -57,41 +57,41 @@ double BaseISRSolver::_energyThreshold() const { return _energyT; }
 double BaseISRSolver::_sThreshold() const { return _energyT * _energyT; }
 
 double BaseISRSolver::_s(std::size_t i) const {
-  return _measuredCSData.cmEnergy(i) * _measuredCSData.cmEnergy(i);
+  return _visibleCSData.cmEnergy(i) * _visibleCSData.cmEnergy(i);
 }
 
 double BaseISRSolver::_ecm(std::size_t i) const {
-  return _measuredCSData.cmEnergy(i);
+  return _visibleCSData.cmEnergy(i);
 }
 
 const Eigen::VectorXd& BaseISRSolver::_ecm() const {
-  return _measuredCSData.cmEnergy;
+  return _visibleCSData.cmEnergy;
 }
 
-Eigen::VectorXd& BaseISRSolver::_ecm() { return _measuredCSData.cmEnergy; }
+Eigen::VectorXd& BaseISRSolver::_ecm() { return _visibleCSData.cmEnergy; }
 
 const Eigen::VectorXd& BaseISRSolver::_ecmErr() const {
-  return _measuredCSData.cmEnergyError;
+  return _visibleCSData.cmEnergyError;
 }
 
 Eigen::VectorXd& BaseISRSolver::_ecmErr() {
-  return _measuredCSData.cmEnergyError;
+  return _visibleCSData.cmEnergyError;
 }
 
 const Eigen::VectorXd& BaseISRSolver::_vcs() const {
-  return _measuredCSData.cs;
+  return _visibleCSData.cs;
 }
 
-Eigen::VectorXd& BaseISRSolver::_vcs() { return _measuredCSData.cs; }
+Eigen::VectorXd& BaseISRSolver::_vcs() { return _visibleCSData.cs; }
 
 const Eigen::VectorXd& BaseISRSolver::_vcsErr() const {
-  return _measuredCSData.csError;
+  return _visibleCSData.csError;
 }
 
-Eigen::VectorXd& BaseISRSolver::_vcsErr() { return _measuredCSData.csError; }
+Eigen::VectorXd& BaseISRSolver::_vcsErr() { return _visibleCSData.csError; }
 
 Eigen::MatrixXd BaseISRSolver::_vcsInvErrMatrix() const {
-  return _measuredCSData.csError.array().pow(-2.).matrix().asDiagonal();
+  return _visibleCSData.csError.array().pow(-2.).matrix().asDiagonal();
 }
 
 const Eigen::VectorXd& BaseISRSolver::bcs() const { return _bornCS; }

@@ -42,7 +42,7 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
       "solver,s", po::value<std::string>(&(opts->solver)),
       "Solver: SLAE, Tikhonov")(
       "gname,g", po::value<std::string>(&(opts->gname))->default_value("vcs"),
-      "Name of the measured cross section graph.")(
+      "Name of the visible cross section graph.")(
       "ifname,i",
       po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
       "Path to input file.")(
@@ -70,12 +70,12 @@ int main(int argc, char* argv[]) {
   }
   BaseISRSolver* solver = nullptr;
   if (opts.solver == "SLAE") {
-    solver = new ISRSolverSLAE(opts.ifname, {.measuredCSGraphName = opts.gname,
+    solver = new ISRSolverSLAE(opts.ifname, {.visibleCSGraphName = opts.gname,
                                              .thresholdEnergy = opts.thsd,
                                              .energyUnitMeVs = false});
   } else if (opts.solver == "Tikhonov") {
     solver =
-        new ISRSolverTikhonov(opts.ifname, {.measuredCSGraphName = opts.gname,
+        new ISRSolverTikhonov(opts.ifname, {.visibleCSGraphName = opts.gname,
                                             .thresholdEnergy = opts.thsd,
                                             .energyUnitMeVs = false});
   }
@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
   }
   solver->solve();
   solver->save(opts.ofname,
-               {.measuredCSGraphName = opts.gname, .bornCSGraphName = "bcs"});
+               {.visibleCSGraphName = opts.gname, .bornCSGraphName = "bcs"});
   delete solver;
   return 0;
 }

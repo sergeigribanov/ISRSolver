@@ -23,13 +23,13 @@ typedef struct {
 } InterpPtSettings;
 
 typedef struct {
-  std::string measuredCSGraphName;
+  std::string visibleCSGraphName;
   double thresholdEnergy;
   bool energyUnitMeVs;
 } InputOptions;
 
 typedef struct {
-  std::string measuredCSGraphName;
+  std::string visibleCSGraphName;
   std::string bornCSGraphName;
 } OutputOptions;
 

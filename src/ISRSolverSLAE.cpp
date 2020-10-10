@@ -66,7 +66,7 @@ void ISRSolverSLAE::save(const std::string& outputPath,
   auto f1 = _createDerivativeInterpFunction(1, "interp1DivFCN");
   auto fl = TFile::Open(outputPath.c_str(), "recreate");
   fl->cd();
-  vcs.Write(outputOpts.measuredCSGraphName.c_str());
+  vcs.Write(outputOpts.visibleCSGraphName.c_str());
   bcs.Write(outputOpts.bornCSGraphName.c_str());
   intergalOperatorMatrix.Write("intergalOperatorMatrix");
   bornCSInverseErrorMatrix.Write("bornCSInverseErrorMatrix");
