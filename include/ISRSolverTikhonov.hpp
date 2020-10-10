@@ -10,12 +10,14 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   virtual ~ISRSolverTikhonov();
   virtual void solve() override;
   double getAlpha() const;
+  void setAlpha(double);
   const Eigen::MatrixXd& getHessian() const;
   void enableSolutionNorm2();
   void disableSolutionNorm2();
   void enableSolutionDerivativeNorm2();
   void disableSolutionDerivativeNorm2();
-  void setAlpha(double);
+  void disableSolutionPositivity();
+  void enableSolutionPositivity();
 
  protected:
   Eigen::RowVectorXd _polIntegralOp(int) const;
@@ -31,6 +33,7 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   void _evalInterpPointWiseDerivativeProjector();
 
  private:
+  bool _solutionPositivity;
   bool _enabledSolutionNorm2;
   bool _enabledSolutionDerivativeNorm2;
   double _alpha;

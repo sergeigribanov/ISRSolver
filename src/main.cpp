@@ -30,8 +30,8 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()("help,h",
                       "A simple tool designed in order to find numerical"
                       "solution of the Kuraev-Fadin equation.")
-    (
-     "thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+    ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+    ("enable-solution-positivity,p", "Setting positive limits to solution")
     ("disable-solution-norm,f", 
      "Disable solution norm in Tihonov's regularization functional")
     ("disable-solution-derivative-norm,d",
@@ -91,13 +91,15 @@ int main(int argc, char* argv[]) {
   if (vmap.count("alpha") && solverTikhonov) {
     solverTikhonov->setAlpha(opts.alpha);
   }
-  if (vmap.count("f") && solverTikhonov) {
+  if (vmap.count("disable-solution-norm") && solverTikhonov) {
     solverTikhonov->disableSolutionNorm2();
   }
-  if (vmap.count("d") && solverTikhonov) {
+  if (vmap.count("disable-solution-derivative-norm") && solverTikhonov) {
     solverTikhonov->disableSolutionDerivativeNorm2();
   }
-  
+  if (vmap.count("enable-solution-positivity") && solverTikhonov) {
+    solverTikhonov->enableSolutionPositivity();
+  }
   solver->solve();
   solver->save(opts.ofname,
                {.measuredCSGraphName = opts.gname, .bornCSGraphName = "bcs"});

@@ -31,6 +31,7 @@ ISRSolverTikhonov::ISRSolverTikhonov(const std::string& inputPath,
                                      const InputOptions& inputOpts,
                                      double alpha)
     : ISRSolverSLAE(inputPath, inputOpts),
+      _solutionPositivity(false),
       _enabledSolutionNorm2(true),
       _enabledSolutionDerivativeNorm2(true),
       _alpha(alpha) {}
@@ -42,9 +43,11 @@ void ISRSolverTikhonov::solve() {
   _evalDotProductOperator();
   _evalInterpPointWiseDerivativeProjector();
   _evalHessian();
-  std::vector<double> lowerBounds(_getN(), 0);
   nlopt::opt opt(nlopt::LD_MMA, _getN());
-  opt.set_lower_bounds(lowerBounds);
+  if (_solutionPositivity) {
+    std::vector<double> lowerBounds(_getN(), 0);
+    opt.set_lower_bounds(lowerBounds);
+  }
   opt.set_min_objective(objectiveFCN, this);
   opt.set_xtol_rel(1.e-6);
   std::vector<double> z(_getN(), 0);
@@ -191,4 +194,12 @@ void ISRSolverTikhonov::_evalHessian() {
 
 const Eigen::MatrixXd& ISRSolverTikhonov::getHessian() const {
   return _hessian;
+}
+
+void ISRSolverTikhonov::disableSolutionPositivity() {
+  _solutionPositivity = false;
+}
+
+void ISRSolverTikhonov::enableSolutionPositivity() {
+  _solutionPositivity = true;
 }
