@@ -41,10 +41,10 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
       "Thikhonov's regularization parameter.")(
       "solver,s", po::value<std::string>(&(opts->solver)),
       "Solver: SLAE, Tikhonov")(
-      "gname,g", po::value<std::string>(&(opts->gname))->default_value("mcs"),
+      "gname,g", po::value<std::string>(&(opts->gname))->default_value("vcs"),
       "Name of the measured cross section graph.")(
       "ifname,i",
-      po::value<std::string>(&(opts->ifname))->default_value("mcs.root"),
+      po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
       "Path to input file.")(
       "ofname,o",
       po::value<std::string>(&(opts->ofname))->default_value("bcs.root"),
