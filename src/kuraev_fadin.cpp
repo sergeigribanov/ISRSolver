@@ -55,9 +55,10 @@ double kuraev_fadin_kernel_multiplication(
 
 double kuraev_fadin_convolution(double s,
                                 const std::function<double(double)>& fcn,
-                                double min_x, double max_x) {
-  std::function<double(double)> fcnConv = [s, &fcn](double x) {
-    return kuraev_fadin_kernel_multiplication(x, s, fcn);
+                                double min_x, double max_x,
+				const std::function<double(double, double)>& efficiency) {
+  std::function<double(double)> fcnConv = [s, &fcn, &efficiency](double x) {
+    return kuraev_fadin_kernel_multiplication(x, s, fcn) * efficiency(x, s);
   };
   double error;
   double E = std::sqrt(s);

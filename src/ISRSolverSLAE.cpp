@@ -18,8 +18,9 @@
 using json = nlohmann::json;
 
 ISRSolverSLAE::ISRSolverSLAE(const std::string& inputPath,
-                             const InputOptions& inputOpts)
-    : BaseISRSolver(inputPath, inputOpts) {
+                             const InputOptions& inputOpts) :
+  BaseISRSolver(inputPath, inputOpts),
+  _efficiency([](double x, double s) {return 1.;}) {
   _setDefaultInterpSettings();
 }
 
@@ -157,11 +158,11 @@ Eigen::MatrixXd ISRSolverSLAE::_polConvKuraevFadinMatrix(int j) const {
   const std::size_t nc = _getNumCoeffs(j);
   Eigen::MatrixXd result(_getN(), nc);
   std::size_t k;
-  std::function<double(double)> fcn = [&k](double t) { return std::pow(t, k); };
+  std::function<double(double)> fcn = [&k, this](double t) {return std::pow(t, k); };
   for (std::size_t i = j; i < _getN(); ++i) {
     for (k = 0; k < nc; ++k) {
       result(i, k) =
-          kuraev_fadin_convolution(_s(i), fcn, _getXmin(i, j), _getXmax(i, j));
+	kuraev_fadin_convolution(_s(i), fcn, _getXmin(i, j), _getXmax(i, j), _efficiency);
     }
   }
   return result;
