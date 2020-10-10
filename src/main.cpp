@@ -29,8 +29,14 @@ typedef struct {
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()("help,h",
                       "A simple tool designed in order to find numerical"
-                      "solution of the Kuraev-Fadin equation.")(
-      "thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")(
+                      "solution of the Kuraev-Fadin equation.")
+    (
+     "thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+    ("disable-solution-norm,f", 
+     "Disable solution norm in Tihonov's regularization functional")
+    ("disable-solution-derivative-norm,d",
+     "Disable solution derivative norm in Tikhonov's regularization functional")
+    (
       "alpha,a", po::value<double>(&(opts->alpha)),
       "Thikhonov's regularization parameter.")(
       "solver,s", po::value<std::string>(&(opts->solver)),
@@ -85,6 +91,13 @@ int main(int argc, char* argv[]) {
   if (vmap.count("alpha") && solverTikhonov) {
     solverTikhonov->setAlpha(opts.alpha);
   }
+  if (vmap.count("f") && solverTikhonov) {
+    solverTikhonov->disableSolutionNorm2();
+  }
+  if (vmap.count("d") && solverTikhonov) {
+    solverTikhonov->disableSolutionDerivativeNorm2();
+  }
+  
   solver->solve();
   solver->save(opts.ofname,
                {.measuredCSGraphName = opts.gname, .bornCSGraphName = "bcs"});
