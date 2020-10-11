@@ -2,13 +2,17 @@
 
 #include <TFile.h>
 #include <TGraphErrors.h>
+#include <TH1F.h>
+#include <TH2F.h>
 
 #include <algorithm>
 #include <vector>
 
 BaseISRSolver::BaseISRSolver(const std::string& inputPath,
                              const InputOptions& inputOpts)
-    : _energyT(inputOpts.thresholdEnergy) {
+  : _energyT(inputOpts.thresholdEnergy),
+    _efficiency([](double x, double s) {return 1.;}),
+    _tefficiency(nullptr) {
   auto fl = TFile::Open(inputPath.c_str(), "read");
   auto graph = dynamic_cast<TGraphErrors*>(
       fl->Get(inputOpts.visibleCSGraphName.c_str()));
@@ -25,6 +29,9 @@ BaseISRSolver::BaseISRSolver(const std::string& inputPath,
                           .cs = graph->GetY()[i],
                           .cmEnergyError = graph->GetEX()[i] * energyKoeff,
                           .csError = graph->GetEY()[i]});
+  if (inputOpts.efficiencyName.length() > 0) {
+    _tefficiency = dynamic_cast<TEfficiency*>(fl->Get(inputOpts.efficiencyName.c_str()));
+  }
   fl->Close();
   delete fl;
   std::sort(
@@ -48,7 +55,28 @@ BaseISRSolver::BaseISRSolver(const std::string& inputPath,
                  [](const CSData& x) { return x.csError; });
 }
 
-BaseISRSolver::~BaseISRSolver() {}
+BaseISRSolver::~BaseISRSolver() {
+  if (_tefficiency) {
+    delete _tefficiency;
+  }
+}
+
+void BaseISRSolver::_setupEfficiency() {
+  if (_tefficiency->GetDimension() == 1) {
+    _efficiency = [this](double, double s) {
+      int bin = this->_tefficiency->FindFixBin(std::sqrt(s));
+      return this->_tefficiency->GetEfficiency(bin);
+    };
+  }
+  if (_tefficiency->GetDimension() == 1) {
+    _efficiency = [this](double x, double s) {
+      int bin = this->_tefficiency->FindFixBin(x, std::sqrt(s));
+      return this->_tefficiency->GetEfficiency(bin);
+    };
+  }
+
+    // TO DO : exception if dimension > 2
+}
 
 std::size_t BaseISRSolver::_getN() const { return _n; }
 
@@ -64,13 +92,13 @@ double BaseISRSolver::_ecm(std::size_t i) const {
   return _visibleCSData.cmEnergy(i);
 }
 
-const Eigen::VectorXd& BaseISRSolver::_ecm() const {
+const Eigen::VectorXd& BaseISRSolver::ecm() const {
   return _visibleCSData.cmEnergy;
 }
 
 Eigen::VectorXd& BaseISRSolver::_ecm() { return _visibleCSData.cmEnergy; }
 
-const Eigen::VectorXd& BaseISRSolver::_ecmErr() const {
+const Eigen::VectorXd& BaseISRSolver::ecmErr() const {
   return _visibleCSData.cmEnergyError;
 }
 
@@ -97,3 +125,7 @@ Eigen::MatrixXd BaseISRSolver::_vcsInvErrMatrix() const {
 const Eigen::VectorXd& BaseISRSolver::bcs() const { return _bornCS; }
 
 Eigen::VectorXd& BaseISRSolver::_bcs() { return _bornCS; }
+
+const std::function<double(double, double)>& BaseISRSolver::efficiency() const {
+  return _efficiency;
+}

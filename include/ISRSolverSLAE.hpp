@@ -1,9 +1,7 @@
 #ifndef __ISRSOLVER_SLAE_HPP__
 #define __ISRSOLVER_SLAE_HPP__
 
-#include <functional>
 #include <TF1.h>
-
 #include "BaseISRSolver.hpp"
 
 class ISRSolverSLAE : public BaseISRSolver {
@@ -39,7 +37,6 @@ class ISRSolverSLAE : public BaseISRSolver {
 
  private:
   std::vector<InterpPtSettings> _interpSettings;
-  std::function<double(double, double)> _efficiency;
   Eigen::MatrixXd _integralOperatorMatrix;
   Eigen::MatrixXd _invBornCSErrorMatrix;
 };

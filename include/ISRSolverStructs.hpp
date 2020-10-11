@@ -23,6 +23,7 @@ typedef struct {
 } InterpPtSettings;
 
 typedef struct {
+  std::string efficiencyName;
   std::string visibleCSGraphName;
   double thresholdEnergy;
   bool energyUnitMeVs;

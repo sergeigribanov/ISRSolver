@@ -8,7 +8,6 @@
 #include <boost/lexical_cast.hpp>
 #include <cmath>
 #include <fstream>
-#include <functional>
 #include <nlohmann/json.hpp>
 #include <set>
 
@@ -19,12 +18,12 @@ using json = nlohmann::json;
 
 ISRSolverSLAE::ISRSolverSLAE(const std::string& inputPath,
                              const InputOptions& inputOpts) :
-  BaseISRSolver(inputPath, inputOpts),
-  _efficiency([](double x, double s) {return 1.;}) {
+  BaseISRSolver(inputPath, inputOpts) {
   _setDefaultInterpSettings();
 }
 
-ISRSolverSLAE::~ISRSolverSLAE() {}
+ISRSolverSLAE::~ISRSolverSLAE() {
+}
 
 const Eigen::MatrixXd& ISRSolverSLAE::getIntegralOperatorMatrix() const {
   return _integralOperatorMatrix;
@@ -162,7 +161,7 @@ Eigen::MatrixXd ISRSolverSLAE::_polConvKuraevFadinMatrix(int j) const {
   for (std::size_t i = j; i < _getN(); ++i) {
     for (k = 0; k < nc; ++k) {
       result(i, k) =
-	kuraev_fadin_convolution(_s(i), fcn, _getXmin(i, j), _getXmax(i, j), _efficiency);
+	kuraev_fadin_convolution(_s(i), fcn, _getXmin(i, j), _getXmax(i, j), efficiency());
     }
   }
   return result;

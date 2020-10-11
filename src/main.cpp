@@ -18,7 +18,8 @@ typedef struct {
   double thsd;
   double alpha;
   double spoint;
-  std::string gname;
+  std::string vcs_name;
+  std::string efficiency_name;
   std::string lbcs;
   std::string ifname;
   std::string ofname;
@@ -36,14 +37,15 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
      "Disable solution norm in Tihonov's regularization functional")
     ("disable-solution-derivative-norm,d",
      "Disable solution derivative norm in Tikhonov's regularization functional")
-    (
-      "alpha,a", po::value<double>(&(opts->alpha)),
+    ("alpha,a", po::value<double>(&(opts->alpha)),
       "Thikhonov's regularization parameter.")(
       "solver,s", po::value<std::string>(&(opts->solver)),
       "Solver: SLAE, Tikhonov")(
-      "gname,g", po::value<std::string>(&(opts->gname))->default_value("vcs"),
-      "Name of the visible cross section graph.")(
-      "ifname,i",
+      "vcs-name,v", po::value<std::string>(&(opts->vcs_name))->default_value("vcs"),
+      "Name of the visible cross section graph.")
+    ("efficiency-name,e", po::value<std::string>(&(opts->efficiency_name)),
+     "TEfficiency object name")
+    ( "ifname,i",
       po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
       "Path to input file.")(
       "ofname,o",
@@ -70,14 +72,18 @@ int main(int argc, char* argv[]) {
   }
   BaseISRSolver* solver = nullptr;
   if (opts.solver == "SLAE") {
-    solver = new ISRSolverSLAE(opts.ifname, {.visibleCSGraphName = opts.gname,
-                                             .thresholdEnergy = opts.thsd,
-                                             .energyUnitMeVs = false});
+    solver = new ISRSolverSLAE(opts.ifname, {
+	.efficiencyName = opts.efficiency_name,
+	.visibleCSGraphName = opts.vcs_name,
+	.thresholdEnergy = opts.thsd,
+	.energyUnitMeVs = false});
   } else if (opts.solver == "Tikhonov") {
     solver =
-        new ISRSolverTikhonov(opts.ifname, {.visibleCSGraphName = opts.gname,
-                                            .thresholdEnergy = opts.thsd,
-                                            .energyUnitMeVs = false});
+        new ISRSolverTikhonov(opts.ifname, {
+	    .efficiencyName = opts.efficiency_name,
+	    .visibleCSGraphName = opts.vcs_name,
+	    .thresholdEnergy = opts.thsd,
+	    .energyUnitMeVs = false});
   }
   if (!solver) {
     std::cerr << "[!] Solver is not set." << std::endl;
@@ -102,7 +108,7 @@ int main(int argc, char* argv[]) {
   }
   solver->solve();
   solver->save(opts.ofname,
-               {.visibleCSGraphName = opts.gname, .bornCSGraphName = "bcs"});
+               {.visibleCSGraphName = opts.vcs_name, .bornCSGraphName = "bcs"});
   delete solver;
   return 0;
 }
