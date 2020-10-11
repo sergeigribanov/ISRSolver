@@ -50,7 +50,9 @@ void ISRSolverTikhonov::solve() {
   }
   opt.set_min_objective(objectiveFCN, this);
   opt.set_xtol_rel(1.e-6);
-  std::vector<double> z(_getN(), 0);
+  std::vector<double> z(_getN());
+  std::transform(_vcs().data(), _vcs().data() + _getN(), z.begin(),
+		 [](double arg) {return std::max(0., arg);});
   double minf;
   try {
     opt.optimize(z, minf);
