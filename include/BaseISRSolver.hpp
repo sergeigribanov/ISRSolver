@@ -7,6 +7,12 @@
 
 #include "ISRSolverStructs.hpp"
 
+typedef struct : std::exception {
+  const char* what() const noexcept {
+    return "[!] Wrong efficiency dimension.\n";
+  }
+} EfficiencyDimensionException;
+
 class BaseISRSolver {
  public:
   BaseISRSolver(const std::string& inputPath, const InputOptions& inputOpts);
@@ -33,7 +39,7 @@ class BaseISRSolver {
   Eigen::VectorXd& _vcsErr();
   Eigen::VectorXd& _bcs();
   Eigen::MatrixXd _vcsInvErrMatrix() const; 
-  void _setupEfficiency();
+  void _setupEfficiency() noexcept(false);
   
  private:
   double _energyT;

@@ -68,14 +68,16 @@ void BaseISRSolver::_setupEfficiency() {
       return this->_tefficiency->GetEfficiency(bin);
     };
   }
-  if (_tefficiency->GetDimension() == 1) {
+  if (_tefficiency->GetDimension() == 2) {
     _efficiency = [this](double x, double s) {
       int bin = this->_tefficiency->FindFixBin(x, std::sqrt(s));
       return this->_tefficiency->GetEfficiency(bin);
     };
   }
-
-    // TO DO : exception if dimension > 2
+  if (_tefficiency->GetDimension() > 2) {
+    EfficiencyDimensionException ex;
+    throw ex;
+  }
 }
 
 std::size_t BaseISRSolver::_getN() const { return _n; }
