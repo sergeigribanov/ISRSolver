@@ -205,3 +205,20 @@ void ISRSolverTikhonov::disableSolutionPositivity() {
 void ISRSolverTikhonov::enableSolutionPositivity() {
   _solutionPositivity = true;
 }
+
+double ISRSolverTikhonov::evalEqNorm2() const {
+  Eigen::VectorXd dv = getIntegralOperatorMatrix() * bcs() - _vcs();
+  Eigen::VectorXd invVCSErr2 = _vcsErr().array().pow(-2.).matrix();
+  Eigen::VectorXd dz = _getInterpPointWiseDerivativeProjector() * bcs();
+  return _getDotProdOp() *
+    (dv.array() * dv.array() * invVCSErr2.array()).matrix();
+}
+
+double ISRSolverTikhonov::evalSmoothnessConstraintNorm2() const {
+  Eigen::VectorXd dv = getIntegralOperatorMatrix() * bcs() - _vcs();
+  Eigen::VectorXd invVCSErr2 = _vcsErr().array().pow(-2.).matrix();
+  Eigen::VectorXd dz = _getInterpPointWiseDerivativeProjector() * bcs();
+  return _getDotProdOp() *
+    (_enabledSolutionNorm2 * bcs().array() * bcs().array() +
+     _enabledSolutionDerivativeNorm2 * dz.array() * dz.array()).matrix();
+}

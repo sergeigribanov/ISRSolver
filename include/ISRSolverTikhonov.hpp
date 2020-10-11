@@ -12,6 +12,8 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   double getAlpha() const;
   void setAlpha(double);
   const Eigen::MatrixXd& getHessian() const;
+  double evalEqNorm2() const;
+  double evalSmoothnessConstraintNorm2() const;
   void enableSolutionNorm2();
   void disableSolutionNorm2();
   void enableSolutionDerivativeNorm2();
