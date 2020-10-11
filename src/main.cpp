@@ -1,11 +1,4 @@
-#include <TAxis.h>
-#include <TF1.h>
-#include <TFile.h>
-#include <TGraph.h>
-#include <TGraphErrors.h>
-
 #include <boost/program_options.hpp>
-#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -17,10 +10,8 @@ namespace po = boost::program_options;
 typedef struct {
   double thsd;
   double alpha;
-  double spoint;
   std::string vcs_name;
   std::string efficiency_name;
-  std::string lbcs;
   std::string ifname;
   std::string ofname;
   std::string interp;
