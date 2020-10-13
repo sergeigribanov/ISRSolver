@@ -222,3 +222,47 @@ double ISRSolverTikhonov::evalSmoothnessConstraintNorm2() const {
     (_enabledSolutionNorm2 * bcs().array() * bcs().array() +
      _enabledSolutionDerivativeNorm2 * dz.array() * dz.array()).matrix();
 }
+
+double ISRSolverTikhonov::evalCurvature() const {
+  double ksi = evalSmoothnessConstraintNorm2();
+  double rho = evalEqNorm2();
+  double dksi = _evaldKsidAlpha();
+  return 2. * ksi * rho / dksi * (rho * ksi + _alpha * _alpha * ksi * dksi + _alpha * rho * dksi) /
+    std::pow(_alpha * _alpha * ksi * ksi + rho * rho, 1.5);
+}
+
+double ISRSolverTikhonov::_evaldKsidAlpha() const {
+  Eigen::VectorXd ds = _evaldSoldAlpha();
+  Eigen::VectorXd dz = _getInterpPointWiseDerivativeProjector() * bcs();
+  Eigen::VectorXd dsz = _getInterpPointWiseDerivativeProjector() * ds;
+  return _getDotProdOp() * (_enabledSolutionNorm2 * bcs().array() * ds.array() +
+			    _enabledSolutionDerivativeNorm2 * dz.array() * dsz.array()).matrix();
+}
+
+Eigen::VectorXd ISRSolverTikhonov::_evaldSoldAlpha() const {
+  Eigen::MatrixXd mQ = Eigen::MatrixXd::Zero(_getN(), _getN());
+  Eigen::MatrixXd mF = Eigen::MatrixXd::Zero(_getN(), _getN());
+  Eigen::MatrixXd mL = Eigen::MatrixXd::Zero(_getN(), _getN());
+  Eigen::VectorXd vB = Eigen::VectorXd::Zero(_getN());
+  Eigen::VectorXd invVCSErr2 = _vcsErr().array().pow(-2.).matrix();
+  for (std::size_t i = 0; i < _getN(); ++i) {
+    for (std::size_t l = 0; l < _getN(); ++l) {
+      vB(l) += _getDotProdOp()(i) * getIntegralOperatorMatrix()(i, l) * _vcs()(i) * invVCSErr2(i);
+      if (i == l && _enabledSolutionNorm2) {
+	mF(l, i) += _getDotProdOp()(i) * bcs()(i);
+      }
+      for (std::size_t k = 0; k < _getN(); ++k) {
+	mQ(l, k) += _getDotProdOp()(i) * getIntegralOperatorMatrix()(i, l) *
+	  getIntegralOperatorMatrix()(i, k) * invVCSErr2(i);
+	if (_enabledSolutionDerivativeNorm2) {
+	  mL(l, k) += _getDotProdOp()(i) * _getInterpPointWiseDerivativeProjector()(i, l) *
+	    _getInterpPointWiseDerivativeProjector()(i, k);
+	}
+      }
+    }
+  }
+  Eigen::MatrixXd mP = mF + mL;
+  Eigen::MatrixXd mT = mQ + _alpha * mP;
+  mT = mT.inverse();
+  return -mT * mP * mT * vB;
+}

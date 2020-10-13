@@ -14,6 +14,7 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   const Eigen::MatrixXd& getHessian() const;
   double evalEqNorm2() const;
   double evalSmoothnessConstraintNorm2() const;
+  double evalCurvature() const;
   void enableSolutionNorm2();
   void disableSolutionNorm2();
   void enableSolutionDerivativeNorm2();
@@ -30,6 +31,8 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   bool isSolutionNorm2DerivativeEnabled() const;
   double _evalRegFuncNorm2(const Eigen::VectorXd&) const;
   Eigen::VectorXd _evalRegFuncGradNorm2(const Eigen::VectorXd&) const;
+  double _evaldKsidAlpha() const;
+  Eigen::VectorXd _evaldSoldAlpha() const;
   void _evalHessian();
   void _evalDotProductOperator();
   void _evalInterpPointWiseDerivativeProjector();

@@ -87,8 +87,12 @@ int main(int argc, char* argv[]) {
   }
   std::vector<double> x;
   std::vector<double> y;
+  std::vector<double> a;
+  std::vector<double> curv;
   x.reserve(opts.alpha_n);
   y.reserve(opts.alpha_n);
+  a.reserve(opts.alpha_n);
+  curv.reserve(opts.alpha_n);
   double h = std::pow(opts.alpha_max / opts.alpha_min,  1. / (opts.alpha_n - 1));
   for (int i = 0; i < opts.alpha_n; ++i) {
     double alpha = opts.alpha_min * std::pow(h, i);
@@ -99,11 +103,15 @@ int main(int argc, char* argv[]) {
     solver.solve();
     x.push_back(std::sqrt(solver.evalEqNorm2()));
     y.push_back(std::sqrt(solver.evalSmoothnessConstraintNorm2()));
+    a.push_back(alpha);
+    curv.push_back(solver.evalCurvature());
   }
   TGraph lcurve(opts.alpha_n, x.data(), y.data());
+  TGraph curvature(opts.alpha_n, a.data(), curv.data());
   auto fl = TFile::Open(opts.ofname.c_str(), "recreate");
   fl->cd();
   lcurve.Write("lcurve");
+  curvature.Write("curvature");
   fl->Close();
   delete fl;
   return 0;
