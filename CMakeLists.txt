@@ -23,7 +23,7 @@ file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/convolution.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/lcurve.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolverTikhonovOptRegParam.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-lcurve.cpp)
 file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/env.sh.in env.sh)
 add_library(isr SHARED ${SOURCES})
@@ -67,12 +67,12 @@ target_link_libraries(lcurve
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
   isr)
-add_executable(isrsolverTikhonovOptRegParam ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolverTikhonovOptRegParam.cpp)
-target_include_directories(isrsolverTikhonovOptRegParam
+add_executable(isrsolver-lcurve ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-lcurve.cpp)
+target_include_directories(isrsolver-lcurve
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolverTikhonovOptRegParam
+target_link_libraries(isrsolver-lcurve
   PRIVATE
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
@@ -101,7 +101,7 @@ PUBLIC_HEADER "${HEADERS}")
 install(TARGETS isrsolver DESTINATION bin)
 install(TARGETS lcurve DESTINATION bin)
 install(TARGETS isrconv DESTINATION bin)
-install(TARGETS isrsolverTikhonovOptRegParam DESTINATION bin)
+install(TARGETS isrsolver-lcurve DESTINATION bin)
 install(FILES ${PROJECT_BINARY_DIR}/env.sh DESTINATION bin)
 install(TARGETS isr
   EXPORT ISRSolverTargets
