@@ -7,6 +7,7 @@
 class ISRSolverSLAE : public BaseISRSolver {
  public:
   ISRSolverSLAE(const std::string& inputPath, const InputOptions& inputOpts);
+  ISRSolverSLAE(const ISRSolverSLAE&);
   virtual ~ISRSolverSLAE();
   const Eigen::MatrixXd& getIntegralOperatorMatrix() const;
   const Eigen::MatrixXd& getInverseBornCSErrorMatrix() const;

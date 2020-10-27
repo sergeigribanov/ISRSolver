@@ -7,6 +7,7 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
  public:
   ISRSolverTikhonov(const std::string& inputPath, const InputOptions& inputOpts,
                     double alpha = 1.e-2);
+  ISRSolverTikhonov(const ISRSolverTikhonov&);
   virtual ~ISRSolverTikhonov();
   virtual void solve() override;
   double getAlpha() const;
@@ -15,6 +16,7 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   double evalEqNorm2() const;
   double evalSmoothnessConstraintNorm2() const;
   double evalCurvature() const;
+  double evalApproxRegRelativeError(const Eigen::VectorXd&) const;
   void enableSolutionNorm2();
   void disableSolutionNorm2();
   void enableSolutionDerivativeNorm2();

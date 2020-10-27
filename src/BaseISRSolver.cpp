@@ -55,6 +55,16 @@ BaseISRSolver::BaseISRSolver(const std::string& inputPath,
                  [](const CSData& x) { return x.csError; });
 }
 
+BaseISRSolver::BaseISRSolver(const BaseISRSolver& solver) :
+  _energyT(solver._energyT), _n(solver._n),
+  _visibleCSData(solver._visibleCSData),
+  _efficiency([](double x, double s) {return 1.;}),
+  _tefficiency(solver._tefficiency),
+  _bornCS(solver._bornCS) {
+  if (_tefficiency)
+    _setupEfficiency();
+}
+
 BaseISRSolver::~BaseISRSolver() {
   if (_tefficiency) {
     delete _tefficiency;

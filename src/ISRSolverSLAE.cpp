@@ -22,6 +22,13 @@ ISRSolverSLAE::ISRSolverSLAE(const std::string& inputPath,
   _setDefaultInterpSettings();
 }
 
+ISRSolverSLAE::ISRSolverSLAE(const ISRSolverSLAE& solver) :
+  BaseISRSolver::BaseISRSolver(solver),
+  _interpSettings(solver._interpSettings),
+  _integralOperatorMatrix(solver._integralOperatorMatrix),
+  _invBornCSErrorMatrix(solver._invBornCSErrorMatrix) {
+}
+
 ISRSolverSLAE::~ISRSolverSLAE() {
 }
 

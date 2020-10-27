@@ -36,6 +36,16 @@ ISRSolverTikhonov::ISRSolverTikhonov(const std::string& inputPath,
       _enabledSolutionDerivativeNorm2(true),
       _alpha(alpha) {}
 
+ISRSolverTikhonov::ISRSolverTikhonov(const ISRSolverTikhonov& solver) :
+  ISRSolverSLAE::ISRSolverSLAE(solver),
+  _solutionPositivity(solver._solutionPositivity),
+  _enabledSolutionNorm2(solver._enabledSolutionNorm2),
+  _enabledSolutionDerivativeNorm2(solver._enabledSolutionDerivativeNorm2),
+  _alpha(solver._alpha),
+  _dotProdOp(solver._dotProdOp),
+  _interpPointWiseDerivativeProjector(solver._interpPointWiseDerivativeProjector),
+  _hessian(solver._hessian) {}
+
 ISRSolverTikhonov::~ISRSolverTikhonov() {}
 
 void ISRSolverTikhonov::solve() {
@@ -265,4 +275,16 @@ Eigen::VectorXd ISRSolverTikhonov::_evaldSoldAlpha() const {
   Eigen::MatrixXd mT = mQ + _alpha * mP;
   mT = mT.inverse();
   return -mT * mP * mT * vB;
+}
+
+double ISRSolverTikhonov::evalApproxRegRelativeError(const Eigen::VectorXd& origBCS) const {
+  ISRSolverTikhonov solver(*this);
+  solver._vcs() = getIntegralOperatorMatrix() * origBCS;
+  solver.solve();
+  Eigen::VectorXd dbcs = (origBCS - solver.bcs());
+  double errNorm = _getDotProdOp() * (dbcs.array() * dbcs.array()).matrix();
+  errNorm = std::sqrt(errNorm);
+  double bcsNorm = _getDotProdOp() * (origBCS.array() * origBCS.array()).matrix();
+  bcsNorm = std::sqrt(bcsNorm);
+  return errNorm / bcsNorm;
 }
