@@ -50,8 +50,9 @@ double alphaObjective(unsigned n, const double* palpha, double* grad, void* solv
    auto sp = reinterpret_cast<ISRSolverTikhonov*>(solver);
    sp->setAlpha(*palpha);
    sp->solve();
-   double enRange = sp->getMaxEnergy() - sp->getThresholdEnergy();
-   return std::pow(sp->evalEqNorm2() - enRange, 2);
+   double sRange = sp->getMaxEnergy() * sp->getMaxEnergy() -
+     sp->getThresholdEnergy() * sp->getThresholdEnergy();
+   return std::pow(sp->evalEqNorm2() - sRange, 2);
 }
 
 int main(int argc, char* argv[]) {
