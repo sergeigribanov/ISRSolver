@@ -1,5 +1,6 @@
 #include <boost/program_options.hpp>
 #include <iostream>
+#include <utility>
 #include <string>
 #include <nlopt.hpp>
 #include "ISRSolverTikhonov.hpp"
@@ -9,6 +10,7 @@ namespace po = boost::program_options;
 typedef struct {
   double thsd;
   double alpha;
+  double dp_coeff;
   std::string vcs_name;
   std::string efficiency_name;
   std::string ifname;
@@ -21,6 +23,8 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
                       "A simple tool designed in order to find numerical"
                       "solution of the Kuraev-Fadin equation.")
     ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+    ("dp-coeff,c", po::value<double>(&(opts->dp_coeff))->default_value(1.),
+     "Discripancy principle coefficient")
     ("enable-solution-positivity,p", "Setting positive limits to solution")
     ("disable-solution-norm,f", 
      "Disable solution norm in Tihonov's regularization functional")
@@ -46,13 +50,14 @@ void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }
 
-double alphaObjective(unsigned n, const double* palpha, double* grad, void* solver) {
-   auto sp = reinterpret_cast<ISRSolverTikhonov*>(solver);
-   sp->setAlpha(*palpha);
-   sp->solve();
-   double sRange = sp->getMaxEnergy() * sp->getMaxEnergy() -
-     sp->getThresholdEnergy() * sp->getThresholdEnergy();
-   return std::pow(sp->evalEqNorm2() - sRange, 2);
+double alphaObjective(unsigned n, const double* palpha, double* grad, void* args) {
+  auto pargs = reinterpret_cast<std::pair<ISRSolverTikhonov*, double>*>(args);
+  auto sp = pargs->first;
+  double dp_coeff = pargs->second;
+  sp->setAlpha(*palpha);
+  sp->solve();
+   return std::pow(std::sqrt(sp->evalEqNorm2NoErr()) -
+		   dp_coeff * std::sqrt(sp->evalApproxPerturbNorm2()), 2);
 }
 
 int main(int argc, char* argv[]) {
@@ -86,7 +91,8 @@ int main(int argc, char* argv[]) {
   std::vector<double> upperBounds(1, 1);
   opt.set_lower_bounds(lowerBounds);
   opt.set_upper_bounds(upperBounds);
-  opt.set_min_objective(alphaObjective, solver);
+  auto args = std::make_pair(solver, opts.dp_coeff);
+  opt.set_min_objective(alphaObjective, &args);
   opt.set_xtol_rel(1.e-3);
   double minf;
   opt.optimize(z, minf);
