@@ -52,7 +52,6 @@ Eigen::MatrixXd& ISRSolverSLAE::_getInverseBornCSErrorMatrix() {
 }
 
 void ISRSolverSLAE::solve() {
-  _evalDotProductOperator();
   _evalEqMatrix();
   _bcs() =
       _integralOperatorMatrix.completeOrthogonalDecomposition().solve(_vcs());
@@ -197,7 +196,7 @@ void ISRSolverSLAE::_evalEqMatrix() {
     }
   }
   if (isEnergySpreadEnabled()) {
-    _integralOperatorMatrix = _energySpreadMatrix() * _integralOperatorMatrix;
+    _integralOperatorMatrix =  _energySpreadMatrix() * _integralOperatorMatrix;
   }
 }
 
@@ -305,19 +304,51 @@ const Eigen::RowVectorXd& ISRSolverSLAE::_getDotProdOp() const {
   return _dotProdOp;
 }
 
-Eigen::RowVectorXd ISRSolverSLAE::_energySpreadWeights(std::size_t j) const {
-  Eigen::VectorXd result = Eigen::RowVectorXd::Zero(_getN());
-  for (std::size_t i = 0; i < _getN(); ++i) {
-    double scoeff = 2 * _ecmErr(j) * _ecmErr(j);
-    result(i) = std::exp(-std::pow(_ecm(i) - _ecm(j), 2) / scoeff) / std::sqrt(M_PI * scoeff);             ;
-  }
-  return result;
+
+double ISRSolverSLAE::_energySpreadWeight(double q2, std::size_t i) const {
+  double scoeff = 2 * _ecmErr(i) * _ecmErr(i);
+  return 0.5 * std::exp(-std::pow(std::sqrt(q2) - _ecm(i), 2) / scoeff) /
+    std::sqrt(M_PI * scoeff) / std::sqrt(q2);
 }
 
 Eigen::MatrixXd ISRSolverSLAE::_energySpreadMatrix() const {
   Eigen::MatrixXd result = Eigen::MatrixXd::Zero(_getN(), _getN());
   for (std::size_t j = 0; j < _getN(); ++j) {
-    result.row(j) = _getDotProdOp().array() * _energySpreadWeights(j).array();
+    result.row(j) = _evalGaussDotProductOperator(j);
+  }
+  return result;
+}
+
+Eigen::RowVectorXd ISRSolverSLAE::_polGaussIntegralOp(int i, int j) const {
+  const std::size_t nc = _getNumCoeffs(j);
+  Eigen::VectorXd result(nc);
+  std::size_t k;
+  double error;
+  double sMin;
+  if (j == 0) {
+    sMin = _sThreshold();
+  } else {
+    sMin = _s(j - 1);
+  }
+  double sMax = _s(j);
+  std::function<double(double)> fcn =
+    [&k, i, this](double t) {
+      return std::pow(t, k) * this->_energySpreadWeight(t, i);
+    };
+  for (k = 0; k < nc; ++k) {
+    result(k) = integrate(fcn, sMin, sMax, error);
+  }
+  return result.transpose();
+}
+
+Eigen::RowVectorXd ISRSolverSLAE::_evalPolGaussA(int i, int j) const {
+  return _polGaussIntegralOp(i, j) * _interpInvMatrix(j) * _permutation(j);
+}
+
+Eigen::RowVectorXd ISRSolverSLAE::_evalGaussDotProductOperator(std::size_t i) const {
+  Eigen::RowVectorXd result = Eigen::RowVectorXd::Zero(_getN());
+  for (std::size_t j = 0; j < _getN(); ++j) {
+    result += _evalPolGaussA(i, j);
   }
   return result;
 }

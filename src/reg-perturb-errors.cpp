@@ -25,6 +25,7 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
                       "A simple tool designed in order to find numerical"
                       "solution of the Kuraev-Fadin equation.")
     ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+    ("enable-energy-spread,g", "Enable energy spread")
     ("n-points,n", po::value<int>(&(opts->n))->default_value(100),
      "Number of points in regularization error graph.")
     ("alpha-min,m", po::value<double>(&(opts->alpha_min))->default_value(0.),
@@ -107,6 +108,9 @@ int main(int argc, char* argv[]) {
   }
   if (vmap.count("enable-solution-positivity")) {
     solver->enableSolutionPositivity();
+  }
+  if (vmap.count("enable-energy-spread")) {
+    solver->enableEnergySpread();
   }
   TGraph relRegErr;
   TGraph relPerturpErr;

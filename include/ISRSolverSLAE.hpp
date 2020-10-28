@@ -29,9 +29,12 @@ class ISRSolverSLAE : public BaseISRSolver {
   Eigen::MatrixXd _polConvKuraevFadinMatrix(int) const;
   Eigen::MatrixXd _evalA(int) const;
   void _evalEqMatrix();
-  Eigen::RowVectorXd _energySpreadWeights(std::size_t) const;
+  double _energySpreadWeight(double, std::size_t) const;
   Eigen::MatrixXd _energySpreadMatrix() const;
   Eigen::RowVectorXd _polIntegralOp(int) const;
+  Eigen::RowVectorXd _polGaussIntegralOp(int, int) const;
+  Eigen::RowVectorXd _evalPolGaussA(int, int) const;
+  Eigen::RowVectorXd _evalGaussDotProductOperator(std::size_t) const;
   Eigen::RowVectorXd _evalPolA(int) const;
   const Eigen::RowVectorXd& _getDotProdOp() const;
   void _evalDotProductOperator();
