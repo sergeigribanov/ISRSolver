@@ -10,7 +10,8 @@
 
 BaseISRSolver::BaseISRSolver(const std::string& inputPath,
                              const InputOptions& inputOpts)
-  : _energyT(inputOpts.thresholdEnergy),
+  : _energySpread(false),
+  _energyT(inputOpts.thresholdEnergy),
     _efficiency([](double x, double s) {return 1.;}),
     _tefficiency(nullptr) {
   auto fl = TFile::Open(inputPath.c_str(), "read");
@@ -56,6 +57,7 @@ BaseISRSolver::BaseISRSolver(const std::string& inputPath,
 }
 
 BaseISRSolver::BaseISRSolver(const BaseISRSolver& solver) :
+  _energySpread(solver._energySpread),
   _energyT(solver._energyT), _n(solver._n),
   _visibleCSData(solver._visibleCSData),
   _efficiency([](double x, double s) {return 1.;}),
@@ -152,4 +154,16 @@ double BaseISRSolver::getMinEnergy() const {
 
 double BaseISRSolver::getMaxEnergy() const {
   return _visibleCSData.cmEnergy(_n - 1);
+}
+
+bool BaseISRSolver::isEnergySpreadEnabled() const {
+  return _energySpread;
+}
+
+void BaseISRSolver::enableEnergySpread() {
+  _energySpread = true;
+}
+
+void BaseISRSolver::disableEnergySpread() {
+  _energySpread = false;
 }

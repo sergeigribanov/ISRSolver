@@ -28,6 +28,9 @@ class BaseISRSolver {
   const Eigen::VectorXd& ecm() const;
   const Eigen::VectorXd& ecmErr() const;
   const std::function<double(double, double)>& efficiency() const;
+  bool isEnergySpreadEnabled() const;
+  void enableEnergySpread();
+  void disableEnergySpread();
 
  protected:
   std::size_t _getN() const;
@@ -46,6 +49,7 @@ class BaseISRSolver {
   void _setupEfficiency() noexcept(false);
   
  private:
+  bool _energySpread;
   double _energyT;
   std::size_t _n;
   CSVecData _visibleCSData;
