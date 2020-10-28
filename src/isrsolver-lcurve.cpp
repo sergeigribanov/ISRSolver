@@ -21,6 +21,7 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
                       "A simple tool designed in order to find numerical"
                       "solution of the Kuraev-Fadin equation.")
     ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+    ("enable-energy-spread,g", "Enable energy spread")
     ("enable-solution-positivity,p", "Setting positive limits to solution")
     ("disable-solution-norm,f", 
      "Disable solution norm in Tihonov's regularization functional")
@@ -78,6 +79,9 @@ int main(int argc, char* argv[]) {
   }
   if (vmap.count("enable-solution-positivity")) {
     solver->enableSolutionPositivity();
+  }
+  if (vmap.count("enable-energy-spread")) {
+    solver->enableEnergySpread();
   }
   nlopt::opt opt(nlopt::LN_COBYLA, 1);
   std::vector<double> lowerBounds(1, 0);

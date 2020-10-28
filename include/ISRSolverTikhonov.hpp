@@ -29,9 +29,6 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   void enableSolutionPositivity();
 
  protected:
-  Eigen::RowVectorXd _polIntegralOp(int) const;
-  Eigen::RowVectorXd _evalPolA(int) const;
-  const Eigen::RowVectorXd& _getDotProdOp() const;
   const Eigen::MatrixXd& _getInterpPointWiseDerivativeProjector() const;
   bool isSolutionNorm2Enabled() const;
   bool isSolutionNorm2DerivativeEnabled() const;
@@ -40,7 +37,6 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   double _evaldKsidAlpha() const;
   Eigen::VectorXd _evaldSoldAlpha() const;
   void _evalHessian();
-  void _evalDotProductOperator();
   void _evalInterpPointWiseDerivativeProjector();
 
  private:
@@ -48,7 +44,6 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   bool _enabledSolutionNorm2;
   bool _enabledSolutionDerivativeNorm2;
   double _alpha;
-  Eigen::RowVectorXd _dotProdOp;
   Eigen::MatrixXd _interpPointWiseDerivativeProjector;
   Eigen::MatrixXd _hessian;
   friend double objectiveFCN(unsigned, const double*, double*, void*);

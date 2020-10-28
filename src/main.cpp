@@ -23,6 +23,7 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
                       "A simple tool designed in order to find numerical"
                       "solution of the Kuraev-Fadin equation.")
     ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+    ("enable-energy-spread,g", "Enable energy spread")
     ("enable-solution-positivity,p", "Setting positive limits to solution")
     ("disable-solution-norm,f", 
      "Disable solution norm in Tihonov's regularization functional")
@@ -83,6 +84,9 @@ int main(int argc, char* argv[]) {
   ISRSolverSLAE* solverSLAE = dynamic_cast<ISRSolverSLAE*>(solver);
   if (vmap.count("interp") && solverSLAE) {
     solverSLAE->setInterpSettings(opts.interp);
+  }
+  if (vmap.count("enable-energy-spread")) {
+    solverSLAE->enableEnergySpread();
   }
   ISRSolverTikhonov* solverTikhonov = dynamic_cast<ISRSolverTikhonov*>(solver);
   if (vmap.count("alpha") && solverTikhonov) {

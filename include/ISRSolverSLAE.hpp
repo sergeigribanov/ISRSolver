@@ -29,6 +29,12 @@ class ISRSolverSLAE : public BaseISRSolver {
   Eigen::MatrixXd _polConvKuraevFadinMatrix(int) const;
   Eigen::MatrixXd _evalA(int) const;
   void _evalEqMatrix();
+  Eigen::RowVectorXd _energySpreadWeights(std::size_t) const;
+  Eigen::MatrixXd _energySpreadMatrix() const;
+  Eigen::RowVectorXd _polIntegralOp(int) const;
+  Eigen::RowVectorXd _evalPolA(int) const;
+  const Eigen::RowVectorXd& _getDotProdOp() const;
+  void _evalDotProductOperator();
   TF1* _createInterpFunction() const;
   TF1* _createDerivativeInterpFunction(std::size_t, const std::string&) const;
   Eigen::RowVectorXd _interpProjector(double) const;
@@ -40,6 +46,7 @@ class ISRSolverSLAE : public BaseISRSolver {
   std::vector<InterpPtSettings> _interpSettings;
   Eigen::MatrixXd _integralOperatorMatrix;
   Eigen::MatrixXd _invBornCSErrorMatrix;
+  Eigen::RowVectorXd _dotProdOp;
 };
 
 #endif

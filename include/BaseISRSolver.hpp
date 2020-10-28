@@ -38,6 +38,7 @@ class BaseISRSolver {
   double _sThreshold() const;
   double _s(std::size_t) const;
   double _ecm(std::size_t) const;
+  double _ecmErr(std::size_t) const;
   Eigen::VectorXd& _ecm();
   Eigen::VectorXd& _ecmErr();
   const Eigen::VectorXd& _vcs() const;

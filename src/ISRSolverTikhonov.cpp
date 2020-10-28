@@ -42,15 +42,14 @@ ISRSolverTikhonov::ISRSolverTikhonov(const ISRSolverTikhonov& solver) :
   _enabledSolutionNorm2(solver._enabledSolutionNorm2),
   _enabledSolutionDerivativeNorm2(solver._enabledSolutionDerivativeNorm2),
   _alpha(solver._alpha),
-  _dotProdOp(solver._dotProdOp),
   _interpPointWiseDerivativeProjector(solver._interpPointWiseDerivativeProjector),
   _hessian(solver._hessian) {}
 
 ISRSolverTikhonov::~ISRSolverTikhonov() {}
 
 void ISRSolverTikhonov::solve() {
-  _evalEqMatrix();
   _evalDotProductOperator();
+  _evalEqMatrix();
   _evalInterpPointWiseDerivativeProjector();
   _evalHessian();
   nlopt::opt opt(nlopt::LD_MMA, _getN());
@@ -100,40 +99,6 @@ double ISRSolverTikhonov::_evalRegFuncNorm2(const Eigen::VectorXd& z) const {
           _enabledSolutionNorm2 * _alpha * z.array() * z.array() +
           _enabledSolutionDerivativeNorm2 * _alpha * dz.array() * dz.array())
              .matrix();
-}
-
-Eigen::RowVectorXd ISRSolverTikhonov::_polIntegralOp(int j) const {
-  const std::size_t nc = _getNumCoeffs(j);
-  Eigen::VectorXd result(nc);
-  std::size_t k;
-  double error;
-  double sMin;
-  if (j == 0) {
-    sMin = _sThreshold();
-  } else {
-    sMin = _s(j - 1);
-  }
-  double sMax = _s(j);
-  std::function<double(double)> fcn = [&k](double t) { return std::pow(t, k); };
-  for (k = 0; k < nc; ++k) {
-    result(k) = integrate(fcn, sMin, sMax, error);
-  }
-  return result.transpose();
-}
-
-Eigen::RowVectorXd ISRSolverTikhonov::_evalPolA(int j) const {
-  return _polIntegralOp(j) * _interpInvMatrix(j) * _permutation(j);
-}
-
-void ISRSolverTikhonov::_evalDotProductOperator() {
-  _dotProdOp = Eigen::RowVectorXd::Zero(_getN());
-  for (std::size_t i = 0; i < _getN(); ++i) {
-    _dotProdOp += _evalPolA(i);
-  }
-}
-
-const Eigen::RowVectorXd& ISRSolverTikhonov::_getDotProdOp() const {
-  return _dotProdOp;
 }
 
 void ISRSolverTikhonov::_evalInterpPointWiseDerivativeProjector() {

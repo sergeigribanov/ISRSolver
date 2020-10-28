@@ -11,6 +11,8 @@
 #include <nlohmann/json.hpp>
 #include <set>
 
+#include <iostream>
+
 #include "integration.hpp"
 #include "kuraev_fadin.hpp"
 
@@ -26,7 +28,8 @@ ISRSolverSLAE::ISRSolverSLAE(const ISRSolverSLAE& solver) :
   BaseISRSolver::BaseISRSolver(solver),
   _interpSettings(solver._interpSettings),
   _integralOperatorMatrix(solver._integralOperatorMatrix),
-  _invBornCSErrorMatrix(solver._invBornCSErrorMatrix) {
+  _invBornCSErrorMatrix(solver._invBornCSErrorMatrix),
+  _dotProdOp(solver._dotProdOp) {
 }
 
 ISRSolverSLAE::~ISRSolverSLAE() {
@@ -49,6 +52,7 @@ Eigen::MatrixXd& ISRSolverSLAE::_getInverseBornCSErrorMatrix() {
 }
 
 void ISRSolverSLAE::solve() {
+  _evalDotProductOperator();
   _evalEqMatrix();
   _bcs() =
       _integralOperatorMatrix.completeOrthogonalDecomposition().solve(_vcs());
@@ -192,6 +196,9 @@ void ISRSolverSLAE::_evalEqMatrix() {
       _integralOperatorMatrix(i, p) += ai[i](i, p);
     }
   }
+  if (isEnergySpreadEnabled()) {
+    _integralOperatorMatrix = _energySpreadMatrix() * _integralOperatorMatrix;
+  }
 }
 
 TF1* ISRSolverSLAE::_createInterpFunction() const {
@@ -263,4 +270,54 @@ Eigen::VectorXd ISRSolverSLAE::_bcsErr() const {
 
 void ISRSolverSLAE::_setDefaultInterpSettings() {
   _interpSettings.resize(_getN(), {.numCoeffs = 2, .nPointsLeft = 1});
+}
+
+Eigen::RowVectorXd ISRSolverSLAE::_polIntegralOp(int j) const {
+  const std::size_t nc = _getNumCoeffs(j);
+  Eigen::VectorXd result(nc);
+  std::size_t k;
+  double error;
+  double sMin;
+  if (j == 0) {
+    sMin = _sThreshold();
+  } else {
+    sMin = _s(j - 1);
+  }
+  double sMax = _s(j);
+  std::function<double(double)> fcn = [&k](double t) { return std::pow(t, k); };
+  for (k = 0; k < nc; ++k) {
+    result(k) = integrate(fcn, sMin, sMax, error);
+  }
+  return result.transpose();
+}
+
+Eigen::RowVectorXd ISRSolverSLAE::_evalPolA(int j) const {
+  return _polIntegralOp(j) * _interpInvMatrix(j) * _permutation(j);
+}
+
+void ISRSolverSLAE::_evalDotProductOperator() {
+  _dotProdOp = Eigen::RowVectorXd::Zero(_getN());
+  for (std::size_t i = 0; i < _getN(); ++i) {
+    _dotProdOp += _evalPolA(i);
+  }
+}
+const Eigen::RowVectorXd& ISRSolverSLAE::_getDotProdOp() const {
+  return _dotProdOp;
+}
+
+Eigen::RowVectorXd ISRSolverSLAE::_energySpreadWeights(std::size_t j) const {
+  Eigen::VectorXd result = Eigen::RowVectorXd::Zero(_getN());
+  for (std::size_t i = 0; i < _getN(); ++i) {
+    double scoeff = 2 * _ecmErr(j) * _ecmErr(j);
+    result(i) = std::exp(-std::pow(_ecm(i) - _ecm(j), 2) / scoeff) / std::sqrt(M_PI * scoeff);             ;
+  }
+  return result;
+}
+
+Eigen::MatrixXd ISRSolverSLAE::_energySpreadMatrix() const {
+  Eigen::MatrixXd result = Eigen::MatrixXd::Zero(_getN(), _getN());
+  for (std::size_t j = 0; j < _getN(); ++j) {
+    result.row(j) = _getDotProdOp().array() * _energySpreadWeights(j).array();
+  }
+  return result;
 }

@@ -120,6 +120,10 @@ Eigen::VectorXd& BaseISRSolver::_ecmErr() {
   return _visibleCSData.cmEnergyError;
 }
 
+double BaseISRSolver::_ecmErr(std::size_t i) const {
+  return  _visibleCSData.cmEnergyError(i);
+}
+
 const Eigen::VectorXd& BaseISRSolver::_vcs() const {
   return _visibleCSData.cs;
 }
