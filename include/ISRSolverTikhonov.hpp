@@ -17,6 +17,8 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   double evalSmoothnessConstraintNorm2() const;
   double evalCurvature() const;
   double evalApproxRegRelativeError(const Eigen::VectorXd&) const;
+  double evalApproxPerturbRelativeError(const Eigen::VectorXd&,
+					const Eigen::VectorXd&) const;
   void enableSolutionNorm2();
   void disableSolutionNorm2();
   void enableSolutionDerivativeNorm2();

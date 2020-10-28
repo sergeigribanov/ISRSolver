@@ -288,3 +288,15 @@ double ISRSolverTikhonov::evalApproxRegRelativeError(const Eigen::VectorXd& orig
   bcsNorm = std::sqrt(bcsNorm);
   return errNorm / bcsNorm;
 }
+
+double ISRSolverTikhonov::evalApproxPerturbRelativeError(const Eigen::VectorXd& origBCS,
+							 const Eigen::VectorXd& vcsPerturbation) const {
+  ISRSolverTikhonov solver(*this);
+  solver._vcs() = vcsPerturbation;
+  solver.solve();
+  double errNorm = _getDotProdOp() * (solver.bcs().array() * solver.bcs().array()).matrix();
+  errNorm = std::sqrt(errNorm);
+  double bcsNorm = _getDotProdOp() * (origBCS.array() * origBCS.array()).matrix();
+  bcsNorm = std::sqrt(bcsNorm);
+  return errNorm / bcsNorm;
+}
