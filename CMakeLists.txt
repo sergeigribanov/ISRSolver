@@ -24,6 +24,7 @@ list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/convolution.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/lcurve.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-lcurve.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-dp.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/reg-perturb-errors.cpp)
 file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/env.sh.in env.sh)
@@ -82,6 +83,20 @@ target_link_libraries(isrsolver-lcurve
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
   isr)
+add_executable(isrsolver-dp ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-dp.cpp)
+target_include_directories(isrsolver-dp
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/ISRSolver>)
+target_link_libraries(isrsolver-dp
+  PRIVATE
+  GSL::gsl GSL::gslcblas
+  Eigen3::Eigen
+  ${Boost_LIBRARIES}
+  ${NLOPT_LIBRARIES}
+  ${ROOT_LIBRARIES}
+  nlohmann_json::nlohmann_json
+  isr)
 add_executable(reg-perturb-errors ${CMAKE_CURRENT_SOURCE_DIR}/src/reg-perturb-errors.cpp)
 target_include_directories(reg-perturb-errors
   PUBLIC
@@ -117,6 +132,7 @@ install(TARGETS isrsolver DESTINATION bin)
 install(TARGETS lcurve DESTINATION bin)
 install(TARGETS isrconv DESTINATION bin)
 install(TARGETS isrsolver-lcurve DESTINATION bin)
+install(TARGETS isrsolver-dp DESTINATION bin)
 install(TARGETS reg-perturb-errors DESTINATION bin)
 install(FILES ${PROJECT_BINARY_DIR}/env.sh DESTINATION bin)
 install(TARGETS isr

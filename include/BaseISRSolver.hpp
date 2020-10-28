@@ -17,6 +17,9 @@ class BaseISRSolver {
  public:
   BaseISRSolver(const std::string& inputPath, const InputOptions& inputOpts);
   BaseISRSolver(const BaseISRSolver&);
+  double getThresholdEnergy() const;
+  double getMinEnergy() const;
+  double getMaxEnergy() const;
   virtual ~BaseISRSolver();
   virtual void solve() = 0;
   virtual void save(const std::string& outputPath,

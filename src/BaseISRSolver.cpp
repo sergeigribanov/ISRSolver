@@ -141,3 +141,15 @@ Eigen::VectorXd& BaseISRSolver::_bcs() { return _bornCS; }
 const std::function<double(double, double)>& BaseISRSolver::efficiency() const {
   return _efficiency;
 }
+
+double BaseISRSolver::getThresholdEnergy() const {
+  return _energyT;
+}
+
+double BaseISRSolver::getMinEnergy() const {
+  return _visibleCSData.cmEnergy(0);
+}
+
+double BaseISRSolver::getMaxEnergy() const {
+  return _visibleCSData.cmEnergy(_n - 1);
+}
