@@ -90,8 +90,8 @@ int main(int argc, char* argv[]) {
   opt.optimize(z, minf);
   std::cout << "alpha = " << z[0] << std::endl;
   std::cout << "curvature = " << minf << std::endl;
-  double regRelErr = solver->evalApproxRegRelativeError(solver->bcs());
-  std::cout << "regRelErr = " << regRelErr << std::endl;
+  //  double regRelErr = solver->evalApproxRegRelativeError(solver->bcs());
+  // std::cout << "regRelErr = " << regRelErr << std::endl;
   solver->save(opts.ofname,
                {.visibleCSGraphName = opts.vcs_name, .bornCSGraphName = "bcs"});
   delete solver;
