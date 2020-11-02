@@ -63,8 +63,7 @@ void ISRSolverSLAE::save(const std::string& outputPath,
                          const OutputOptions& outputOpts) {
   TGraphErrors vcs(_getN(), _ecm().data(), _vcs().data(), _ecmErr().data(),
                    _vcsErr().data());
-  TGraphErrors bcs(_getN(), _ecm().data(), _bcs().data(), _ecmErr().data(),
-                   _bcsErr().data());
+  TGraphErrors bcs(_getN(), _ecm().data(), _bcs().data(), 0, _bcsErr().data());
   TMatrixD intergalOperatorMatrix(_getN(), _getN());
   Eigen::MatrixXd tmpIntOpM = _integralOperatorMatrix.transpose();
   intergalOperatorMatrix.SetMatrixArray(tmpIntOpM.data());
