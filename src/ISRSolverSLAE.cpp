@@ -329,9 +329,17 @@ Eigen::RowVectorXd ISRSolverSLAE::_polGaussIntegralOp(int i, int j) const {
   } else {
     sMin = _s(j - 1);
   }
+ 
   double sMax = _s(j);
+  if (j + 1 == (int) _getN()) {
+    double s_max = std::pow(getMaxEnergy(), 2);
+    double tmp_s = std::pow(_ecm(i) + 3 * _ecmErr(i), 2);
+    if (tmp_s > s_max) {
+      sMax = tmp_s;
+    }
+  }
   std::function<double(double)> fcn =
-    [&k, i, this](double t) {
+      [&k, i, this](double t) {
       return std::pow(t, k) * this->_energySpreadWeight(t, i);
     };
   for (k = 0; k < nc; ++k) {
