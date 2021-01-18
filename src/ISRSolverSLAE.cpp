@@ -134,13 +134,18 @@ Eigen::MatrixXd ISRSolverSLAE::_permutation(int j) const {
   const std::size_t nc = _getNumCoeffs(j);
   const std::size_t npl = _getNPointsLeft(j);
   Eigen::MatrixXd result = Eigen::MatrixXd::Zero(nc, _getN());
-  int p = j - npl;
+  int p0 = j - npl;
+  int p = p0;
   for (std::size_t l = 0; l < nc; ++l) {
-    if (p >= 0) {
+    if (p0 != -1 || l > 0) {
       result(l, p) = 1;
     }
     p++;
   }
+  // std::cout << "j = " << j << ", permutation matrix:" << std::endl;
+  // std::cout << result << std::endl;
+  // std::string tmp;
+  // std::cin >> tmp;
   return result;
 }
 
@@ -150,7 +155,7 @@ Eigen::MatrixXd ISRSolverSLAE::_interpInvMatrix(int j) const {
   Eigen::MatrixXd interpMatrix = Eigen::MatrixXd::Zero(nc, nc);
   int p = j - npl;
   for (std::size_t l = 0; l < nc; ++l) {
-    if (p < 0) {
+    if (p == -1 && l == 0) {
       for (std::size_t k = 0; k < nc; ++k)
         interpMatrix(l, k) = std::pow(_sThreshold(), k);
     } else {
@@ -202,7 +207,8 @@ void ISRSolverSLAE::_evalEqMatrix() {
 TF1* ISRSolverSLAE::_createInterpFunction() const {
   std::function<double(double*, double*)> fcn = [this](double* x, double* par) {
     double en = x[0];
-    return this->_interpProjector(en) * this->bcs();
+    double result = this->_interpProjector(en) * this->bcs();
+    return result;
   };
   auto f1 = new TF1("interpFCN", fcn, _energyThreshold(), _ecm(_getN() - 1), 0);
   f1->SetNpx(1.e+4);
@@ -214,7 +220,8 @@ TF1* ISRSolverSLAE::_createDerivativeInterpFunction(
   std::function<double(double*, double*)> fcn = [p, this](double* x,
                                                           double* par) {
     double en = x[0];
-    return this->_interpDerivativeProjector(en, p) * this->bcs();
+    double result = this->_interpDerivativeProjector(en, p) * this->bcs();
+    return result;
   };
   auto f1 =
       new TF1(name.c_str(), fcn, _energyThreshold(), _ecm(_getN() - 1), 0);
@@ -237,6 +244,15 @@ Eigen::RowVectorXd ISRSolverSLAE::_interpProjector(double en) const {
   const std::size_t nc = _getNumCoeffs(i);
   for (std::size_t k = 0; k < nc; ++k)
     result += coeffs.row(k) * std::pow(en * en, k);
+
+  // if (i == 0) {
+  //   std::cout << "i = 0, projector:" << std::endl;
+  //   std::cout << "energy = " << en << std::endl;
+  //   std::cout << result << std::endl;
+  //   std::string tmp;
+  //   std::cin >> tmp;
+  // }
+
   return result;
 }
 
