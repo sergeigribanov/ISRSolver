@@ -105,8 +105,8 @@ int main(int argc, char* argv[]) {
     std::cout << "--------" << std::endl;
     solver.setAlpha(alpha);
     solver.solve();
-    x.push_back(std::sqrt(solver.evalEqNorm2()));
-    y.push_back(std::sqrt(solver.evalSmoothnessConstraintNorm2()));
+    x.push_back(std::log(solver.evalEqNorm2()));
+    y.push_back(std::log(solver.evalSmoothnessConstraintNorm2()));
     a.push_back(alpha);
     curv.push_back(solver.evalCurvature());
   }
