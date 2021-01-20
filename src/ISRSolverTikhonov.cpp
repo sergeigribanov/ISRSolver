@@ -199,11 +199,12 @@ double ISRSolverTikhonov::evalSmoothnessConstraintNorm2() const {
 }
 
 double ISRSolverTikhonov::evalCurvature() const {
-  double ksi = evalSmoothnessConstraintNorm2();
-  double rho = evalEqNorm2();
+  // double ksi = evalSmoothnessConstraintNorm2();
+  // double rho = evalEqNorm2();
   double dksi = _evaldKsidAlpha();
-  return ksi * rho / dksi * (rho * ksi + _alpha * _alpha * ksi * dksi + _alpha * rho * dksi) /
-    std::pow(_alpha * _alpha * ksi * ksi + rho * rho, 1.5);
+  return 1. / dksi / std::pow(1. + _alpha * _alpha, 1.5);
+  // return ksi * rho / dksi * (rho * ksi + _alpha * _alpha * ksi * dksi + _alpha * rho * dksi) /
+  //   std::pow(_alpha * _alpha * ksi * ksi + rho * rho, 1.5);
 }
 
 double ISRSolverTikhonov::_evaldKsidAlpha() const {
