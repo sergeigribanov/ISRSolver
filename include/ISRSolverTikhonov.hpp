@@ -1,6 +1,7 @@
 #ifndef __ISRSOLVER_TIKHONOV_HPP__
 #define __ISRSOLVER_TIKHONOV_HPP__
 
+#include <tuple>
 #include "ISRSolverSLAE.hpp"
 
 class ISRSolverTikhonov : public ISRSolverSLAE {
@@ -34,8 +35,10 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   bool isSolutionNorm2DerivativeEnabled() const;
   double _evalRegFuncNorm2(const Eigen::VectorXd&) const;
   Eigen::VectorXd _evalRegFuncGradNorm2(const Eigen::VectorXd&) const;
-  double _evaldKsidAlpha() const;
-  Eigen::VectorXd _evaldSoldAlpha() const;
+  double _evaldKsidAlpha(const Eigen::VectorXd&) const;
+  // Eigen::VectorXd _evaldSoldAlpha() const;
+  // Eigen::VectorXd _evald2Sold2Alpha() const;
+  std::pair<Eigen::MatrixXd, Eigen::MatrixXd> _evaldKsiMatrices() const;
   void _evalHessian();
   void _evalInterpPointWiseDerivativeProjector();
 
