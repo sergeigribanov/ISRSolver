@@ -59,7 +59,7 @@ double alphaObjective(unsigned n, const double* palpha, double* grad, void* solv
    auto sp = reinterpret_cast<ISRSolverTikhonov*>(solver);
    sp->setAlpha(*palpha);
    sp->solve();
-   return sp->evalCurvature();
+   return sp->evalLCurveCurvature();
 }
 
 int main(int argc, char* argv[]) {

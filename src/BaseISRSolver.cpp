@@ -54,12 +54,14 @@ BaseISRSolver::BaseISRSolver(const std::string& inputPath,
   std::transform(visibleCS.begin(), visibleCS.end(),
                  _visibleCSData.csError.data(),
                  [](const CSData& x) { return x.csError; });
+  _vcsInvErrMx = _visibleCSData.csError.array().pow(-2.).matrix().asDiagonal();
 }
 
 BaseISRSolver::BaseISRSolver(const BaseISRSolver& solver) :
   _energySpread(solver._energySpread),
   _energyT(solver._energyT), _n(solver._n),
   _visibleCSData(solver._visibleCSData),
+  _vcsInvErrMx(solver._vcsInvErrMx),
   _efficiency([](double x, double s) {return 1.;}),
   _tefficiency(solver._tefficiency),
   _bornCS(solver._bornCS) {
@@ -137,7 +139,7 @@ const Eigen::VectorXd& BaseISRSolver::_vcsErr() const {
 Eigen::VectorXd& BaseISRSolver::_vcsErr() { return _visibleCSData.csError; }
 
 Eigen::MatrixXd BaseISRSolver::_vcsInvErrMatrix() const {
-  return _visibleCSData.csError.array().pow(-2.).matrix().asDiagonal();
+  return _vcsInvErrMx;
 }
 
 const Eigen::VectorXd& BaseISRSolver::bcs() const { return _bornCS; }

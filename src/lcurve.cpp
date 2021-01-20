@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
     x.push_back(solver.evalEqNorm2());
     y.push_back(solver.evalSmoothnessConstraintNorm2());
     a.push_back(alpha);
-    curv.push_back(solver.evalCurvature());
+    curv.push_back(solver.evalLCurveCurvature());
   }
   TGraph lcurve(opts.alpha_n, x.data(), y.data());
   TGraph curvature(opts.alpha_n, a.data(), curv.data());
