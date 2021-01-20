@@ -85,9 +85,9 @@ int main(int argc, char* argv[]) {
   }
   nlopt::opt opt(nlopt::LN_COBYLA, 1);
   std::vector<double> lowerBounds(1, 0);
-  std::vector<double> upperBounds(1, 1);
+  // std::vector<double> upperBounds(1, 1.e+3);
   opt.set_lower_bounds(lowerBounds);
-  opt.set_upper_bounds(upperBounds);
+  // opt.set_upper_bounds(upperBounds);
   opt.set_min_objective(alphaObjective, solver);
   opt.set_xtol_rel(1.e-3);
   double minf;
