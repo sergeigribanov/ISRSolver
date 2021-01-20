@@ -208,10 +208,6 @@ double ISRSolverTikhonov::evalLCurveCurvature() const {
                        _vcs();
   double dksi = _evaldKsidAlpha(ds);
   return -std::fabs(1. / dksi / std::pow(1. + _alpha * _alpha, 1.5));
-  // double ksi = evalSmoothnessConstraintNorm2();
-  // double rho = evalEqNorm2();
-  // return ksi * rho / dksi * (rho * ksi + _alpha * _alpha * ksi * dksi + _alpha * rho * dksi) /
-  //   std::pow(_alpha * _alpha * ksi * ksi + rho * rho, 1.5);
 }
 
 double ISRSolverTikhonov::evalUCurve() const {
