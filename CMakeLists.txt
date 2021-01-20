@@ -23,6 +23,7 @@ file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/convolution.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/lcurve.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/ucurve.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-lcurve.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/reg-perturb-errors.cpp)
 file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
@@ -60,6 +61,20 @@ target_include_directories(lcurve
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>)
 target_link_libraries(lcurve
+  PRIVATE
+  GSL::gsl GSL::gslcblas
+  Eigen3::Eigen
+  ${Boost_LIBRARIES}
+  ${NLOPT_LIBRARIES}
+  ${ROOT_LIBRARIES}
+  nlohmann_json::nlohmann_json
+  isr)
+add_executable(ucurve ${CMAKE_CURRENT_SOURCE_DIR}/src/ucurve.cpp)
+target_include_directories(ucurve
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/ISRSolver>)
+target_link_libraries(ucurve
   PRIVATE
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen

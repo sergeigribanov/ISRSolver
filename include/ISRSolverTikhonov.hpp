@@ -19,6 +19,8 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   double evalApproxPerturbNorm2() const;
   double evalSmoothnessConstraintNorm2() const;
   double evalLCurveCurvature() const;
+  double evalUCurveCurvature() const;
+  double evalUCurve() const;
   double evalApproxRegRelativeError(const Eigen::VectorXd&) const;
   double evalApproxPerturbRelativeError(const Eigen::VectorXd&,
 					const Eigen::VectorXd&) const;
@@ -36,8 +38,8 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   double _evalRegFuncNorm2(const Eigen::VectorXd&) const;
   Eigen::VectorXd _evalRegFuncGradNorm2(const Eigen::VectorXd&) const;
   double _evaldKsidAlpha(const Eigen::VectorXd&) const;
-  // Eigen::VectorXd _evaldSoldAlpha() const;
-  // Eigen::VectorXd _evald2Sold2Alpha() const;
+  double _evald2Ksid2Alpha(const Eigen::VectorXd&,
+                           const Eigen::VectorXd&) const;
   std::pair<Eigen::MatrixXd, Eigen::MatrixXd> _evaldKsiMatrices() const;
   void _evalHessian();
   void _evalInterpPointWiseDerivativeProjector();

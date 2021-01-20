@@ -207,11 +207,38 @@ double ISRSolverTikhonov::evalLCurveCurvature() const {
                        _vcsInvErrMatrix() *
                        _vcs();
   double dksi = _evaldKsidAlpha(ds);
-  return 1. / dksi / std::pow(1. + _alpha * _alpha, 1.5);
+  return -std::fabs(1. / dksi / std::pow(1. + _alpha * _alpha, 1.5));
   // double ksi = evalSmoothnessConstraintNorm2();
   // double rho = evalEqNorm2();
   // return ksi * rho / dksi * (rho * ksi + _alpha * _alpha * ksi * dksi + _alpha * rho * dksi) /
   //   std::pow(_alpha * _alpha * ksi * ksi + rho * rho, 1.5);
+}
+
+double ISRSolverTikhonov::evalUCurve() const {
+  double rho = evalEqNorm2();
+  double ksi = evalSmoothnessConstraintNorm2();
+  return 1. / rho + 1. / ksi;
+}
+
+double ISRSolverTikhonov::evalUCurveCurvature() const {
+  Eigen::MatrixXd mQ;
+  Eigen::MatrixXd mF;
+  std::tie(mQ, mF) = _evaldKsiMatrices();
+  Eigen::VectorXd ds = -mQ * mF * mQ *
+                       getIntegralOperatorMatrix().transpose() *
+                       _vcsInvErrMatrix() *
+                       _vcs();
+  Eigen::VectorXd d2s = -2. * mQ * mF * ds;
+  double dksi = _evaldKsidAlpha(ds);
+  double d2ksi = _evald2Ksid2Alpha(ds, d2s);
+  double rho = evalEqNorm2();
+  double ksi = evalSmoothnessConstraintNorm2();
+  double du = dksi * (_alpha / std::pow(rho, 2) - 1. / std::pow(ksi, 2));
+  double d2u = d2ksi * (_alpha / std::pow(rho, 2) - 1. / std::pow(ksi, 2)) +
+               dksi * (1. / std::pow(rho, 2) +
+                       2. * std::pow(_alpha, 2) * dksi / std::pow(rho, 3) +
+                       2. * dksi / std::pow(ksi, 3));
+  return -std::fabs(d2u / std::sqrt(1. + du * du));
 }
 
 double ISRSolverTikhonov::_evaldKsidAlpha(const Eigen::VectorXd& ds) const {
@@ -223,6 +250,23 @@ double ISRSolverTikhonov::_evaldKsidAlpha(const Eigen::VectorXd& ds) const {
   }
   if (isSolutionNorm2DerivativeEnabled()) {
     result += 2. * _getDotProdOp() * (dz.array() * dsz.array()).matrix();
+  }
+  return result;
+}
+
+double ISRSolverTikhonov::_evald2Ksid2Alpha(const Eigen::VectorXd& ds,
+                                          const Eigen::VectorXd& d2s) const {
+  Eigen::VectorXd dz = _getInterpPointWiseDerivativeProjector() * bcs();
+  Eigen::VectorXd dsz = _getInterpPointWiseDerivativeProjector() * ds;
+  Eigen::VectorXd d2sz = _getInterpPointWiseDerivativeProjector() * d2s;
+  double result = 0;
+  if (isSolutionNorm2Enabled()) {
+    result += 2. * _getDotProdOp() * (ds.array().pow(2.) +
+                                      bcs().array() * d2s.array()).matrix();
+  }
+  if (isSolutionNorm2DerivativeEnabled()) {
+    result += _getDotProdOp() * (dsz.array().pow(2.) +
+                                 dz.array() * d2sz.array()).matrix();
   }
   return result;
 }
@@ -244,42 +288,6 @@ ISRSolverTikhonov::_evaldKsiMatrices() const {
   mQ = mQ.inverse();
   return std::make_pair(mQ, mF);
 }
-
-// Eigen::VectorXd ISRSolverTikhonov::_evaldSoldAlpha() const {
-//   Eigen::MatrixXd mF = Eigen::MatrixXd::Zero(_getN(), _getN());
-//   Eigen::MatrixXd mAt = getIntegralOperatorMatrix().transpose();
-//   Eigen::MatrixXd invVCSErr2 = _vcsErr().array().pow(-2.).matrix().asDiagonal();
-//   if (isSolutionNorm2Enabled()) {
-//     mF += _getDotProdOp().asDiagonal();
-//   }
-//   if (isSolutionNorm2DerivativeEnabled()) {
-//     mF += _getInterpPointWiseDerivativeProjector().transpose() *
-//           (_getInterpPointWiseDerivativeProjector().array().colwise() *
-//            _getDotProdOp().transpose().array()).matrix();
-//   }
-//   Eigen::MatrixXd mQ = mAt * invVCSErr2 * getIntegralOperatorMatrix() +
-//                        _alpha * mF;
-//   mQ = mQ.inverse();
-//   return -mQ * mF * mQ * mAt * invVCSErr2 * _vcs();
-// }
-
-// Eigen::VectorXd ISRSolverTikhonov::_evald2Sold2Alpha() const {
-//   Eigen::MatrixXd mF = Eigen::MatrixXd::Zero(_getN(), _getN());
-//   Eigen::MatrixXd mAt = getIntegralOperatorMatrix().transpose();
-//   Eigen::MatrixXd invVCSErr2 = _vcsErr().array().pow(-2.).matrix().asDiagonal();
-//   if (isSolutionNorm2Enabled()) {
-//     mF += _getDotProdOp().asDiagonal();
-//   }
-//   if (isSolutionNorm2DerivativeEnabled()) {
-//     mF += _getInterpPointWiseDerivativeProjector().transpose() *
-//           (_getInterpPointWiseDerivativeProjector().array().colwise() *
-//            _getDotProdOp().transpose().array()).matrix();
-//   }
-//   Eigen::MatrixXd mQ = mAt * invVCSErr2 * getIntegralOperatorMatrix() +
-//                        _alpha * mF;
-//   mQ = mQ.inverse();
-//   return 2. * mQ * mF * mQ * mF * mQ * mAt * invVCSErr2 * _vcs();
-// }
 
 // !!! TO DO: modify reg and perturb errors
 double ISRSolverTikhonov::evalApproxRegRelativeError(const Eigen::VectorXd& origBCS) const {
