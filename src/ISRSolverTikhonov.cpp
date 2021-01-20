@@ -211,7 +211,7 @@ double ISRSolverTikhonov::evalCurvature() const {
   double ksi = evalSmoothnessConstraintNorm2();
   double rho = evalEqNorm2();
   double dksi = _evaldKsidAlpha();
-  return 2. * ksi * rho / dksi * (rho * ksi + _alpha * _alpha * ksi * dksi + _alpha * rho * dksi) /
+  return ksi * rho / dksi * (rho * ksi + _alpha * _alpha * ksi * dksi + _alpha * rho * dksi) /
     std::pow(_alpha * _alpha * ksi * ksi + rho * rho, 1.5);
 }
 
@@ -219,7 +219,7 @@ double ISRSolverTikhonov::_evaldKsidAlpha() const {
   Eigen::VectorXd ds = _evaldSoldAlpha();
   Eigen::VectorXd dz = _getInterpPointWiseDerivativeProjector() * bcs();
   Eigen::VectorXd dsz = _getInterpPointWiseDerivativeProjector() * ds;
-  return _getDotProdOp() * (_enabledSolutionNorm2 * bcs().array() * ds.array() +
+  return 2. * _getDotProdOp() * (_enabledSolutionNorm2 * bcs().array() * ds.array() +
 			    _enabledSolutionDerivativeNorm2 * dz.array() * dsz.array()).matrix();
 }
 
