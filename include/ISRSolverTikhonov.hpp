@@ -1,7 +1,6 @@
 #ifndef __ISRSOLVER_TIKHONOV_HPP__
 #define __ISRSOLVER_TIKHONOV_HPP__
 
-#include <tuple>
 #include "ISRSolverSLAE.hpp"
 
 class ISRSolverTikhonov : public ISRSolverSLAE {
@@ -13,14 +12,11 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   virtual void solve() override;
   double getAlpha() const;
   void setAlpha(double);
-  const Eigen::MatrixXd& getHessian() const;
   double evalEqNorm2() const;
   double evalEqNorm2NoErr() const;
   double evalApproxPerturbNorm2() const;
   double evalSmoothnessConstraintNorm2() const;
   double evalLCurveCurvature() const;
-  double evalUCurveCurvature() const;
-  double evalUCurve() const;
   double evalApproxRegRelativeError(const Eigen::VectorXd&) const;
   double evalApproxPerturbRelativeError(const Eigen::VectorXd&,
 					const Eigen::VectorXd&) const;
@@ -35,13 +31,8 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   const Eigen::MatrixXd& _getInterpPointWiseDerivativeProjector() const;
   bool isSolutionNorm2Enabled() const;
   bool isSolutionNorm2DerivativeEnabled() const;
-  double _evalRegFuncNorm2(const Eigen::VectorXd&) const;
-  Eigen::VectorXd _evalRegFuncGradNorm2(const Eigen::VectorXd&) const;
   double _evaldKsidAlpha(const Eigen::VectorXd&) const;
-  double _evald2Ksid2Alpha(const Eigen::VectorXd&,
-                           const Eigen::VectorXd&) const;
-  std::pair<Eigen::MatrixXd, Eigen::MatrixXd> _evaldKsiMatrices() const;
-  void _evalHessian();
+  void _evalProblemMatrices();
   void _evalInterpPointWiseDerivativeProjector();
 
  private:
@@ -50,8 +41,8 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   bool _enabledSolutionDerivativeNorm2;
   double _alpha;
   Eigen::MatrixXd _interpPointWiseDerivativeProjector;
-  Eigen::MatrixXd _hessian;
-  friend double objectiveFCN(unsigned, const double*, double*, void*);
+  Eigen::MatrixXd _mR;
+  Eigen::MatrixXd _mL;
 };
 
 #endif
