@@ -122,16 +122,7 @@ double ISRSolverTikhonov::evalLCurveCurvature() const {
 }
 
 double ISRSolverTikhonov::_evaldKsidAlpha(const Eigen::VectorXd& ds) const {
-  Eigen::VectorXd dz = _getInterpPointWiseDerivativeProjector() * bcs();
-  Eigen::VectorXd dsz = _getInterpPointWiseDerivativeProjector() * ds;
-  double result = 0;
-  if (isSolutionNorm2Enabled()) {
-    result += 2. * _getDotProdOp() * (bcs().array() * ds.array()).matrix();
-  }
-  if (isSolutionNorm2DerivativeEnabled()) {
-    result += 2. * _getDotProdOp() * (dz.array() * dsz.array()).matrix();
-  }
-  return result;
+  return 2. * bcs().dot(_mF * ds);
 }
 
 void ISRSolverTikhonov::_evalProblemMatrices() {
