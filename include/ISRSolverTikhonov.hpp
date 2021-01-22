@@ -17,6 +17,7 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   double evalApproxPerturbNorm2() const;
   double evalSmoothnessConstraintNorm2() const;
   double evalLCurveCurvature() const;
+  double evalLCurveCurvatureDerivative() const;
   double evalApproxRegRelativeError(const Eigen::VectorXd&) const;
   double evalApproxPerturbRelativeError(const Eigen::VectorXd&,
 					const Eigen::VectorXd&) const;
@@ -30,6 +31,8 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   bool isSolutionNorm2Enabled() const;
   bool isSolutionNorm2DerivativeEnabled() const;
   double _evaldKsidAlpha(const Eigen::VectorXd&) const;
+  double _evald2Ksid2Alpha(const Eigen::VectorXd&,
+                           const Eigen::VectorXd&) const;
   void _evalProblemMatrices();
   void _evalInterpPointWiseDerivativeProjector();
 
@@ -41,6 +44,8 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   Eigen::MatrixXd _mF;
   Eigen::MatrixXd _mR;
   Eigen::MatrixXd _mL;
+  Eigen::FullPivLU<Eigen::MatrixXd> _luR;
+  Eigen::FullPivLU<Eigen::MatrixXd> _luL;
 };
 
 #endif

@@ -51,6 +51,9 @@ double alphaObjective(unsigned n, const double* palpha, double* grad, void* solv
    auto sp = reinterpret_cast<ISRSolverTikhonov*>(solver);
    sp->setAlpha(*palpha);
    sp->solve();
+   if (grad) {
+     grad[0] = sp->evalLCurveCurvatureDerivative();
+   }
    return sp->evalLCurveCurvature();
 }
 
@@ -80,11 +83,11 @@ int main(int argc, char* argv[]) {
   if (vmap.count("enable-energy-spread")) {
     solver->enableEnergySpread();
   }
-  nlopt::opt opt(nlopt::LN_COBYLA, 1);
+  nlopt::opt opt(nlopt::LD_MMA, 1);
   std::vector<double> lowerBounds(1, 0);
   opt.set_lower_bounds(lowerBounds);
   opt.set_min_objective(alphaObjective, solver);
-  opt.set_xtol_rel(1.e-3);
+  opt.set_xtol_rel(1.e-6);
   double minf;
   opt.optimize(z, minf);
   std::cout << "alpha = " << z[0] << std::endl;

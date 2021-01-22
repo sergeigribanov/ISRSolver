@@ -38,8 +38,7 @@ void ISRSolverTikhonov::solve() {
   _evalEqMatrix();
   _evalInterpPointWiseDerivativeProjector();
   _evalProblemMatrices();
-  Eigen::FullPivLU<Eigen::MatrixXd> lu(_mR);
-  _bcs() = lu.solve(_vcs());
+  _bcs() = _luR.solve(_vcs());
   _getInverseBornCSErrorMatrix() = _mR.transpose() * _vcsInvErrMatrix() * _mR;
 }
 
@@ -105,14 +104,27 @@ double ISRSolverTikhonov::evalSmoothnessConstraintNorm2() const {
 }
 
 double ISRSolverTikhonov::evalLCurveCurvature() const {
-  Eigen::FullPivLU<Eigen::MatrixXd> lu(_mR * _mL);
-  Eigen::VectorXd ds = -lu.solve(_vcs());
+  Eigen::VectorXd ds = -_luL.solve(bcs());
   double dksi = _evaldKsidAlpha(ds);
   return -std::fabs(1. / dksi / std::pow(1. + _alpha * _alpha, 1.5));
 }
 
+double ISRSolverTikhonov::evalLCurveCurvatureDerivative() const {
+  Eigen::VectorXd ds = -_luL.solve(bcs());
+  Eigen::VectorXd d2s = -2. * _luL.solve(ds);
+  double dksi = _evaldKsidAlpha(ds);
+  double d2ksi = _evald2Ksid2Alpha(ds, d2s);
+  return -d2ksi * std::pow(dksi, -2.) * std::pow(1. + _alpha * _alpha, -1.5) +
+      -3. * _alpha / dksi * std::pow(1. + _alpha * _alpha, -2.5);
+}
+
 double ISRSolverTikhonov::_evaldKsidAlpha(const Eigen::VectorXd& ds) const {
   return 2. * bcs().dot(_mF * ds);
+}
+
+double ISRSolverTikhonov::_evald2Ksid2Alpha(const Eigen::VectorXd& ds,
+                                            const Eigen::VectorXd& d2s) const {
+  return 2. * ds.dot(_mF * ds) + 2. * bcs().dot(_mF * d2s);
 }
 
 void ISRSolverTikhonov::_evalProblemMatrices() {
@@ -130,6 +142,8 @@ void ISRSolverTikhonov::_evalProblemMatrices() {
         _alpha * _vcsInvErrMatrix().inverse() * mAt.inverse() * _mF;
   _mL = _mF.inverse() * mAt * _vcsInvErrMatrix() * getIntegralOperatorMatrix() +
         _alpha * Eigen::MatrixXd::Identity(_getN(), _getN());
+  _luR = Eigen::FullPivLU<Eigen::MatrixXd>(_mR);
+  _luL = Eigen::FullPivLU<Eigen::MatrixXd>(_mL);
 }
 
 // !!! TO DO: modify reg and perturb errors
