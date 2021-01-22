@@ -41,6 +41,7 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   bool _enabledSolutionDerivativeNorm2;
   double _alpha;
   Eigen::MatrixXd _interpPointWiseDerivativeProjector;
+  Eigen::MatrixXd _mF;
   Eigen::MatrixXd _mR;
   Eigen::MatrixXd _mL;
 };

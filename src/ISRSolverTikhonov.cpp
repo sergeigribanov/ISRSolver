@@ -111,15 +111,7 @@ double ISRSolverTikhonov::evalApproxPerturbNorm2() const {
 }
 
 double ISRSolverTikhonov::evalSmoothnessConstraintNorm2() const {
-  Eigen::VectorXd dz = _getInterpPointWiseDerivativeProjector() * bcs();
-  double result = 0;
-  if (isSolutionNorm2Enabled()) {
-    result += _getDotProdOp() * bcs().array().pow(2.).matrix();
-  }
-  if (isSolutionNorm2DerivativeEnabled()) {
-    result += _getDotProdOp() * dz.array().pow(2.).matrix();
-  }
-  return result;
+  return bcs().dot(_mF * bcs());
 }
 
 double ISRSolverTikhonov::evalLCurveCurvature() const {
@@ -143,19 +135,19 @@ double ISRSolverTikhonov::_evaldKsidAlpha(const Eigen::VectorXd& ds) const {
 }
 
 void ISRSolverTikhonov::_evalProblemMatrices() {
-  Eigen::MatrixXd mF = Eigen::MatrixXd::Zero(_getN(), _getN());
   Eigen::MatrixXd mAt = getIntegralOperatorMatrix().transpose();
+  _mF = Eigen::MatrixXd::Zero(_getN(), _getN());
   if (isSolutionNorm2Enabled()) {
-    mF += _getDotProdOp().asDiagonal();
+    _mF += _getDotProdOp().asDiagonal();
   }
   if (isSolutionNorm2DerivativeEnabled()) {
-    mF += _getInterpPointWiseDerivativeProjector().transpose() *
+    _mF += _getInterpPointWiseDerivativeProjector().transpose() *
           (_getInterpPointWiseDerivativeProjector().array().colwise() *
            _getDotProdOp().transpose().array()).matrix();
   }
   _mR = getIntegralOperatorMatrix() +
-        _alpha * _vcsInvErrMatrix().inverse() * mAt.inverse() * mF;
-  _mL = mF.inverse() * mAt * _vcsInvErrMatrix() * getIntegralOperatorMatrix() +
+        _alpha * _vcsInvErrMatrix().inverse() * mAt.inverse() * _mF;
+  _mL = _mF.inverse() * mAt * _vcsInvErrMatrix() * getIntegralOperatorMatrix() +
         _alpha * Eigen::MatrixXd::Identity(_getN(), _getN());
 }
 
