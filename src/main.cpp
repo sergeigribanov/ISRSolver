@@ -22,29 +22,29 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()("help,h",
                       "A simple tool designed in order to find numerical"
                       "solution of the Kuraev-Fadin equation.")
-    ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
-    ("enable-energy-spread,g", "Enable energy spread")
-    ("enable-solution-positivity,p", "Setting positive limits to solution")
-    ("disable-solution-norm,f", 
-     "Disable solution norm in Tihonov's regularization functional")
-    ("disable-solution-derivative-norm,d",
-     "Disable solution derivative norm in Tikhonov's regularization functional")
-    ("alpha,a", po::value<double>(&(opts->alpha)),
-      "Thikhonov's regularization parameter.")(
-      "solver,s", po::value<std::string>(&(opts->solver)),
-      "Solver: SLAE, Tikhonov")(
-      "vcs-name,v", po::value<std::string>(&(opts->vcs_name))->default_value("vcs"),
-      "Name of the visible cross section graph.")
-    ("efficiency-name,e", po::value<std::string>(&(opts->efficiency_name)),
-     "TEfficiency object name")
-    ( "ifname,i",
-      po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
-      "Path to input file.")(
-      "ofname,o",
-      po::value<std::string>(&(opts->ofname))->default_value("bcs.root"),
-      "Path to output file.")("interp,r",
-                              po::value<std::string>(&(opts->interp)),
-                              "Path to JSON file with interpolation settings.");
+      ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+      ("enable-energy-spread,g", "Enable energy spread")
+      // ("enable-solution-positivity,p", "Setting positive limits to solution")
+      ("disable-solution-norm,f", 
+       "Disable solution norm in Tihonov's regularization functional")
+      ("disable-solution-derivative-norm,d",
+       "Disable solution derivative norm in Tikhonov's regularization functional")
+      ("alpha,a", po::value<double>(&(opts->alpha)),
+       "Thikhonov's regularization parameter.")(
+           "solver,s", po::value<std::string>(&(opts->solver)),
+           "Solver: SLAE, Tikhonov")(
+               "vcs-name,v", po::value<std::string>(&(opts->vcs_name))->default_value("vcs"),
+               "Name of the visible cross section graph.")
+      ("efficiency-name,e", po::value<std::string>(&(opts->efficiency_name)),
+       "TEfficiency object name")
+      ( "ifname,i",
+        po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
+        "Path to input file.")(
+            "ofname,o",
+            po::value<std::string>(&(opts->ofname))->default_value("bcs.root"),
+            "Path to output file.")("interp,r",
+                                    po::value<std::string>(&(opts->interp)),
+                                    "Path to JSON file with interpolation settings.");
 }
 
 void help(const po::options_description& desc) {
@@ -97,9 +97,6 @@ int main(int argc, char* argv[]) {
   }
   if (vmap.count("disable-solution-derivative-norm") && solverTikhonov) {
     solverTikhonov->disableSolutionDerivativeNorm2();
-  }
-  if (vmap.count("enable-solution-positivity") && solverTikhonov) {
-    solverTikhonov->enableSolutionPositivity();
   }
   solver->solve();
   solver->save(opts.ofname,

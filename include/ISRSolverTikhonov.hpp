@@ -24,8 +24,6 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   void disableSolutionNorm2();
   void enableSolutionDerivativeNorm2();
   void disableSolutionDerivativeNorm2();
-  void disableSolutionPositivity();
-  void enableSolutionPositivity();
 
  protected:
   const Eigen::MatrixXd& _getInterpPointWiseDerivativeProjector() const;
@@ -36,7 +34,6 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   void _evalInterpPointWiseDerivativeProjector();
 
  private:
-  bool _solutionPositivity;
   bool _enabledSolutionNorm2;
   bool _enabledSolutionDerivativeNorm2;
   double _alpha;

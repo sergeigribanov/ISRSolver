@@ -20,27 +20,27 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()("help,h",
                       "A simple tool designed in order to find numerical"
                       "solution of the Kuraev-Fadin equation.")
-    ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
-    ("enable-energy-spread,g", "Enable energy spread")
-    ("enable-solution-positivity,p", "Setting positive limits to solution")
-    ("disable-solution-norm,f", 
-     "Disable solution norm in Tihonov's regularization functional")
-    ("disable-solution-derivative-norm,d",
-     "Disable solution derivative norm in Tikhonov's regularization functional")
-    ("alpha,a", po::value<double>(&(opts->alpha))->default_value(1.e-9),
-      "Thikhonov's regularization parameter.")(
-      "vcs-name,v", po::value<std::string>(&(opts->vcs_name))->default_value("vcs"),
-      "Name of the visible cross section graph.")
-    ("efficiency-name,e", po::value<std::string>(&(opts->efficiency_name)),
-     "TEfficiency object name")
-    ( "ifname,i",
-      po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
-      "Path to input file.")(
-      "ofname,o",
-      po::value<std::string>(&(opts->ofname))->default_value("bcs.root"),
-      "Path to output file.")("interp,r",
-                              po::value<std::string>(&(opts->interp)),
-                              "Path to JSON file with interpolation settings.");
+      ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+      ("enable-energy-spread,g", "Enable energy spread")
+      // ("enable-solution-positivity,p", "Setting positive limits to solution")
+      ("disable-solution-norm,f", 
+       "Disable solution norm in Tihonov's regularization functional")
+      ("disable-solution-derivative-norm,d",
+       "Disable solution derivative norm in Tikhonov's regularization functional")
+      ("alpha,a", po::value<double>(&(opts->alpha))->default_value(1.e-9),
+       "Thikhonov's regularization parameter.")(
+           "vcs-name,v", po::value<std::string>(&(opts->vcs_name))->default_value("vcs"),
+           "Name of the visible cross section graph.")
+      ("efficiency-name,e", po::value<std::string>(&(opts->efficiency_name)),
+       "TEfficiency object name")
+      ( "ifname,i",
+        po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
+        "Path to input file.")(
+            "ofname,o",
+            po::value<std::string>(&(opts->ofname))->default_value("bcs.root"),
+            "Path to output file.")("interp,r",
+                                    po::value<std::string>(&(opts->interp)),
+                                    "Path to JSON file with interpolation settings.");
 }
 
 void help(const po::options_description& desc) {
@@ -77,25 +77,18 @@ int main(int argc, char* argv[]) {
   if (vmap.count("disable-solution-derivative-norm")) {
     solver->disableSolutionDerivativeNorm2();
   }
-  if (vmap.count("enable-solution-positivity")) {
-    solver->enableSolutionPositivity();
-  }
   if (vmap.count("enable-energy-spread")) {
     solver->enableEnergySpread();
   }
   nlopt::opt opt(nlopt::LN_COBYLA, 1);
   std::vector<double> lowerBounds(1, 0);
-  // std::vector<double> upperBounds(1, 1.e+3);
   opt.set_lower_bounds(lowerBounds);
-  // opt.set_upper_bounds(upperBounds);
   opt.set_min_objective(alphaObjective, solver);
   opt.set_xtol_rel(1.e-3);
   double minf;
   opt.optimize(z, minf);
   std::cout << "alpha = " << z[0] << std::endl;
   std::cout << "curvature = " << minf << std::endl;
-  //  double regRelErr = solver->evalApproxRegRelativeError(solver->bcs());
-  // std::cout << "regRelErr = " << regRelErr << std::endl;
   solver->save(opts.ofname,
                {.visibleCSGraphName = opts.vcs_name, .bornCSGraphName = "bcs"});
   delete solver;

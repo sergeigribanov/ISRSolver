@@ -19,14 +19,12 @@ ISRSolverTikhonov::ISRSolverTikhonov(const std::string& inputPath,
                                      const InputOptions& inputOpts,
                                      double alpha)
     : ISRSolverSLAE(inputPath, inputOpts),
-      _solutionPositivity(false),
       _enabledSolutionNorm2(true),
       _enabledSolutionDerivativeNorm2(true),
       _alpha(alpha) {}
 
 ISRSolverTikhonov::ISRSolverTikhonov(const ISRSolverTikhonov& solver) :
   ISRSolverSLAE::ISRSolverSLAE(solver),
-  _solutionPositivity(solver._solutionPositivity),
   _enabledSolutionNorm2(solver._enabledSolutionNorm2),
   _enabledSolutionDerivativeNorm2(solver._enabledSolutionDerivativeNorm2),
   _alpha(solver._alpha),
@@ -86,14 +84,6 @@ bool ISRSolverTikhonov::isSolutionNorm2Enabled() const {
 
 bool ISRSolverTikhonov::isSolutionNorm2DerivativeEnabled() const {
   return _enabledSolutionDerivativeNorm2;
-}
-
-void ISRSolverTikhonov::disableSolutionPositivity() {
-  _solutionPositivity = false;
-}
-
-void ISRSolverTikhonov::enableSolutionPositivity() {
-  _solutionPositivity = true;
 }
 
 double ISRSolverTikhonov::evalEqNorm2() const {
