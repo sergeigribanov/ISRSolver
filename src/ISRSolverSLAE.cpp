@@ -105,8 +105,10 @@ void ISRSolverSLAE::setInterpSettings(const std::string& pathToJSON) {
   for (const auto& el : s.items()) {
     key = boost::lexical_cast<std::size_t>(el.key());
     keys.insert(key);
-    interpSettings[key] = {.numCoeffs = el.value()[0],
-                           .nPointsLeft = el.value()[1]};
+    interpSettings[key] = {
+      .derivativeConstraint = el.value()[0],
+      .numCoeffs = el.value()[1],
+      .nPointsLeft = el.value()[2]};
   }
   if (keys.size() != _getN()) {
     InterpSettingsSizeException ex;
@@ -120,6 +122,10 @@ double ISRSolverSLAE::_getXmin(int i, int j) const { return 1 - _s(j) / _s(i); }
 double ISRSolverSLAE::_getXmax(int i, int j) const {
   if (j == 0) return 1 - _sThreshold() / _s(i);
   return 1 - _s(j - 1) / _s(i);
+}
+
+bool ISRSolverSLAE::_isDerivativeConstraintEnabled(int j) const {
+  return _interpSettings[j].derivativeConstraint;
 }
 
 double ISRSolverSLAE::_getNumCoeffs(int j) const {
@@ -142,10 +148,6 @@ Eigen::MatrixXd ISRSolverSLAE::_permutation(int j) const {
     }
     p++;
   }
-  // std::cout << "j = " << j << ", permutation matrix:" << std::endl;
-  // std::cout << result << std::endl;
-  // std::string tmp;
-  // std::cin >> tmp;
   return result;
 }
 
@@ -154,16 +156,27 @@ Eigen::MatrixXd ISRSolverSLAE::_interpInvMatrix(int j) const {
   const std::size_t npl = _getNPointsLeft(j);
   Eigen::MatrixXd interpMatrix = Eigen::MatrixXd::Zero(nc, nc);
   int p = j - npl;
+  Eigen::ArrayXi exponents = Eigen::ArrayXi::LinSpaced(nc, 0, (int) nc - 1);
   for (std::size_t l = 0; l < nc; ++l) {
-    if (p == -1 && l == 0) {
-      for (std::size_t k = 0; k < nc; ++k)
-        interpMatrix(l, k) = std::pow(_sThreshold(), k);
+    if (l == 0 && p == -1) {
+      interpMatrix.row(0) = Eigen::pow(
+          _sThreshold(), exponents.cast<double>());
     } else {
-      for (std::size_t k = 0; k < nc; ++k)
-        interpMatrix(l, k) = std::pow(_s(p), k);
+      interpMatrix.row(l) = Eigen::pow(
+          _s(p), exponents.cast<double>());
     }
     p++;
   }
+  // for (std::size_t l = 0; l < nc; ++l) {
+  //   if (p == -1 && l == 0) {
+  //     for (std::size_t k = 0; k < nc; ++k)
+  //       interpMatrix(l, k) = std::pow(_sThreshold(), k);
+  //   } else {
+  //     for (std::size_t k = 0; k < nc; ++k)
+  //       interpMatrix(l, k) = std::pow(_s(p), k);
+  //   }
+  //   p++;
+  // }
   return interpMatrix.inverse();
 }
 
@@ -244,15 +257,6 @@ Eigen::RowVectorXd ISRSolverSLAE::_interpProjector(double en) const {
   const std::size_t nc = _getNumCoeffs(i);
   for (std::size_t k = 0; k < nc; ++k)
     result += coeffs.row(k) * std::pow(en * en, k);
-
-  // if (i == 0) {
-  //   std::cout << "i = 0, projector:" << std::endl;
-  //   std::cout << "energy = " << en << std::endl;
-  //   std::cout << result << std::endl;
-  //   std::string tmp;
-  //   std::cin >> tmp;
-  // }
-
   return result;
 }
 
@@ -283,7 +287,10 @@ Eigen::VectorXd ISRSolverSLAE::_bcsErr() const {
 }
 
 void ISRSolverSLAE::_setDefaultInterpSettings() {
-  _interpSettings.resize(_getN(), {.numCoeffs = 2, .nPointsLeft = 1});
+  _interpSettings.resize(_getN(),
+                         {.derivativeConstraint=false,
+                          .numCoeffs = 2,
+                          .nPointsLeft = 1});
 }
 
 Eigen::RowVectorXd ISRSolverSLAE::_polIntegralOp(int j) const {
@@ -302,6 +309,7 @@ Eigen::RowVectorXd ISRSolverSLAE::_polIntegralOp(int j) const {
   for (k = 0; k < nc; ++k) {
     result(k) = integrate(fcn, sMin, sMax, error);
   }
+
   return result.transpose();
 }
 

@@ -18,6 +18,7 @@ typedef struct {
 } CSVecData;
 
 typedef struct {
+  bool derivativeConstraint;
   std::size_t numCoeffs;
   std::size_t nPointsLeft;
 } InterpPtSettings;
