@@ -20,7 +20,6 @@ class ISRSolverSLAE : public BaseISRSolver {
  protected:
   double _getXmin(int, int) const;
   double _getXmax(int, int) const;
-  bool _isDerivativeConstraintEnabled(int) const;
   double _getNumCoeffs(int) const;
   double _getNPointsLeft(int) const;
   Eigen::MatrixXd& _getIntegralOperatorMatrix();

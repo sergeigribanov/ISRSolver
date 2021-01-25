@@ -106,9 +106,8 @@ void ISRSolverSLAE::setInterpSettings(const std::string& pathToJSON) {
     key = boost::lexical_cast<std::size_t>(el.key());
     keys.insert(key);
     interpSettings[key] = {
-      .derivativeConstraint = el.value()[0],
-      .numCoeffs = el.value()[1],
-      .nPointsLeft = el.value()[2]};
+      .numCoeffs = el.value()[0],
+      .nPointsLeft = el.value()[1]};
   }
   if (keys.size() != _getN()) {
     InterpSettingsSizeException ex;
@@ -122,10 +121,6 @@ double ISRSolverSLAE::_getXmin(int i, int j) const { return 1 - _s(j) / _s(i); }
 double ISRSolverSLAE::_getXmax(int i, int j) const {
   if (j == 0) return 1 - _sThreshold() / _s(i);
   return 1 - _s(j - 1) / _s(i);
-}
-
-bool ISRSolverSLAE::_isDerivativeConstraintEnabled(int j) const {
-  return _interpSettings[j].derivativeConstraint;
 }
 
 double ISRSolverSLAE::_getNumCoeffs(int j) const {
@@ -167,16 +162,6 @@ Eigen::MatrixXd ISRSolverSLAE::_interpInvMatrix(int j) const {
     }
     p++;
   }
-  // for (std::size_t l = 0; l < nc; ++l) {
-  //   if (p == -1 && l == 0) {
-  //     for (std::size_t k = 0; k < nc; ++k)
-  //       interpMatrix(l, k) = std::pow(_sThreshold(), k);
-  //   } else {
-  //     for (std::size_t k = 0; k < nc; ++k)
-  //       interpMatrix(l, k) = std::pow(_s(p), k);
-  //   }
-  //   p++;
-  // }
   return interpMatrix.inverse();
 }
 
@@ -288,8 +273,7 @@ Eigen::VectorXd ISRSolverSLAE::_bcsErr() const {
 
 void ISRSolverSLAE::_setDefaultInterpSettings() {
   _interpSettings.resize(_getN(),
-                         {.derivativeConstraint=false,
-                          .numCoeffs = 2,
+                         {.numCoeffs = 2,
                           .nPointsLeft = 1});
 }
 
