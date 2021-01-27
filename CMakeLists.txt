@@ -20,6 +20,7 @@ include_directories(${GSL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${NLOPT_INCLUDE_DIRS})
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/convolution.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/lcurve.cpp)
@@ -54,6 +55,23 @@ target_link_libraries(isrsolver
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
   isr)
+
+
+add_executable(test ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp)
+target_include_directories(test
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/ISRSolver>)
+target_link_libraries(test
+  PRIVATE
+  GSL::gsl GSL::gslcblas
+  Eigen3::Eigen
+  ${Boost_LIBRARIES}
+  ${NLOPT_LIBRARIES}
+  ${ROOT_LIBRARIES}
+  nlohmann_json::nlohmann_json
+  isr)
+
 add_executable(lcurve ${CMAKE_CURRENT_SOURCE_DIR}/src/lcurve.cpp)
 target_include_directories(lcurve
   PUBLIC
