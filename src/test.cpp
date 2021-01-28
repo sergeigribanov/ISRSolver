@@ -75,13 +75,15 @@ int main(int argc, char* argv[]) {
   const double thresholdEnergy = 0.827;
   Eigen::Map<Eigen::VectorXd> cmEnergies(x.data(), x.size());
 
-  std::vector<std::tuple<bool, int, int>> interpRangeSettings;
-  interpRangeSettings.push_back(std::make_tuple(false, 0, 5));
-  interpRangeSettings.push_back(std::make_tuple(true, 6, 40));
-  interpRangeSettings.push_back(std::make_tuple(false, 41, 49));
-  Interpolator interp(interpRangeSettings, cmEnergies, thresholdEnergy);
- 
-  // Interpolator interp(cmEnergies, thresholdEnergy);
+  // Interpolator interp("../interp.json", cmEnergies, thresholdEnergy);
+
+  // std::vector<std::tuple<bool, int, int>> interpRangeSettings;
+  // interpRangeSettings.push_back(std::make_tuple(false, 0, 5));
+  // interpRangeSettings.push_back(std::make_tuple(true, 6, 40));
+  // interpRangeSettings.push_back(std::make_tuple(false, 41, 49));
+  // Interpolator interp(interpRangeSettings, cmEnergies, thresholdEnergy);
+
+  Interpolator interp(cmEnergies, thresholdEnergy);
   Eigen::Map<Eigen::VectorXd> v(y.data(), y.size());
   test_basis(v, interp);
   test_entire(v, interp);
