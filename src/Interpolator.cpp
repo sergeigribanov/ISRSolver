@@ -53,7 +53,11 @@ double Interpolator::basisEval(int csIndex, double energy) const {
     return 0;
   }
   if (energy > getMaxEnergy()) {
-    return _rangeInterpolators.back().basisEval(csIndex, getMaxEnergy());
+    if (_rangeInterpolators.back().hasCSIndex(csIndex)) {
+      return _rangeInterpolators.back().basisEval(csIndex, getMaxEnergy());
+    } else {
+      return 0;
+    }
   }
   double result = 0;
   for (const auto& rinterp : _rangeInterpolators) {
@@ -69,7 +73,11 @@ double Interpolator::basisDerivEval(int csIndex, double energy) const {
     return 0;
   }
   if (energy > getMaxEnergy()) {
-    return _rangeInterpolators.back().basisDerivEval(csIndex, getMaxEnergy());
+    if (_rangeInterpolators.back().hasCSIndex(csIndex)) {
+      return _rangeInterpolators.back().basisDerivEval(csIndex, getMaxEnergy());
+    } else {
+      return 0;
+    }
   }
   double result = 0;
   for (const auto& rinterp : _rangeInterpolators) {
