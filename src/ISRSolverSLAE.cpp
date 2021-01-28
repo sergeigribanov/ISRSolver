@@ -168,7 +168,7 @@ Eigen::MatrixXd ISRSolverSLAE::_energySpreadMatrix() const {
       [&i, &j, this](double energy) {
         double scoeff = 2 * std::pow(this->_ecmErr(i), 2);
         double result =  this->_interp.basisEval(j, energy) *
-            std::exp(std::pow(energy - this->_ecm(i), 2) / scoeff) /
+            std::exp(-std::pow(energy - this->_ecm(i), 2) / scoeff) /
             std::sqrt(M_PI * scoeff);
         return result;
       };
