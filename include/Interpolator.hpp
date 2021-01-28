@@ -28,6 +28,8 @@ class Interpolator {
   double derivEval(const Eigen::VectorXd&, double) const;
   double getMinEnergy() const;
   double getMaxEnergy() const;
+  double getMinEnergy(int) const;
+  double getMaxEnergy(int) const;
   static std::vector<std::tuple<bool, int, int>>
   loadInterpRangeSettings(const std::string&);
   static std::vector<std::tuple<bool, int, int>>

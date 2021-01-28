@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
   }
   ISRSolverSLAE* solverSLAE = dynamic_cast<ISRSolverSLAE*>(solver);
   if (vmap.count("interp") && solverSLAE) {
-    solverSLAE->setInterpSettings(opts.interp);
+    solverSLAE->setRangeInterpSettings(opts.interp);
   }
   if (vmap.count("enable-energy-spread")) {
     solverSLAE->enableEnergySpread();

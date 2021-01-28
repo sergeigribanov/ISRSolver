@@ -58,7 +58,7 @@ bool Interpolator::checkRangeInterpSettings(
 }
 
 Interpolator::Interpolator(const std::string& pathToJSON,
-                           const Eigen::VectorXd& cmEnergies,
+                          const Eigen::VectorXd& cmEnergies,
                            double thresholdEnergy):
     Interpolator(Interpolator::loadInterpRangeSettings(pathToJSON),
                  cmEnergies, thresholdEnergy) {}
@@ -165,4 +165,24 @@ double Interpolator::getMinEnergy() const {
 
 double Interpolator::getMaxEnergy() const {
   return _rangeInterpolators.back().getMaxEnergy();
+}
+
+double Interpolator::getMinEnergy(int csIndex) const {
+  double result = _rangeInterpolators.back().getMinEnergy();
+  for (const auto& rinterp : _rangeInterpolators) {
+    if(rinterp.hasCSIndex(csIndex)) {
+      result = std::min(result, rinterp.getMinEnergy());
+    }
+  }
+  return result;
+}
+
+double Interpolator::getMaxEnergy(int csIndex) const {
+  double result = _rangeInterpolators[0].getMaxEnergy();
+  for (const auto& rinterp : _rangeInterpolators) {
+    if(rinterp.hasCSIndex(csIndex)) {
+      result = std::max(result, rinterp.getMaxEnergy());
+    }
+  }
+  return result;
 }

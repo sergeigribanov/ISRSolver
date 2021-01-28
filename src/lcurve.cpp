@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
       .thresholdEnergy = opts.thsd,
       .energyUnitMeVs = false});
   if (vmap.count("interp")) {
-    solver.setInterpSettings(opts.interp);
+    solver.setRangeInterpSettings(opts.interp);
   }
   if (vmap.count("disable-solution-norm")) {
     solver.disableSolutionNorm2();

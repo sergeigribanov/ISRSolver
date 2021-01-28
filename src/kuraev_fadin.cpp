@@ -49,20 +49,19 @@ double kuraev_fadin_kernel(double x, double s) {
 }
 
 double kuraev_fadin_kernel_multiplication(
-    double x, double s, const std::function<double(double)>& fcn) {
-  return fcn(s * (1 - x)) * kuraev_fadin_kernel(x, s);
+    double x, double energy, const std::function<double(double)>& fcn) {
+  return fcn(energy * std::sqrt(1 - x)) * kuraev_fadin_kernel(x, energy * energy);
 }
 
-double kuraev_fadin_convolution(double s,
+double kuraev_fadin_convolution(double energy,
                                 const std::function<double(double)>& fcn,
                                 double min_x, double max_x,
 				const std::function<double(double, double)>& efficiency) {
-  std::function<double(double)> fcnConv = [s, &fcn, &efficiency](double x) {
-    return kuraev_fadin_kernel_multiplication(x, s, fcn) * efficiency(x, s);
+  std::function<double(double)> fcnConv = [energy, &fcn, &efficiency](double x) {
+    return kuraev_fadin_kernel_multiplication(x, energy, fcn) * efficiency(x, energy);
   };
   double error;
-  double E = std::sqrt(s);
-  double x0 = 2 * ELECTRON_M / E;
+  double x0 = 2 * ELECTRON_M / energy;
   double result;
   if (min_x < x0) {
     result = integrateS(fcnConv, min_x, x0, error) +

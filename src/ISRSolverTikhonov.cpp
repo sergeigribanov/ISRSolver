@@ -62,12 +62,9 @@ void ISRSolverTikhonov::setAlpha(double alpha) { _alpha = alpha; }
 
 void ISRSolverTikhonov::_evalInterpPointWiseDerivativeProjector() {
   _interpPointWiseDerivativeProjector = Eigen::MatrixXd::Zero(_getN(), _getN());
-  for (std::size_t j = 0; j < _getN(); ++j) {
-    Eigen::MatrixXd coeffs = _interpInvMatrix(j) * _permutation(j);
-    const std::size_t nc = _getNumCoeffs(j);
-    for (std::size_t k = 1; k < nc; ++k) {
-      _interpPointWiseDerivativeProjector.row(j) +=
-          coeffs.row(k) * k * std::pow(_s(j), k - 1);
+  for (std::size_t i = 0; i < _getN(); ++i) {
+    for (std::size_t j = 0; j < _getN(); ++j) {
+      _interpPointWiseDerivativeProjector(i, j) = _interp.basisDerivEval(j, _ecm(i));
     }
   }
 }

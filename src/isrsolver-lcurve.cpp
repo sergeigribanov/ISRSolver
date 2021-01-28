@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
       .energyUnitMeVs = false});
   std::vector<double> z(1, opts.alpha);
   if (vmap.count("interp")) {
-    solver->setInterpSettings(opts.interp);
+    solver->setRangeInterpSettings(opts.interp);
   }
   if (vmap.count("disable-solution-derivative-norm")) {
     solver->disableSolutionDerivativeNorm2();
