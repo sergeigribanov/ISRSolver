@@ -9,7 +9,7 @@
 void test_basis(const Eigen::VectorXd& y,
                 const Interpolator& interp,
                 double energyMin = 0.827,
-                double energyMax = 2.0) {
+                double energyMax = 2.5) {
   std::function<double(double*, double*)> fcn =
       [interp, y](double* px, double*) {
         double result = 0;
@@ -18,27 +18,45 @@ void test_basis(const Eigen::VectorXd& y,
         }
         return result;
       };
+  std::function<double(double*, double*)> dfcn =
+      [interp, y](double* px, double*) {
+        double result = 0;
+        for (int i = 0; i < y.rows(); ++i) {
+          result += interp.basisDerivEval(i, px[0]) * y(i);
+        }
+        return result;
+      };
   TF1 f0("f_basis", fcn, energyMin, energyMax, 0);
   f0.SetNpx(10000);
+  TF1 f0_deriv("f_deriv_basis", dfcn, energyMin, energyMax, 0);
+  f0_deriv.SetNpx(10000);
   TFile fl("basis_test.root", "recreate");
   fl.cd();
   f0.Write();
+  f0_deriv.Write();
   fl.Close();
 }
 
 void test_entire(const Eigen::VectorXd& y,
                  const Interpolator& interp,
                  double energyMin = 0.827,
-                 double energyMax = 2.0) {
+                 double energyMax = 2.5) {
   std::function<double(double*, double*)> fcn =
       [interp, y](double* px, double*) {
         return interp.eval(y, px[0]);
       };
+  std::function<double(double*, double*)> dfcn =
+      [interp, y](double* px, double*) {
+        return interp.derivEval(y, px[0]);
+      };
   TF1 f0("f_entire", fcn, energyMin, energyMax, 0);
   f0.SetNpx(10000);
+  TF1 f0_deriv("f_deriv_entire", dfcn, energyMin, energyMax, 0);
+  f0_deriv.SetNpx(10000);
   TFile fl("entire_test.root", "recreate");
   fl.cd();
   f0.Write();
+  f0_deriv.Write();
   fl.Close();
 }
 

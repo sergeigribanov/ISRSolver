@@ -24,7 +24,7 @@ class Interpolator {
   static std::vector<std::tuple<bool, int, int>>
   loadInterpRangeSettings(const std::string&);
   static std::vector<std::tuple<bool, int, int>>
-  defaultInterpRangeSettings(std::size_t);
+  defaultInterpRangeSettings(int);
  private:
   std::vector<RangeInterpolator> _rangeInterpolators;
 };

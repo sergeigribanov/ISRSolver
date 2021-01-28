@@ -13,16 +13,16 @@ RangeInterpolator::RangeInterpolator(const std::tuple<bool, int, int>& rangeSett
   int rangeIndexMin;
   int rangeIndexMax;
   std::tie(interpType, rangeIndexMin, rangeIndexMax) = rangeSettings;
-  _minEnergy = extCMEnergies(rangeIndexMin);
-  _maxEnergy = extCMEnergies(rangeIndexMax);
   if (rangeIndexMin > 0) {
     _beginIndex = rangeIndexMin - 1;
   } else {
-    _beginIndex = rangeIndexMin;
+    _beginIndex = 0;
   }
+  _minEnergy = extCMEnergies(rangeIndexMin);
+  _maxEnergy = extCMEnergies(rangeIndexMax + 1);
   const int numOfElements = rangeIndexMin > 0?
-                            rangeIndexMax - rangeIndexMin + 1:
-                            rangeIndexMax - rangeIndexMin;
+                            rangeIndexMax - rangeIndexMin + 2:
+                            rangeIndexMax - rangeIndexMin + 1;
   _acc = std::vector<std::shared_ptr<gsl_interp_accel>>(numOfElements);
   _spline = std::vector<std::shared_ptr<gsl_spline>>(numOfElements);
   Eigen::VectorXd yi = Eigen::VectorXd::Zero(extCMEnergies.rows());
@@ -42,9 +42,9 @@ RangeInterpolator::RangeInterpolator(const std::tuple<bool, int, int>& rangeSett
           [](gsl_spline* tspline)
           {gsl_spline_free(tspline);});
     }
-    yi(_beginIndex + i) = 1.;
+    yi(_beginIndex + i + 1) = 1.;
     gsl_spline_init(_spline[i].get(), extCMEnergies.data(), yi.data(), extCMEnergies.rows());
-    yi(_beginIndex + i) = 0.;
+    yi(_beginIndex + i + 1) = 0.;
   }
 }
 
@@ -94,8 +94,8 @@ double RangeInterpolator::getMaxEnergy() const {
 
 bool RangeInterpolator::hasCSIndex(int csIndex) const {
   const int index = csIndex - _beginIndex;
-  const int npoints = _spline.size();
-  return (index >= 0) && (index < npoints);
+  const int n = _spline.size();
+  return (index >= 0) && (index < n);
 }
 
 bool RangeInterpolator::isEnergyInRange(double energy) const {

@@ -74,7 +74,7 @@ double Interpolator::basisDerivEval(int csIndex, double energy) const {
   double result = 0;
   for (const auto& rinterp : _rangeInterpolators) {
     if (rinterp.hasCSIndex(csIndex) && rinterp.isEnergyInRange(energy)) {
-      result += rinterp.basisDerivEval(csIndex, getMaxEnergy());
+      result += rinterp.basisDerivEval(csIndex, energy);
     }
   }
   return result;
@@ -113,9 +113,9 @@ double Interpolator::derivEval(const Eigen::VectorXd& y, double energy) const {
 }
 
 std::vector<std::tuple<bool, int, int>>
-Interpolator::defaultInterpRangeSettings(std::size_t n) {
+Interpolator::defaultInterpRangeSettings(int n) {
   return std::vector<std::tuple<bool, int, int>>(
-      1, std::tuple<bool, int, int>(false, 0, n));
+      1, std::tuple<bool, int, int>(false, 0, n - 1));
 }
 
 double Interpolator::getMinEnergy() const {
