@@ -1,4 +1,4 @@
-#include <iostream>
+#include <algorithm>
 #include <fstream>
 #include "Interpolator.hpp"
 
@@ -11,17 +11,50 @@ Interpolator::Interpolator(const Eigen::VectorXd& cmEnergies,
     Interpolator(defaultInterpRangeSettings(cmEnergies.rows()),
                  cmEnergies, thresholdEnergy) {}
 
-// TO DO: check ranges and add corresponding exceptions
 Interpolator::Interpolator(
     const std::vector<std::tuple<bool, int, int>>& interpRangeSettings,
     const Eigen::VectorXd& cmEnergies, double thresholdEnergy) {
   Eigen::VectorXd extCMEnergies(cmEnergies.rows() + 1);
   extCMEnergies.tail(cmEnergies.rows()) = cmEnergies;
   extCMEnergies(0) = thresholdEnergy;
-  _rangeInterpolators.reserve(interpRangeSettings.size());
-  for (const auto& el : interpRangeSettings) {
+  auto interpRSsorted = interpRangeSettings;
+  std::sort(interpRSsorted.begin(), interpRSsorted.end(),
+            [](const std::tuple<bool, int, int>& t1,
+               const std::tuple<bool, int, int>& t2) {
+              return std::get<1>(t1) < std::get<1>(t2);});
+  _rangeInterpolators.reserve(interpRSsorted.size());
+  if (checkRangeInterpSettings(interpRSsorted,
+                               cmEnergies)) {
+    InterpRangeException ex;
+    throw ex;
+  }
+  for (const auto& el : interpRSsorted) {
     _rangeInterpolators.push_back(RangeInterpolator(el, extCMEnergies));
   }
+}
+
+bool Interpolator::checkRangeInterpSettings(
+    const std::vector<std::tuple<bool, int, int>>&
+    sortedInterpRangeSettings,
+    const Eigen::VectorXd& cmEnergies) {
+  if(std::get<1>(*sortedInterpRangeSettings.begin()) != 0 ||
+     std::get<2>(sortedInterpRangeSettings.back()) + 1
+     != cmEnergies.rows()) {
+    return true;
+  }
+  int pimax = -1;
+  for (const auto& el : sortedInterpRangeSettings) {
+    int imin = std::get<1>(el);
+    int imax = std::get<2>(el);
+    if (imin > imax) {
+      return true;
+    }
+    if (pimax != -1 && pimax + 1 != imin) {
+      return true;
+    }
+    pimax = imax;
+  }
+  return false;
 }
 
 Interpolator::Interpolator(const std::string& pathToJSON,
