@@ -107,10 +107,12 @@ int main(int argc, char* argv[]) {
     a.push_back(alpha);
     curv.push_back(solver.evalLCurveCurvature());
   }
+  TGraph chi2(opts.alpha_n, a.data(), x.data());
   TGraph lcurve(opts.alpha_n, x.data(), y.data());
   TGraph curvature(opts.alpha_n, a.data(), curv.data());
   auto fl = TFile::Open(opts.ofname.c_str(), "recreate");
   fl->cd();
+  chi2.Write("chi2");
   lcurve.Write("lcurve");
   curvature.Write("curvature");
   fl->Close();
