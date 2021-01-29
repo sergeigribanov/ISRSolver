@@ -22,6 +22,7 @@ class RangeInterpolator {
   bool hasCSIndex(int) const;
   bool isEnergyInRange(double) const;
  private:
+  bool _cspline;
   int _beginIndex;
   double _minEnergy;
   double _maxEnergy;

@@ -1,18 +1,18 @@
 #include <iostream>
 #include "RangeInterpolator.hpp"
 
-RangeInterpolator::RangeInterpolator(const RangeInterpolator& rinerp):
-    _beginIndex(rinerp._beginIndex), _minEnergy(rinerp._minEnergy),
-    _maxEnergy(rinerp._maxEnergy), _acc(rinerp._acc),
-    _spline(rinerp._spline) {}
+RangeInterpolator::RangeInterpolator(const RangeInterpolator& rinterp):
+    _cspline(rinterp._cspline),
+    _beginIndex(rinterp._beginIndex), _minEnergy(rinterp._minEnergy),
+    _maxEnergy(rinterp._maxEnergy), _acc(rinterp._acc),
+    _spline(rinterp._spline) {}
 
 RangeInterpolator::RangeInterpolator(const std::tuple<bool, int, int>& rangeSettings,
                                      const Eigen::VectorXd& extCMEnergies) {
   // Vector extCMEnergies contains center-of-mass energies including threshold energy
-  bool interpType;
   int rangeIndexMin;
   int rangeIndexMax;
-  std::tie(interpType, rangeIndexMin, rangeIndexMax) = rangeSettings;
+  std::tie(_cspline, rangeIndexMin, rangeIndexMax) = rangeSettings;
   if (rangeIndexMin > 0) {
     _beginIndex = rangeIndexMin - 1;
   } else {
@@ -31,7 +31,7 @@ RangeInterpolator::RangeInterpolator(const std::tuple<bool, int, int>& rangeSett
         gsl_interp_accel_alloc(),
         [](gsl_interp_accel* tacc)
         {gsl_interp_accel_free(tacc);});
-    if (interpType) {
+    if (_cspline) {
       _spline[i] = std::shared_ptr<gsl_spline>(
           gsl_spline_alloc(gsl_interp_cspline, extCMEnergies.rows()),
           [](gsl_spline* tspline)
@@ -57,7 +57,11 @@ double RangeInterpolator::basisEval(int csIndex, double energy) const {
 
 double RangeInterpolator::basisDerivEval(int csIndex, double energy) const {
   const int index = csIndex - _beginIndex;
-  return gsl_spline_eval_deriv(_spline[index].get(), energy, _acc[index].get());
+  double koeff = 1.;
+  if (!_cspline) {
+    koeff = 1. - 1.e-12;
+  }
+  return gsl_spline_eval_deriv(_spline[index].get(), energy * koeff, _acc[index].get());
 }
 
 double RangeInterpolator::eval(const Eigen::VectorXd& y, double energy) const {

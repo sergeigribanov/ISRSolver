@@ -21,14 +21,13 @@ using json = nlohmann::json;
 ISRSolverSLAE::ISRSolverSLAE(const std::string& inputPath,
                              const InputOptions& inputOpts) :
     BaseISRSolver(inputPath, inputOpts),
-    _interp(Interpolator(ecm(), getThresholdEnergy())) {
-  // _setDefaultInterpSettings();
-}
+    _interp(Interpolator(ecm(), getThresholdEnergy())),
+    _isEqMatrixPrepared(false) {}
 
 ISRSolverSLAE::ISRSolverSLAE(const ISRSolverSLAE& solver) :
   BaseISRSolver::BaseISRSolver(solver),
   _interp(solver._interp),
-  // _interpSettings(solver._interpSettings),
+  _isEqMatrixPrepared(solver._isEqMatrixPrepared),
   _integralOperatorMatrix(solver._integralOperatorMatrix),
   _invBornCSErrorMatrix(solver._invBornCSErrorMatrix),
   _dotProdOp(solver._dotProdOp) {}
@@ -52,7 +51,10 @@ Eigen::MatrixXd& ISRSolverSLAE::_getInverseBornCSErrorMatrix() {
 }
 
 void ISRSolverSLAE::solve() {
-  _evalEqMatrix();
+  if (!_isEqMatrixPrepared) {
+    _evalEqMatrix();
+    _isEqMatrixPrepared = true;
+  }
   _bcs() =
       _integralOperatorMatrix.completeOrthogonalDecomposition().solve(_vcs());
   _invBornCSErrorMatrix = _integralOperatorMatrix.transpose() *
