@@ -1,7 +1,8 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <string>
-
+#include <Eigen/Core>
+#include <Eigen/SVD>
 #include "ISRSolverSLAE.hpp"
 #include "ISRSolverTikhonov.hpp"
 #include "ISRSolverTSVD.hpp"
@@ -53,6 +54,17 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
 
 void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
+}
+
+void printConditionNumber(const BaseISRSolver* solver) {
+  const ISRSolverSLAE* solverSLAE = dynamic_cast<const ISRSolverSLAE*>(solver);
+  if (!solverSLAE) {
+    return;
+  }
+  Eigen::JacobiSVD<Eigen::MatrixXd> svd(solverSLAE->getIntegralOperatorMatrix());
+  double cond = svd.singularValues()(0) /
+                svd.singularValues()(svd.singularValues().size()-1);
+  std::cout << "condition number = " << cond << std::endl;
 }
 
 int main(int argc, char* argv[]) {
@@ -119,6 +131,7 @@ int main(int argc, char* argv[]) {
   solver->solve();
   solver->save(opts.ofname,
                {.visibleCSGraphName = opts.vcs_name, .bornCSGraphName = "bcs"});
+  printConditionNumber(solver);
   delete solver;
   return 0;
 }
