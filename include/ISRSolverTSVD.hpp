@@ -11,8 +11,11 @@ class ISRSolverTSVD : public ISRSolverSLAE {
   virtual void solve() override;
   void setTruncIndexUpperLimit(int);
   int getTruncIndexUpperLimit() const;
+  void enableKeepOne();
+  void disableKeepOne();
  private:
   int _truncIndexUpperLimit;
+  bool _keepOne;
   Eigen::MatrixXd _mU;
   Eigen::MatrixXd _mV;
   Eigen::VectorXd _mSing;

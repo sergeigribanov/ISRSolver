@@ -26,6 +26,7 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
                       "solution of the Kuraev-Fadin equation.")
       ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
       ("upper-tsvd-index,k", po::value<int>(&(opts->k)), "Upper TSVD index")
+      ("keep-one,z", "Keep only k-th SVD harmonic")
       ("enable-energy-spread,g", "Enable energy spread")
       // ("enable-solution-positivity,p", "Setting positive limits to solution")
       ("disable-solution-norm,f", 
@@ -105,6 +106,9 @@ int main(int argc, char* argv[]) {
   ISRSolverTSVD* solverTSVD = dynamic_cast<ISRSolverTSVD*>(solver);
   if (vmap.count("upper-tsvd-index") && solverTSVD) {
     solverTSVD->setTruncIndexUpperLimit(opts.k);
+  }
+  if (vmap.count("keep-one") && solverTSVD) {
+    solverTSVD->enableKeepOne();
   }
   if (vmap.count("disable-solution-norm") && solverTikhonov) {
     solverTikhonov->disableSolutionNorm2();

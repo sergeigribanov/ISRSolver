@@ -7,11 +7,13 @@ ISRSolverTSVD::ISRSolverTSVD(const std::string& inputPath,
                              const InputOptions& inputOpts,
                              int truncIndexUpperLimit):
     ISRSolverSLAE(inputPath, inputOpts),
-    _truncIndexUpperLimit(truncIndexUpperLimit) {}
+    _truncIndexUpperLimit(truncIndexUpperLimit),
+    _keepOne(false) {}
 
 ISRSolverTSVD::ISRSolverTSVD(const ISRSolverTSVD& solver):
     ISRSolverSLAE::ISRSolverSLAE(solver),
     _truncIndexUpperLimit(solver._truncIndexUpperLimit),
+    _keepOne(solver._keepOne),
     _mU(solver._mU),
     _mV(solver._mV),
     _mSing(solver._mSing) {}
@@ -28,9 +30,15 @@ void ISRSolverTSVD::solve() {
     _mV = svd.matrixV();
     _mSing = svd.singularValues();
   }
-  Eigen::MatrixXd mK = _mU.block(0, 0, _mU.rows(), _truncIndexUpperLimit) *
-                       _mSing.head(_truncIndexUpperLimit).asDiagonal() *
-                       _mV.block(0, 0, _mV.rows(), _truncIndexUpperLimit).transpose();
+  int firstIndex = 0;
+  int n = _truncIndexUpperLimit;
+  if (_keepOne) {
+    firstIndex = _truncIndexUpperLimit - 1;
+    n = 1;
+  }
+  Eigen::MatrixXd mK = _mU.block(0, firstIndex, _mU.rows(), n) *
+                       _mSing.segment(firstIndex, n).asDiagonal() *
+                       _mV.block(0, firstIndex, _mV.rows(), n).transpose();
   _bcs() = mK.completeOrthogonalDecomposition().solve(_vcs());
   _getInverseBornCSErrorMatrix() = mK.transpose() * _vcsInvErrMatrix() * mK;
 }
@@ -41,4 +49,12 @@ void ISRSolverTSVD::setTruncIndexUpperLimit(int truncIndexUpperLimit) {
 
 int ISRSolverTSVD::getTruncIndexUpperLimit() const {
   return _truncIndexUpperLimit;
+}
+
+void ISRSolverTSVD::enableKeepOne() {
+  _keepOne = true;
+}
+
+void ISRSolverTSVD::disableKeepOne() {
+  _keepOne = false;
 }
