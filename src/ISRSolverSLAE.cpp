@@ -29,7 +29,7 @@ ISRSolverSLAE::ISRSolverSLAE(const ISRSolverSLAE& solver) :
   _interp(solver._interp),
   _isEqMatrixPrepared(solver._isEqMatrixPrepared),
   _integralOperatorMatrix(solver._integralOperatorMatrix),
-  _invBornCSErrorMatrix(solver._invBornCSErrorMatrix),
+  _covMatrixBornCS(solver._covMatrixBornCS),
   _dotProdOp(solver._dotProdOp) {}
 
 ISRSolverSLAE::~ISRSolverSLAE() {}
@@ -38,16 +38,16 @@ const Eigen::MatrixXd& ISRSolverSLAE::getIntegralOperatorMatrix() const {
   return _integralOperatorMatrix;
 }
 
-const Eigen::MatrixXd& ISRSolverSLAE::getInverseBornCSErrorMatrix() const {
-  return _invBornCSErrorMatrix;
+const Eigen::MatrixXd& ISRSolverSLAE::getBornCSCovMatrix() const {
+  return _covMatrixBornCS;
 }
 
 Eigen::MatrixXd& ISRSolverSLAE::_getIntegralOperatorMatrix() {
   return _integralOperatorMatrix;
 }
 
-Eigen::MatrixXd& ISRSolverSLAE::_getInverseBornCSErrorMatrix() {
-  return _invBornCSErrorMatrix;
+Eigen::MatrixXd& ISRSolverSLAE::_getBornCSCovMatrix() {
+  return _covMatrixBornCS;
 }
 
 void ISRSolverSLAE::solve() {
@@ -57,8 +57,8 @@ void ISRSolverSLAE::solve() {
   }
   _bcs() =
       _integralOperatorMatrix.completeOrthogonalDecomposition().solve(_vcs());
-  _invBornCSErrorMatrix = _integralOperatorMatrix.transpose() *
-                          _vcsInvErrMatrix() * _integralOperatorMatrix;
+  _covMatrixBornCS = (_integralOperatorMatrix.transpose() *
+                      _vcsInvErrMatrix() * _integralOperatorMatrix).inverse();
 }
 
 void ISRSolverSLAE::save(const std::string& outputPath,
@@ -69,9 +69,9 @@ void ISRSolverSLAE::save(const std::string& outputPath,
   TMatrixD intergalOperatorMatrix(_getN(), _getN());
   Eigen::MatrixXd tmpIntOpM = _integralOperatorMatrix.transpose();
   intergalOperatorMatrix.SetMatrixArray(tmpIntOpM.data());
-  TMatrixD bornCSInverseErrorMatrix(_getN(), _getN());
-  Eigen::MatrixXd tmpInvErrM = _invBornCSErrorMatrix.transpose();
-  bornCSInverseErrorMatrix.SetMatrixArray(tmpInvErrM.data());
+  TMatrixD bornCSCovMatrix(_getN(), _getN());
+  Eigen::MatrixXd tmpCovM = _covMatrixBornCS.transpose();
+  bornCSCovMatrix.SetMatrixArray(tmpCovM.data());
   auto f0 = _createInterpFunction();
   auto f1 = _createDerivativeInterpFunction(1, "interp1DivFCN");
   auto fl = TFile::Open(outputPath.c_str(), "recreate");
@@ -79,7 +79,7 @@ void ISRSolverSLAE::save(const std::string& outputPath,
   vcs.Write(outputOpts.visibleCSGraphName.c_str());
   bcs.Write(outputOpts.bornCSGraphName.c_str());
   intergalOperatorMatrix.Write("intergalOperatorMatrix");
-  bornCSInverseErrorMatrix.Write("bornCSInverseErrorMatrix");
+  bornCSCovMatrix.Write("covMatrixBornCS");
   f0->Write();
   f1->Write();
   fl->Close();
@@ -141,7 +141,7 @@ TF1* ISRSolverSLAE::_createDerivativeInterpFunction(
 }
 
 Eigen::VectorXd ISRSolverSLAE::_bcsErr() const {
-  return _invBornCSErrorMatrix.diagonal().array().pow(-0.5);
+  return _covMatrixBornCS.diagonal().array().pow(0.5);
 }
 
 void ISRSolverSLAE::_evalDotProductOperator() {

@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
     solver.setAlpha(alpha);
     solver.solve();
     double chi2 = (solver.bcs() - fcnv).transpose() *
-                  solver.getInverseBornCSErrorMatrix().diagonal().asDiagonal() *
+                  solver.getBornCSCovMatrix().diagonal().asDiagonal().inverse() *
                   (solver.bcs() - fcnv);
     c.push_back(chi2);
     x.push_back(solver.evalEqNorm2());

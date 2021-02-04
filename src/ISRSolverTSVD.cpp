@@ -40,7 +40,7 @@ void ISRSolverTSVD::solve() {
                        _mSing.segment(firstIndex, n).asDiagonal() *
                        _mV.block(0, firstIndex, _mV.rows(), n).transpose();
   _bcs() = mK.completeOrthogonalDecomposition().solve(_vcs());
-  _getInverseBornCSErrorMatrix() = mK.transpose() * _vcsInvErrMatrix() * mK;
+  _getBornCSCovMatrix() = (mK.transpose() * _vcsInvErrMatrix() * mK).inverse();
 }
 
 void ISRSolverTSVD::setTruncIndexUpperLimit(int truncIndexUpperLimit) {

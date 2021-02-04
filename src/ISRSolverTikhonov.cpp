@@ -42,7 +42,7 @@ void ISRSolverTikhonov::solve() {
   }
   _evalProblemMatrices();
   _bcs() = _luR.solve(_vcs());
-  _getInverseBornCSErrorMatrix() = _mR.transpose() * _vcsInvErrMatrix() * _mR;
+  _getBornCSCovMatrix() = (_mR.transpose() * _vcsInvErrMatrix() * _mR).inverse();
 }
 
 double ISRSolverTikhonov::getAlpha() const { return _alpha; }
@@ -140,24 +140,8 @@ void ISRSolverTikhonov::_evalProblemMatrices() {
   }
   _mR = getIntegralOperatorMatrix() +
         _alpha * _vcsInvErrMatrix().inverse() * mAt.inverse() * _mF;
-  // std::cout << "---------------" << std::endl;
-  // std::cout << "derivP:" << std::endl;
-  // std::cout << _getInterpPointWiseDerivativeProjector() << std::endl;
-  // std::cout << "_mF:" << std::endl;
-  // std::cout << _mF << std::endl;
-  // std::cout << "_mF.inverse():" << std::endl;
-  // std::cout << _mF.inverse() << std::endl;
-  // std::cout << "mAt:" << std::endl;
-  // std::cout << mAt << std::endl;
-  // std::cout << "_vcsInvErrMatrix():" << std::endl;
-  // std::cout << _vcsInvErrMatrix() << std::endl;
-  // std::cout << "getIntegralOperatorMatrix():" << std::endl;
-  // std::cout << getIntegralOperatorMatrix() << std::endl;
-  // std::cout << "_alpha = " << _alpha << std::endl;
   _mL = _mF.inverse() * mAt * _vcsInvErrMatrix() * getIntegralOperatorMatrix() +
         _alpha * Eigen::MatrixXd::Identity(_getN(), _getN());
-  // std::cout << "_mL:" << std::endl;
-  // std::cout << _mL << std::endl;
   _luR = Eigen::FullPivLU<Eigen::MatrixXd>(_mR);
   _luL = Eigen::FullPivLU<Eigen::MatrixXd>(_mL);
 }

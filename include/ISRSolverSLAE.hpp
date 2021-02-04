@@ -11,7 +11,7 @@ class ISRSolverSLAE : public BaseISRSolver {
   ISRSolverSLAE(const ISRSolverSLAE&);
   virtual ~ISRSolverSLAE();
   const Eigen::MatrixXd& getIntegralOperatorMatrix() const;
-  const Eigen::MatrixXd& getInverseBornCSErrorMatrix() const;
+  const Eigen::MatrixXd& getBornCSCovMatrix() const;
   virtual void solve() override;
   virtual void save(const std::string& outputPath,
                     const OutputOptions& outputOpts) override;
@@ -20,7 +20,7 @@ class ISRSolverSLAE : public BaseISRSolver {
 
  protected:
   Eigen::MatrixXd& _getIntegralOperatorMatrix();
-  Eigen::MatrixXd& _getInverseBornCSErrorMatrix();
+  Eigen::MatrixXd& _getBornCSCovMatrix();
   void _evalEqMatrix();
   Eigen::MatrixXd _energySpreadMatrix() const;
   const Eigen::RowVectorXd& _getDotProdOp() const;
@@ -33,7 +33,7 @@ class ISRSolverSLAE : public BaseISRSolver {
 
  private:
   Eigen::MatrixXd _integralOperatorMatrix;
-  Eigen::MatrixXd _invBornCSErrorMatrix;
+  Eigen::MatrixXd _covMatrixBornCS;
   Eigen::RowVectorXd _dotProdOp;
 };
 
