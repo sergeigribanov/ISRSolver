@@ -46,15 +46,15 @@ class BaseISRSolver {
   const Eigen::VectorXd& _vcsErr() const;
   Eigen::VectorXd& _vcsErr();
   Eigen::VectorXd& _bcs();
-  Eigen::MatrixXd _vcsInvErrMatrix() const; 
+  Eigen::MatrixXd _vcsInvCovMatrix() const;
   void _setupEfficiency() noexcept(false);
-  
+
  private:
   bool _energySpread;
   double _energyT;
   std::size_t _n;
   CSVecData _visibleCSData;
-  Eigen::MatrixXd _vcsInvErrMx;
+  Eigen::MatrixXd _vcsInvCovMx;
   std::function<double(double, double)> _efficiency;
   TEfficiency* _tefficiency;
   Eigen::VectorXd _bornCS;

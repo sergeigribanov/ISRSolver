@@ -58,7 +58,7 @@ void ISRSolverSLAE::solve() {
   _bcs() =
       _integralOperatorMatrix.completeOrthogonalDecomposition().solve(_vcs());
   _covMatrixBornCS = (_integralOperatorMatrix.transpose() *
-                      _vcsInvErrMatrix() * _integralOperatorMatrix).inverse();
+                      _vcsInvCovMatrix() * _integralOperatorMatrix).inverse();
 }
 
 void ISRSolverSLAE::save(const std::string& outputPath,

@@ -42,7 +42,7 @@ void ISRSolverTikhonov::solve() {
   }
   _evalProblemMatrices();
   _bcs() = _luR.solve(_vcs());
-  _getBornCSCovMatrix() = (_mR.transpose() * _vcsInvErrMatrix() * _mR).inverse();
+  _getBornCSCovMatrix() = (_mR.transpose() * _vcsInvCovMatrix() * _mR).inverse();
 }
 
 double ISRSolverTikhonov::getAlpha() const { return _alpha; }
@@ -87,7 +87,7 @@ bool ISRSolverTikhonov::isSolutionNorm2DerivativeEnabled() const {
 
 double ISRSolverTikhonov::evalEqNorm2() const {
   Eigen::VectorXd dv = getIntegralOperatorMatrix() * bcs() - _vcs();
-  return dv.dot(_vcsInvErrMatrix() * dv);
+  return dv.dot(_vcsInvCovMatrix() * dv);
 }
 
 double ISRSolverTikhonov::evalEqNorm2NoErr() const {
@@ -139,8 +139,8 @@ void ISRSolverTikhonov::_evalProblemMatrices() {
            _getDotProdOp().transpose().array()).matrix();
   }
   _mR = getIntegralOperatorMatrix() +
-        _alpha * _vcsInvErrMatrix().inverse() * mAt.inverse() * _mF;
-  _mL = _mF.inverse() * mAt * _vcsInvErrMatrix() * getIntegralOperatorMatrix() +
+        _alpha * _vcsInvCovMatrix().inverse() * mAt.inverse() * _mF;
+  _mL = _mF.inverse() * mAt * _vcsInvCovMatrix() * getIntegralOperatorMatrix() +
         _alpha * Eigen::MatrixXd::Identity(_getN(), _getN());
   _luR = Eigen::FullPivLU<Eigen::MatrixXd>(_mR);
   _luL = Eigen::FullPivLU<Eigen::MatrixXd>(_mL);
