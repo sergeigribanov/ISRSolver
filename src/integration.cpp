@@ -1,5 +1,6 @@
+#define _USE_MATH_DEFINES
 #include "integration.hpp"
-
+#include <cmath>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_integration.h>
 
@@ -66,9 +67,23 @@ double integrate(std::function<double(double)>& fcn, double a, double b,
       }
     }
   }
-
   gsl_integration_workspace_free(w);
   gsl_set_error_handler(old_handler);
+  return result;
+}
 
+double gaussian_conv(double energy,
+                     double sigma2,
+                     std::function<double(double)>& fcn) {
+  const double b = 0.5 / sigma2;
+  gsl_integration_fixed_workspace * w;
+  const gsl_integration_fixed_type * T = gsl_integration_fixed_hermite;
+  w = gsl_integration_fixed_alloc(T, 6, energy, b, 0., 0.);
+  gsl_function F;
+  F.function = &wrapper;
+  F.params = &fcn;
+  double result;
+  gsl_integration_fixed(&F, &result, w);
+  result /= std::sqrt(2 * M_PI * sigma2);
   return result;
 }

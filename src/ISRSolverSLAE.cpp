@@ -167,19 +167,14 @@ Eigen::MatrixXd ISRSolverSLAE::_energySpreadMatrix() const {
   std::size_t i;
   std::size_t j;
   std::function<double(double)> fcn =
-      [&i, &j, this](double energy) {
-        double scoeff = 2 * std::pow(this->_ecmErr(i), 2);
-        double result =  this->_interp.basisEval(j, energy) *
-            std::exp(-std::pow(energy - this->_ecm(i), 2) / scoeff) /
-            std::sqrt(M_PI * scoeff);
+      [&j, this](double energy) {
+        double result = this->_interp.basisEval(j, energy);
         return result;
       };
-  // TO DO : optimize
   for (i = 0; i < _getN(); ++i) {
     for (j = 0; j < _getN(); ++j) {
-      double error;
-      result(i, j) = integrate(fcn, _ecm(i) - 5 * _ecmErr(i),
-                               _ecm(i) + 5 * _ecmErr(i), error);
+      double sigma2 = std::pow(this->_ecmErr(i), 2);
+      result(i, j) = gaussian_conv(this->_ecm(i), sigma2, fcn);
     }
   }
   return result;
