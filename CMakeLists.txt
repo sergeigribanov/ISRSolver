@@ -20,6 +20,7 @@ include_directories(${GSL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${NLOPT_INCLUDE_DIRS})
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/test-draw-kernel.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/test-interp.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/test-chi2.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
@@ -48,6 +49,20 @@ target_include_directories(isrsolver
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>)
 target_link_libraries(isrsolver
+  PRIVATE
+  GSL::gsl GSL::gslcblas
+  Eigen3::Eigen
+  ${Boost_LIBRARIES}
+  ${NLOPT_LIBRARIES}
+  ${ROOT_LIBRARIES}
+  nlohmann_json::nlohmann_json
+  isr)
+add_executable(test-draw-kernel ${CMAKE_CURRENT_SOURCE_DIR}/src/test-draw-kernel.cpp)
+target_include_directories(test-draw-kernel
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/ISRSolver>)
+target_link_libraries(test-draw-kernel
   PRIVATE
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
