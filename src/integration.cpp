@@ -23,7 +23,7 @@ double integrateS(std::function<double(double)>& fcn, double a, double b,
   double relerr = 1.0e-12;
   int status = 1;
   while (status) {
-    status = gsl_integration_qags(&F, a, b, 0., relerr, N, w, &result, &error);
+    status = gsl_integration_qags(&F, a, b, 1.e-12, relerr, N, w, &result, &error);
 
     if (relerr < 1.e-3) {
       relerr *= 10;
@@ -55,7 +55,7 @@ double integrate(std::function<double(double)>& fcn, double a, double b,
   int status = 1;
   while (status) {
     status =
-        gsl_integration_qag(&F, a, b, 0., relerr, N, 6, w, &result, &error);
+        gsl_integration_qag(&F, a, b, 1.e-12, relerr, N, 6, w, &result, &error);
 
     if (relerr < 1.e-3) {
       relerr *= 10;
