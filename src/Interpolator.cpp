@@ -186,3 +186,13 @@ double Interpolator::getMaxEnergy(int csIndex) const {
   }
   return result;
 }
+
+double Interpolator::evalKuraevFadinBasisIntegral(
+    int energyIndex, int csIndex,
+    const std::function<double(double, double)>& efficiency) const {
+  double result = 0;
+  for (const auto& rinterp : _rangeInterpolators) {
+    result += rinterp.evalKuraevFadinBasisIntegral(energyIndex, csIndex, efficiency);
+  }
+  return result;
+}

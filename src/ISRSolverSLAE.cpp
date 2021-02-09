@@ -98,26 +98,11 @@ void ISRSolverSLAE::setRangeInterpSettings(const std::string& pathToJSON) {
 }
 
 void ISRSolverSLAE::_evalEqMatrix() {
-  std::size_t j;
-  std::function<double(double)> fcn =
-      [&j, this](double energy) {
-        double result = this->_interp.basisEval(j, energy);
-        return result;
-      };
   _integralOperatorMatrix = Eigen::MatrixXd::Zero(_getN(), _getN());
   // TO DO: optimize
-  for (j = 0; j < _getN(); ++j) {
+  for (std::size_t j = 0; j < _getN(); ++j) {
     for(std::size_t i = 0; i < _getN(); ++i) {
-      for (std::size_t k = 0; k <= i; ++k) {
-        double x_min = 0;
-        if (k > 0) {
-          x_min = 1. - std::pow(getThresholdEnergy() / _ecm(k - 1), 2);
-        }
-        double x_max =
-            1. - std::pow(getThresholdEnergy() / _ecm(k), 2);
-        _integralOperatorMatrix(i, j) +=
-            kuraev_fadin_convolution(_ecm(i), fcn, x_min, x_max, efficiency());
-      }
+      _integralOperatorMatrix(i, j) = _interp.evalKuraevFadinBasisIntegral(i, j, efficiency());
     }
   }
   if (isEnergySpreadEnabled()) {

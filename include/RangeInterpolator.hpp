@@ -1,6 +1,7 @@
 #ifndef __RANGE_ITERPOLATOR_HPP__
 #define __RANGE_ITERPOLATOR_HPP__
 #include <gsl/gsl_spline.h>
+#include <functional>
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -12,6 +13,7 @@ class RangeInterpolator {
   RangeInterpolator(const std::tuple<bool, int, int>&,
                     const Eigen::VectorXd&);
   virtual ~RangeInterpolator();
+  double evalKuraevFadinBasisIntegral(int, int, const std::function<double(double, double)>&) const;
   double basisEval(int, double) const;
   double basisDerivEval(int, double) const;
   double eval(const Eigen::VectorXd&, double) const;
@@ -22,6 +24,10 @@ class RangeInterpolator {
   bool hasCSIndex(int) const;
   bool isEnergyInRange(double) const;
  private:
+  double _evalKuraevFadinIntegralCSpline(
+      int, int, const std::function<double(double, double)>&) const;
+  double _evalKuraevFadinIntegralLinear(
+      int, int, const std::function<double(double, double)>&) const;
   bool _cspline;
   int _beginIndex;
   double _minEnergy;

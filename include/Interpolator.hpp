@@ -22,6 +22,7 @@ class Interpolator {
                const Eigen::VectorXd&, double) noexcept(false);
   Interpolator(const std::string&, const Eigen::VectorXd&, double);
   virtual ~Interpolator();
+  double evalKuraevFadinBasisIntegral(int, int, const std::function<double(double, double)>&) const;
   double basisEval(int, double) const;
   double basisDerivEval(int, double) const;
   double eval(const Eigen::VectorXd&, double) const;
