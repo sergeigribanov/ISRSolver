@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <fstream>
 #include "Interpolator.hpp"
+#include "LinearRangeInterpolator.hpp"
+#include "CSplineRangeInterpolator.hpp"
 
 Interpolator::Interpolator() {}
 Interpolator::Interpolator(const Interpolator& interp):
@@ -29,7 +31,18 @@ Interpolator::Interpolator(
     throw ex;
   }
   for (const auto& el : interpRSsorted) {
-    _rangeInterpolators.push_back(RangeInterpolator(el, extCMEnergies));
+    bool interpType;
+    double rangeIndexMin;
+    double rangeIndexMax;
+    std::tie(interpType, rangeIndexMin, rangeIndexMax) = el;
+    if (interpType) {
+      _rangeInterpolators.push_back(
+          std::shared_ptr<BaseRangeInterpolator>(new CSplineRangeInterpolator(
+              rangeIndexMin, rangeIndexMax, extCMEnergies)));
+    } else {
+      _rangeInterpolators.push_back(std::shared_ptr<BaseRangeInterpolator>(new LinearRangeInterpolator(
+          rangeIndexMin, rangeIndexMax, extCMEnergies)));
+    }
   }
 }
 
@@ -86,16 +99,16 @@ double Interpolator::basisEval(int csIndex, double energy) const {
     return 0;
   }
   if (energy > getMaxEnergy()) {
-    if (_rangeInterpolators.back().hasCSIndex(csIndex)) {
-      return _rangeInterpolators.back().basisEval(csIndex, getMaxEnergy());
+    if (_rangeInterpolators.back().get()->hasCSIndex(csIndex)) {
+      return _rangeInterpolators.back().get()->basisEval(csIndex, getMaxEnergy());
     } else {
       return 0;
     }
   }
   double result = 0;
   for (const auto& rinterp : _rangeInterpolators) {
-    if (rinterp.hasCSIndex(csIndex) && rinterp.isEnergyInRange(energy)) {
-      result += rinterp.basisEval(csIndex, energy);
+    if (rinterp.get()->hasCSIndex(csIndex) && rinterp.get()->isEnergyInRange(energy)) {
+      result += rinterp.get()->basisEval(csIndex, energy);
     }
   }
   return result;
@@ -106,16 +119,17 @@ double Interpolator::basisDerivEval(int csIndex, double energy) const {
     return 0;
   }
   if (energy > getMaxEnergy()) {
-    if (_rangeInterpolators.back().hasCSIndex(csIndex)) {
-      return _rangeInterpolators.back().basisDerivEval(csIndex, getMaxEnergy());
+    if (_rangeInterpolators.back().get()->hasCSIndex(csIndex)) {
+      return _rangeInterpolators.back().get()->basisDerivEval(csIndex, getMaxEnergy());
     } else {
       return 0;
     }
   }
   double result = 0;
   for (const auto& rinterp : _rangeInterpolators) {
-    if (rinterp.hasCSIndex(csIndex) && rinterp.isEnergyInRange(energy)) {
-      result += rinterp.basisDerivEval(csIndex, energy);
+    if (rinterp.get()->hasCSIndex(csIndex) &&
+        rinterp.get()->isEnergyInRange(energy)) {
+      result += rinterp.get()->basisDerivEval(csIndex, energy);
     }
   }
   return result;
@@ -126,12 +140,12 @@ double Interpolator::eval(const Eigen::VectorXd& y, double energy) const {
     return 0;
   }
   if (energy > getMaxEnergy()) {
-    return _rangeInterpolators.back().eval(y, getMaxEnergy());
+    return _rangeInterpolators.back().get()->eval(y, getMaxEnergy());
   }
   double result = 0;
   for (const auto& rinterp : _rangeInterpolators) {
-    if (rinterp.isEnergyInRange(energy)) {
-      result += rinterp.eval(y, energy);
+    if (rinterp.get()->isEnergyInRange(energy)) {
+      result += rinterp.get()->eval(y, energy);
     }
   }
   return result;
@@ -142,12 +156,12 @@ double Interpolator::derivEval(const Eigen::VectorXd& y, double energy) const {
     return 0;
   }
   if (energy > getMaxEnergy()) {
-    return _rangeInterpolators.back().derivEval(y, getMaxEnergy());
+    return _rangeInterpolators.back().get()->derivEval(y, getMaxEnergy());
   }
   double result = 0;
   for (const auto& rinterp : _rangeInterpolators) {
-    if (rinterp.isEnergyInRange(energy)) {
-      result += rinterp.derivEval(y, energy);
+    if (rinterp.get()->isEnergyInRange(energy)) {
+      result += rinterp.get()->derivEval(y, energy);
     }
   }
   return result;
@@ -160,28 +174,28 @@ Interpolator::defaultInterpRangeSettings(int n) {
 }
 
 double Interpolator::getMinEnergy() const {
-  return _rangeInterpolators.begin()->getMinEnergy();
+  return _rangeInterpolators.begin()->get()->getMinEnergy();
 }
 
 double Interpolator::getMaxEnergy() const {
-  return _rangeInterpolators.back().getMaxEnergy();
+  return _rangeInterpolators.back().get()->getMaxEnergy();
 }
 
 double Interpolator::getMinEnergy(int csIndex) const {
-  double result = _rangeInterpolators.back().getMinEnergy();
+  double result = _rangeInterpolators.back().get()->getMinEnergy();
   for (const auto& rinterp : _rangeInterpolators) {
-    if(rinterp.hasCSIndex(csIndex)) {
-      result = std::min(result, rinterp.getMinEnergy());
+    if(rinterp.get()->hasCSIndex(csIndex)) {
+      result = std::min(result, rinterp.get()->getMinEnergy());
     }
   }
   return result;
 }
 
 double Interpolator::getMaxEnergy(int csIndex) const {
-  double result = _rangeInterpolators[0].getMaxEnergy();
+  double result = _rangeInterpolators[0].get()->getMaxEnergy();
   for (const auto& rinterp : _rangeInterpolators) {
-    if(rinterp.hasCSIndex(csIndex)) {
-      result = std::max(result, rinterp.getMaxEnergy());
+    if(rinterp.get()->hasCSIndex(csIndex)) {
+      result = std::max(result, rinterp.get()->getMaxEnergy());
     }
   }
   return result;
@@ -192,7 +206,7 @@ double Interpolator::evalKuraevFadinBasisIntegral(
     const std::function<double(double, double)>& efficiency) const {
   double result = 0;
   for (const auto& rinterp : _rangeInterpolators) {
-    result += rinterp.evalKuraevFadinBasisIntegral(energyIndex, csIndex, efficiency);
+    result += rinterp.get()->evalKuraevFadinBasisIntegral(energyIndex, csIndex, efficiency);
   }
   return result;
 }

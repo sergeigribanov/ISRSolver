@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <functional>
+#include <boost/format.hpp>
 #include <TFile.h>
 #include <TGraphErrors.h>
 #include <TF1.h>
@@ -26,6 +27,12 @@ void test_basis(const Eigen::VectorXd& y,
         }
         return result;
       };
+  int k = 0;
+  std::function<double(double*, double*)> fcni =
+      [&k, interp, y](double* px, double*) {
+          double result = interp.basisEval(k, px[0]) * y(k);
+        return result;
+      };
   TF1 f0("f_basis", fcn, energyMin, energyMax, 0);
   f0.SetNpx(10000);
   TF1 f0_deriv("f_deriv_basis", dfcn, energyMin, energyMax, 0);
@@ -34,6 +41,13 @@ void test_basis(const Eigen::VectorXd& y,
   fl.cd();
   f0.Write();
   f0_deriv.Write();
+  for (k = 0; k < y.rows(); ++k) {
+    const std::string fi_name =
+        boost::str(boost::format("f_basis_%1%") % k);
+    TF1 fi(fi_name.c_str(), fcni, energyMin, energyMax, 0);
+    fi.SetNpx(10000);
+    fi.Write();
+  }
   fl.Close();
 }
 

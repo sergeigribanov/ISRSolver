@@ -3,7 +3,7 @@
 #include <string>
 #include <exception>
 #include <nlohmann/json.hpp>
-#include "RangeInterpolator.hpp"
+#include "BaseRangeInterpolator.hpp"
 
 using json = nlohmann::json;
 
@@ -38,7 +38,7 @@ class Interpolator {
  private:
   static bool checkRangeInterpSettings(const std::vector<std::tuple<bool, int, int>>&,
                                        const Eigen::VectorXd&);
-  std::vector<RangeInterpolator> _rangeInterpolators;
+  std::vector<std::shared_ptr<BaseRangeInterpolator>> _rangeInterpolators;
 };
 
 #endif
