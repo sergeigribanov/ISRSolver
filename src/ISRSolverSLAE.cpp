@@ -108,10 +108,16 @@ void ISRSolverSLAE::_evalEqMatrix() {
   // TO DO: optimize
   for (j = 0; j < _getN(); ++j) {
     for(std::size_t i = 0; i < _getN(); ++i) {
-      const double x_max =
-        1. - std::pow(getThresholdEnergy() / _ecm(i), 2);
-      _integralOperatorMatrix(i, j) =
-          kuraev_fadin_convolution(_ecm(i), fcn, 0., x_max, efficiency());
+      for (std::size_t k = 0; k <= i; ++k) {
+        double x_min = 0;
+        if (k > 0) {
+          x_min = 1. - std::pow(getThresholdEnergy() / _ecm(k - 1), 2);
+        }
+        double x_max =
+            1. - std::pow(getThresholdEnergy() / _ecm(k), 2);
+        _integralOperatorMatrix(i, j) +=
+            kuraev_fadin_convolution(_ecm(i), fcn, x_min, x_max, efficiency());
+      }
     }
   }
   if (isEnergySpreadEnabled()) {
