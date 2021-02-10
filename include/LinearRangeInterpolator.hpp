@@ -11,12 +11,21 @@ class LinearRangeInterpolator : public BaseRangeInterpolator {
   double basisDerivEval(int, double) const override final;
   double evalKuraevFadinBasisIntegral(
       int, int, const std::function<double(double, double)>&) const override final;
+  double _evalKuraevFadinBasisIntegralFirstTriangle(
+      int, int, const std::function<double(double, double)>&) const;
+  double _evalKuraevFadinBasisIntegralSecondTriangle(
+      int, int, const std::function<double(double, double)>&) const;
+  double evalIntegralBasis(int) const override final;
   private:
+  double _evalIntegralBasisFirstTriangle(int) const;
+  double _evalIntegralBasisSecondTriangle(int) const;
   double _c00(int) const;
   double _c01(int) const;
   double _c10(int) const;
   double _c11(int) const;
   Eigen::VectorXd _extCMEnergies;
+  static std::function<double(double)> _fcn0;
+  static std::function<double(double)> _fcn1;
 };
 
 #endif

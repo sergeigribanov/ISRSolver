@@ -14,6 +14,7 @@ class CSplineRangeInterpolator : public BaseRangeInterpolator {
   double basisDerivEval(int, double) const override final;
   double evalKuraevFadinBasisIntegral(
       int, int, const std::function<double(double, double)>&) const override final;
+  double evalIntegralBasis(int) const override final;
  private:
   std::vector<std::shared_ptr<gsl_interp_accel>> _acc;
   std::vector<std::shared_ptr<gsl_spline>> _spline;

@@ -1,3 +1,5 @@
+#include <iostream>
+#include "integration.hpp"
 #include "kuraev_fadin.hpp"
 #include "CSplineRangeInterpolator.hpp"
 
@@ -48,13 +50,27 @@ double CSplineRangeInterpolator::evalKuraevFadinBasisIntegral(
     int energyIndex, int csIndex,
     const std::function<double(double, double)>& efficiency) const {
   const int index = csIndex - _beginIndex;
+  const double en = _spline[index].get()->x[energyIndex + 1];
+  if (en <= _minEnergy) {
+    return 0;
+  }
   std::function<double(double)> fcn =
       [index, this] (double energy) {
         double result =  gsl_spline_eval(this->_spline[index].get(), energy, this->_acc[index].get());
         return result;
       };
-  const double x_min = 1 - std::pow(_spline[index].get()->x[0] / _minEnergy, 2);
-  const double x_max = 1 - std::pow(_spline[index].get()->x[0] / _spline[index].get()->x[energyIndex + 1], 2);
-  double integralResult = kuraev_fadin_convolution(_spline[index].get()->x[energyIndex + 1], fcn, x_min, x_max, efficiency);
-  return integralResult;
+  const double x_min = std::max(0., 1 - std::pow(_maxEnergy / en, 2));
+  const double x_max = 1 - std::pow(_minEnergy / en, 2);
+  return kuraev_fadin_convolution(en, fcn, x_min, x_max, efficiency);
+}
+
+double CSplineRangeInterpolator::evalIntegralBasis(int csIndex) const {
+  const int index = csIndex - _beginIndex;
+  std::function<double(double)> fcn =
+    [index, this] (double energy) {
+      double result =  gsl_spline_eval(this->_spline[index].get(), energy, this->_acc[index].get());
+      return result;
+      };
+  double error;
+  return integrate(fcn, _minEnergy, _maxEnergy, error);
 }

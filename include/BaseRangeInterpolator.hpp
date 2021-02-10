@@ -19,6 +19,7 @@ class BaseRangeInterpolator {
   virtual double basisDerivEval(int, double) const = 0;
   virtual double evalKuraevFadinBasisIntegral(
       int, int, const std::function<double(double, double)>&) const = 0;
+  virtual double evalIntegralBasis(int) const = 0;
  protected:
   static int _evalNumOfSegments(int, int);
   static int _evalBeginIndex(int, int);

@@ -138,14 +138,15 @@ Eigen::VectorXd ISRSolverSLAE::_bcsErr() const {
 void ISRSolverSLAE::_evalDotProductOperator() {
   std::size_t i;
   _dotProdOp = Eigen::RowVectorXd(_getN());
-  std::function<double(double)> fcn =
-      [&i, this](double energy) {
-        return this->_interp.basisEval(i, energy);
-      };
+  // std::function<double(double)> fcn =
+  //     [&i, this](double energy) {
+  //       return this->_interp.basisEval(i, energy);
+  //     };
   for (i = 0; i < _getN(); ++i) {
     // TO-DO : optimize
-    double error;
-    _dotProdOp(i) = integrate(fcn, getThresholdEnergy(), getMaxEnergy(), error);
+    // double error;
+    // _dotProdOp(i) = integrate(fcn, getThresholdEnergy(), getMaxEnergy(), error);
+    _dotProdOp(i) = _interp.evalIntegralBasis(i);
   }
 }
 

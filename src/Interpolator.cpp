@@ -115,15 +115,8 @@ double Interpolator::basisEval(int csIndex, double energy) const {
 }
 
 double Interpolator::basisDerivEval(int csIndex, double energy) const {
-  if (energy <= getMinEnergy()) {
+  if (energy <= getMinEnergy() || energy > getMaxEnergy()) {
     return 0;
-  }
-  if (energy > getMaxEnergy()) {
-    if (_rangeInterpolators.back().get()->hasCSIndex(csIndex)) {
-      return _rangeInterpolators.back().get()->basisDerivEval(csIndex, getMaxEnergy());
-    } else {
-      return 0;
-    }
   }
   double result = 0;
   for (const auto& rinterp : _rangeInterpolators) {
@@ -152,11 +145,8 @@ double Interpolator::eval(const Eigen::VectorXd& y, double energy) const {
 }
 
 double Interpolator::derivEval(const Eigen::VectorXd& y, double energy) const {
-  if (energy <= getMinEnergy()) {
+  if (energy <= getMinEnergy() || energy > getMaxEnergy()) {
     return 0;
-  }
-  if (energy > getMaxEnergy()) {
-    return _rangeInterpolators.back().get()->derivEval(y, getMaxEnergy());
   }
   double result = 0;
   for (const auto& rinterp : _rangeInterpolators) {
@@ -206,7 +196,19 @@ double Interpolator::evalKuraevFadinBasisIntegral(
     const std::function<double(double, double)>& efficiency) const {
   double result = 0;
   for (const auto& rinterp : _rangeInterpolators) {
-    result += rinterp.get()->evalKuraevFadinBasisIntegral(energyIndex, csIndex, efficiency);
+    if(rinterp.get()->hasCSIndex(csIndex)) {
+      result += rinterp.get()->evalKuraevFadinBasisIntegral(energyIndex, csIndex, efficiency);
+    }
+  }
+  return result;
+}
+
+double Interpolator::evalIntegralBasis(int csIndex) const {
+  double result = 0;
+  for (const auto& rinterp : _rangeInterpolators) {
+    if(rinterp.get()->hasCSIndex(csIndex)) {
+      result += rinterp.get()->evalIntegralBasis(csIndex);
+    }
   }
   return result;
 }
