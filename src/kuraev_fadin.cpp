@@ -61,7 +61,7 @@ double kuraev_fadin_convolution(double energy,
     return kuraev_fadin_kernel_multiplication(x, energy, fcn) * efficiency(x, energy);
   };
   double error;
-  double x0 = 2 * ELECTRON_M / energy;
+  double x0 = 4 * ELECTRON_M / energy;
   double result;
   if (min_x < x0) {
     result = integrateS(fcnConv, min_x, x0, error) +
