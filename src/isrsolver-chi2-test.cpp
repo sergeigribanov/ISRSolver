@@ -147,12 +147,11 @@ int main(int argc, char* argv[]) {
   Eigen::VectorXd dbcs;
   std::vector<double> chi2s;
   chi2s.reserve(opts.n);
-  Eigen::FullPivLU<Eigen::MatrixXd> lu;
+  Eigen::FullPivLU<Eigen::MatrixXd> lu(solverSLAE->getBornCSCovMatrix());
   for (int i = 0; i < opts.n; ++i) {
     solver->resetVisibleCS(randomDrawVisCS(vcs, vcsErr));
     solver->solve();
     dbcs = solver->bcs() - bcs0;
-    lu = Eigen::FullPivLU<Eigen::MatrixXd>(solverSLAE->getBornCSCovMatrix());
     chi2s.push_back(dbcs.dot(lu.solve(dbcs)));
   }
   const double chi2Min = *std::min_element(chi2s.begin(), chi2s.end());
