@@ -171,3 +171,15 @@ void BaseISRSolver::enableEnergySpread() {
 void BaseISRSolver::disableEnergySpread() {
   _energySpread = false;
 }
+
+void BaseISRSolver::resetVisibleCS(const Eigen::VectorXd& vcs) {
+  _visibleCSData.cs = vcs;
+}
+
+const Eigen::VectorXd& BaseISRSolver::vcs() const {
+  return _visibleCSData.cs;
+}
+
+const Eigen::VectorXd& BaseISRSolver::vcsErr() const {
+  return _visibleCSData.csError;
+}

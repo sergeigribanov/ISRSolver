@@ -27,10 +27,13 @@ class BaseISRSolver {
   const Eigen::VectorXd& bcs() const;
   const Eigen::VectorXd& ecm() const;
   const Eigen::VectorXd& ecmErr() const;
+  const Eigen::VectorXd& vcs() const;
+  const Eigen::VectorXd& vcsErr() const;
   const std::function<double(double, double)>& efficiency() const;
   bool isEnergySpreadEnabled() const;
   void enableEnergySpread();
   void disableEnergySpread();
+  void resetVisibleCS(const Eigen::VectorXd&);
 
  protected:
   std::size_t _getN() const;
