@@ -11,7 +11,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(NLOPT REQUIRED)
 
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
-find_package(ROOT REQUIRED COMPONENTS RIO Net Core)
+find_package(ROOT REQUIRED COMPONENTS RIO Net Core MathCore)
 include(${ROOT_USE_FILE})
 find_package(GSL REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
@@ -20,6 +20,7 @@ include_directories(${GSL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${NLOPT_INCLUDE_DIRS})
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-chi2-test.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/test-draw-kernel-integral.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/test-draw-kernel.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/test-interp.cpp)
@@ -50,6 +51,20 @@ target_include_directories(isrsolver
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>)
 target_link_libraries(isrsolver
+  PRIVATE
+  GSL::gsl GSL::gslcblas
+  Eigen3::Eigen
+  ${Boost_LIBRARIES}
+  ${NLOPT_LIBRARIES}
+  ${ROOT_LIBRARIES}
+  nlohmann_json::nlohmann_json
+  isr)
+add_executable(isrsolver-chi2-test ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-chi2-test.cpp)
+target_include_directories(isrsolver-chi2-test
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/ISRSolver>)
+target_link_libraries(isrsolver-chi2-test
   PRIVATE
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
