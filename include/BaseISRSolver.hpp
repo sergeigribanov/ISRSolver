@@ -54,7 +54,6 @@ class BaseISRSolver {
   double _energyT;
   std::size_t _n;
   CSVecData _visibleCSData;
-  Eigen::MatrixXd _vcsInvCovMx;
   std::function<double(double, double)> _efficiency;
   TEfficiency* _tefficiency;
   Eigen::VectorXd _bornCS;
