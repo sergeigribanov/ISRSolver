@@ -22,7 +22,7 @@ ISRSolverTSVD::~ISRSolverTSVD() {}
 
 void ISRSolverTSVD::solve() {
   if (!_isEqMatrixPrepared) {
-    _evalEqMatrix();
+    evalEqMatrix();
     _isEqMatrixPrepared = true;
     Eigen::JacobiSVD<Eigen::MatrixXd> svd(getIntegralOperatorMatrix(),
                                           Eigen::ComputeFullV | Eigen::ComputeFullU);

@@ -36,7 +36,7 @@ ISRSolverTikhonov::~ISRSolverTikhonov() {}
 void ISRSolverTikhonov::solve() {
   if (!_isEqMatrixPrepared) {
     _evalDotProductOperator();
-    _evalEqMatrix();
+    evalEqMatrix();
     _evalInterpPointWiseDerivativeProjector();
     _isEqMatrixPrepared = true;
   }

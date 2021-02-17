@@ -52,7 +52,7 @@ Eigen::MatrixXd& ISRSolverSLAE::_getBornCSCovMatrix() {
 
 void ISRSolverSLAE::solve() {
   if (!_isEqMatrixPrepared) {
-    _evalEqMatrix();
+    evalEqMatrix();
     _isEqMatrixPrepared = true;
   }
   _bcs() =
@@ -97,7 +97,7 @@ void ISRSolverSLAE::setRangeInterpSettings(const std::string& pathToJSON) {
   _interp = Interpolator(pathToJSON, ecm(), getThresholdEnergy());
 }
 
-void ISRSolverSLAE::_evalEqMatrix() {
+void ISRSolverSLAE::evalEqMatrix() {
   _integralOperatorMatrix = Eigen::MatrixXd::Zero(_getN(), _getN());
   // TO DO: optimize
   for (std::size_t j = 0; j < _getN(); ++j) {

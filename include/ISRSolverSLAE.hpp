@@ -17,11 +17,11 @@ class ISRSolverSLAE : public BaseISRSolver {
                     const OutputOptions& outputOpts) override;
   void setRangeInterpSettings(const std::vector<std::tuple<bool, int, int>>&);
   void setRangeInterpSettings(const std::string&);
+  void evalEqMatrix();
 
  protected:
   Eigen::MatrixXd& _getIntegralOperatorMatrix();
   Eigen::MatrixXd& _getBornCSCovMatrix();
-  void _evalEqMatrix();
   Eigen::MatrixXd _energySpreadMatrix() const;
   const Eigen::RowVectorXd& _getDotProdOp() const;
   void _evalDotProductOperator();
