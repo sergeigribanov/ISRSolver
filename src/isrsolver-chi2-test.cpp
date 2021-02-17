@@ -1,4 +1,7 @@
 #include <boost/program_options.hpp>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/mean.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -16,6 +19,7 @@
 #include "ISRSolverTSVD.hpp"
 #include "utils.hpp"
 namespace po = boost::program_options;
+namespace bacc = boost::accumulators;
 
 typedef struct {
   double thsd;
@@ -151,16 +155,14 @@ int main(int argc, char* argv[]) {
     solverTikhonov->disableSolutionDerivativeNorm2();
   }
   solver->solve();
-  Eigen::VectorXd vcs;
   Eigen::VectorXd vcsErr = solver->vcsErr();
-  Eigen::VectorXd bcs0;
+  Eigen::VectorXd vcs = Eigen::VectorXd(vcsErr.size());
+  Eigen::VectorXd bcs0 = Eigen::VectorXd(vcsErr.size());
   if (vmap.count("use-model")) {
     auto ifl = TFile::Open(opts.path_to_model.c_str(), "read");
     auto g_bcs = dynamic_cast<TGraphErrors*>(ifl->Get(opts.name_of_model_bcs.c_str()));
     auto g_vcs = dynamic_cast<TGraphErrors*>(ifl->Get(opts.name_of_model_vcs.c_str()));
     // TO DO : sort array, copy buffers
-    bcs0 = Eigen::VectorXd(g_bcs->GetN());
-    vcs = Eigen::VectorXd(g_vcs->GetN());
     for (int i = 0; i < g_bcs->GetN(); ++i) {
       bcs0(i) = g_bcs->GetY()[i];
       vcs(i) = g_vcs->GetY()[i];
@@ -168,8 +170,18 @@ int main(int argc, char* argv[]) {
     ifl->Close();
     delete ifl;
   } else {
-    bcs0 = solver->bcs();
     vcs = solver->vcs();
+    std::vector<bacc::accumulator_set<double, bacc::stats<bacc::tag::mean>>> accs(bcs0.size());
+    for (int i = 0; i < opts.n; ++i) {
+      solver->resetVisibleCS(randomDrawVisCS(vcs, vcsErr));
+      solver->solve();
+      for (int j = 0; j < bcs0.size(); ++j) {
+        accs[j](solver->bcs()(j));
+      }
+    }
+    for (int i = 0; i < bcs0.size(); ++i) {
+      bcs0(i) = bacc::mean(accs[i]);
+    }
   }
   Eigen::VectorXd dbcs;
   std::vector<double> chi2s;
@@ -179,7 +191,8 @@ int main(int argc, char* argv[]) {
     solver->resetVisibleCS(randomDrawVisCS(vcs, vcsErr));
     solver->solve();
     dbcs = solver->bcs() - bcs0;
-    chi2s.push_back(dbcs.dot(lu.solve(dbcs)));
+    double tmp_chi2 = dbcs.dot(lu.solve(dbcs));
+    chi2s.push_back(tmp_chi2);
   }
   const double chi2Min = *std::min_element(chi2s.begin(), chi2s.end());
   const double chi2Max = *std::max_element(chi2s.begin(), chi2s.end());
