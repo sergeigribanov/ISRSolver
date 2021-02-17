@@ -6,6 +6,7 @@
 #include <Eigen/Core>
 #include <Eigen/SVD>
 #include <TH1F.h>
+#include <TGraphErrors.h>
 #include <TF1.h>
 #include <TFile.h>
 #include <TRandom3.h>
@@ -21,6 +22,9 @@ typedef struct {
   double alpha;
   int k;
   int n;
+  std::string path_to_model;
+  std::string name_of_model_bcs;
+  std::string name_of_model_vcs;
   std::string vcs_name;
   std::string efficiency_name;
   std::string ifname;
@@ -52,6 +56,12 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
                "Name of the visible cross section graph.")
       ("efficiency-name,e", po::value<std::string>(&(opts->efficiency_name)),
        "TEfficiency object name")
+      ("use-model,u", po::value<std::string>(&(opts->path_to_model)),
+       "Path to the file with the model Born and visible cross section TGraphErrors (if needed)")
+      ("model-bcs-name,b", po::value<std::string>(&(opts->name_of_model_bcs))->default_value("bcsSRC"),
+       "Name of the model Born cross section TGraphErrors function")
+      ("model-vcs-name,c", po::value<std::string>(&(opts->name_of_model_vcs))->default_value("vcsBlured"),
+       "Name of the model visible cross section TGraphErrors function")
       ( "ifname,i",
         po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
         "Path to input file.")(
@@ -141,9 +151,26 @@ int main(int argc, char* argv[]) {
     solverTikhonov->disableSolutionDerivativeNorm2();
   }
   solver->solve();
-  Eigen::VectorXd vcs = solver->vcs();
+  Eigen::VectorXd vcs;
   Eigen::VectorXd vcsErr = solver->vcsErr();
-  Eigen::VectorXd bcs0 = solver->bcs();
+  Eigen::VectorXd bcs0;
+  if (vmap.count("use-model")) {
+    auto ifl = TFile::Open(opts.path_to_model.c_str(), "read");
+    auto g_bcs = dynamic_cast<TGraphErrors*>(ifl->Get(opts.name_of_model_bcs.c_str()));
+    auto g_vcs = dynamic_cast<TGraphErrors*>(ifl->Get(opts.name_of_model_vcs.c_str()));
+    // TO DO : sort array, copy buffers
+    bcs0 = Eigen::VectorXd(g_bcs->GetN());
+    vcs = Eigen::VectorXd(g_vcs->GetN());
+    for (int i = 0; i < g_bcs->GetN(); ++i) {
+      bcs0(i) = g_bcs->GetY()[i];
+      vcs(i) = g_vcs->GetY()[i];
+    }
+    ifl->Close();
+    delete ifl;
+  } else {
+    bcs0 = solver->bcs();
+    vcs = solver->vcs();
+  }
   Eigen::VectorXd dbcs;
   std::vector<double> chi2s;
   chi2s.reserve(opts.n);
