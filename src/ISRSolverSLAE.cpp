@@ -171,3 +171,8 @@ Eigen::MatrixXd ISRSolverSLAE::_energySpreadMatrix() const {
   }
   return result;
 }
+
+double ISRSolverSLAE::interpEval(const Eigen::VectorXd& y,
+                                 double energy) const {
+  return _interp.eval(y, energy);
+}

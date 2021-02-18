@@ -34,6 +34,8 @@ class BaseISRSolver {
   void enableEnergySpread();
   void disableEnergySpread();
   void resetVisibleCS(const Eigen::VectorXd&);
+  void resetVisibleCSErrors(const Eigen::VectorXd&);
+  void resetECMErrors(const Eigen::VectorXd&);
 
  protected:
   std::size_t _getN() const;

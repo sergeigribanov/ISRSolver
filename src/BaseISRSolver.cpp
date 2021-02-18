@@ -176,6 +176,14 @@ void BaseISRSolver::resetVisibleCS(const Eigen::VectorXd& vcs) {
   _visibleCSData.cs = vcs;
 }
 
+void BaseISRSolver::resetVisibleCSErrors(const Eigen::VectorXd& vcsErr) {
+  _visibleCSData.csError = vcsErr;
+}
+
+void BaseISRSolver::resetECMErrors(const Eigen::VectorXd& ecmErr) {
+  _visibleCSData.cmEnergyError = ecmErr;
+}
+
 const Eigen::VectorXd& BaseISRSolver::vcs() const {
   return _visibleCSData.cs;
 }
