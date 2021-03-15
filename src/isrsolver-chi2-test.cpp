@@ -208,7 +208,7 @@ int main(int argc, char* argv[]) {
   f1.SetParameter(0, 10000);
   f1.SetParameter(1, vcs.size());
   f1.SetNpx(10000);
-  chi2Hist.Fit(&f1);
+  chi2Hist.Fit(&f1, "LME+");
   auto fl = TFile::Open(opts.ofname.c_str(), "recreate");
   chi2Hist.Write();
   fl->Close();
