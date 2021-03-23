@@ -12,7 +12,7 @@ BaseISRSolver::BaseISRSolver(const std::string& inputPath,
                              const InputOptions& inputOpts)
   : _energySpread(false),
   _energyT(inputOpts.thresholdEnergy),
-    _efficiency([](double x, double s) {return 1.;}),
+    _efficiency([](double, double) {return 1.;}),
     _tefficiency(nullptr) {
   auto fl = TFile::Open(inputPath.c_str(), "read");
   auto graph = dynamic_cast<TGraphErrors*>(
@@ -60,7 +60,7 @@ BaseISRSolver::BaseISRSolver(const BaseISRSolver& solver) :
   _energySpread(solver._energySpread),
   _energyT(solver._energyT), _n(solver._n),
   _visibleCSData(solver._visibleCSData),
-  _efficiency([](double x, double s) {return 1.;}),
+  _efficiency([](double, double) {return 1.;}),
   _tefficiency(solver._tefficiency),
   _bornCS(solver._bornCS) {
   if (_tefficiency)
@@ -75,14 +75,14 @@ BaseISRSolver::~BaseISRSolver() {
 
 void BaseISRSolver::_setupEfficiency() {
   if (_tefficiency->GetDimension() == 1) {
-    _efficiency = [this](double, double s) {
-      int bin = this->_tefficiency->FindFixBin(std::sqrt(s));
+    _efficiency = [this](double, double energy) {
+      int bin = this->_tefficiency->FindFixBin(energy);
       return this->_tefficiency->GetEfficiency(bin);
     };
   }
   if (_tefficiency->GetDimension() == 2) {
-    _efficiency = [this](double x, double s) {
-      int bin = this->_tefficiency->FindFixBin(x, std::sqrt(s));
+    _efficiency = [this](double x, double energy) {
+      int bin = this->_tefficiency->FindFixBin(x, energy);
       return this->_tefficiency->GetEfficiency(bin);
     };
   }
