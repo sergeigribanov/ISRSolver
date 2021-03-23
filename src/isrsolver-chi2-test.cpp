@@ -26,6 +26,7 @@ typedef struct {
   double alpha;
   int k;
   int n;
+  double ampl;
   std::string path_to_model;
   std::string name_of_model_bcs;
   std::string name_of_model_vcs;
@@ -42,6 +43,7 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
                       "A simple tool designed in order to find numerical"
                       "solution of the Kuraev-Fadin equation.")
       ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+      ("ampl,l", po::value<double>(&(opts->ampl))->default_value(1.e+4), "Initial chi-square amplitude.")
       ("num-rnd-draws,n", po::value<int>(&(opts->n))->default_value(100),
        "Number of visible cross section random draws.")
       ("upper-tsvd-index,k", po::value<int>(&(opts->k)), "Upper TSVD index")
@@ -163,7 +165,7 @@ int main(int argc, char* argv[]) {
     auto g_bcs = dynamic_cast<TGraphErrors*>(ifl->Get(opts.name_of_model_bcs.c_str()));
     auto g_vcs = dynamic_cast<TGraphErrors*>(ifl->Get(opts.name_of_model_vcs.c_str()));
     // TO DO : sort array, copy buffers
-    for (int i = 0; i < g_bcs->GetN(); ++i) {
+     for (int i = 0; i < g_bcs->GetN(); ++i) {
       bcs0(i) = g_bcs->GetY()[i];
       vcs(i) = g_vcs->GetY()[i];
     }
@@ -205,7 +207,7 @@ int main(int argc, char* argv[]) {
         return par[0] * ROOT::Math::chisquared_pdf(px[0], par[1]);
       };
   TF1 f1("f1", fcn_chi2, chi2Min, chi2Max, 2);
-  f1.SetParameter(0, 10000);
+  f1.SetParameter(0, opts.ampl);
   f1.SetParameter(1, vcs.size());
   f1.SetNpx(10000);
   chi2Hist.Fit(&f1, "LME+");
