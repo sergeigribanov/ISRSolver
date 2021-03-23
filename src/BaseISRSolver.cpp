@@ -31,7 +31,7 @@ BaseISRSolver::BaseISRSolver(const std::string& inputPath,
                           .cmEnergyError = graph->GetEX()[i] * energyKoeff,
                           .csError = graph->GetEY()[i]});
   if (inputOpts.efficiencyName.length() > 0) {
-    _tefficiency = dynamic_cast<TEfficiency*>(fl->Get(inputOpts.efficiencyName.c_str()));
+    _tefficiency = dynamic_cast<TEfficiency*>(fl->Get(inputOpts.efficiencyName.c_str())->Clone("tefficiency"));
   }
   fl->Close();
   delete fl;
@@ -54,18 +54,17 @@ BaseISRSolver::BaseISRSolver(const std::string& inputPath,
   std::transform(visibleCS.begin(), visibleCS.end(),
                  _visibleCSData.csError.data(),
                  [](const CSData& x) { return x.csError; });
+  if (_tefficiency)
+    _setupEfficiency();
 }
 
 BaseISRSolver::BaseISRSolver(const BaseISRSolver& solver) :
   _energySpread(solver._energySpread),
   _energyT(solver._energyT), _n(solver._n),
   _visibleCSData(solver._visibleCSData),
-  _efficiency([](double, double) {return 1.;}),
+  _efficiency(solver._efficiency),
   _tefficiency(solver._tefficiency),
-  _bornCS(solver._bornCS) {
-  if (_tefficiency)
-    _setupEfficiency();
-}
+  _bornCS(solver._bornCS) {}
 
 BaseISRSolver::~BaseISRSolver() {
   if (_tefficiency) {
