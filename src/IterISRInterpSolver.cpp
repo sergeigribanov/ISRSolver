@@ -3,6 +3,7 @@
 #include <TFile.h>
 #include <TGraph.h>
 #include <TGraphErrors.h>
+#include <TMatrixD.h>
 #include "IterISRInterpSolver.hpp"
 using json = nlohmann::json;
 
@@ -47,11 +48,23 @@ void IterISRInterpSolver::save(const std::string& outputPath,
   Eigen::VectorXd bcsErr = getBornCSCovMatrix().diagonal().array().pow(0.5);
   TGraphErrors gbcs(_getN(), _ecm().data(), _bcs().data(), 0, bcsErr.data());
   TGraph gradcor(_getN(), _ecm().data(), _radcorr.data());
+  TMatrixD intergalOperatorMatrix(_getN(), _getN());
+  Eigen::MatrixXd tmpIntOpM = getIntegralOperatorMatrix().transpose();
+  intergalOperatorMatrix.SetMatrixArray(tmpIntOpM.data());
+  TMatrixD bornCSCovMatrix(_getN(), _getN());
+  Eigen::MatrixXd tmpCovM = getBornCSCovMatrix().transpose();
+  bornCSCovMatrix.SetMatrixArray(tmpCovM.data());
+  TMatrixD bornCSInvCovMatrix(_getN(), _getN());
+  Eigen::MatrixXd tmpInvCovM = getBornCSCovMatrix().inverse().transpose();
+  bornCSInvCovMatrix.SetMatrixArray(tmpInvCovM.data());
   auto fl = TFile::Open(outputPath.c_str(), "recreate");
   fl->cd();
   gvcs.Write(outputOpts.visibleCSGraphName.c_str());
   gbcs.Write(outputOpts.bornCSGraphName.c_str());
   gradcor.Write("radiative_correction");
+  intergalOperatorMatrix.Write("intergalOperatorMatrix");
+  bornCSCovMatrix.Write("covMatrixBornCS");
+  bornCSInvCovMatrix.Write("invCovMatrixBornCS");
   fl->Close();
   delete fl;
 }
