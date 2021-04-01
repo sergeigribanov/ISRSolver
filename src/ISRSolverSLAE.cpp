@@ -72,6 +72,9 @@ void ISRSolverSLAE::save(const std::string& outputPath,
   TMatrixD bornCSCovMatrix(_getN(), _getN());
   Eigen::MatrixXd tmpCovM = _covMatrixBornCS.transpose();
   bornCSCovMatrix.SetMatrixArray(tmpCovM.data());
+  TMatrixD bornCSInvCovMatrix(_getN(), _getN());
+  Eigen::MatrixXd tmpInvCovM = _covMatrixBornCS.inverse().transpose();
+  bornCSInvCovMatrix.SetMatrixArray(tmpInvCovM.data());
   auto f0 = _createInterpFunction();
   auto f1 = _createDerivativeInterpFunction(1, "interp1DivFCN");
   auto fl = TFile::Open(outputPath.c_str(), "recreate");
@@ -80,6 +83,7 @@ void ISRSolverSLAE::save(const std::string& outputPath,
   bcs.Write(outputOpts.bornCSGraphName.c_str());
   intergalOperatorMatrix.Write("intergalOperatorMatrix");
   bornCSCovMatrix.Write("covMatrixBornCS");
+  bornCSInvCovMatrix.Write("invCovMatrixBornCS");
   f0->Write();
   f1->Write();
   fl->Close();
