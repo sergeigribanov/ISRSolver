@@ -161,9 +161,6 @@ target_link_libraries(test-chi2
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
   isr)
-
-
-
 add_executable(lcurve ${CMAKE_CURRENT_SOURCE_DIR}/src/lcurve.cpp)
 target_include_directories(lcurve
   PUBLIC
@@ -251,11 +248,20 @@ target_link_libraries(isrconv
 set_target_properties(isr
 PROPERTIES
 PUBLIC_HEADER "${HEADERS}")
-install(TARGETS isrsolver DESTINATION bin)
-install(TARGETS lcurve DESTINATION bin)
 install(TARGETS isrconv DESTINATION bin)
+install(TARGETS isrsolver DESTINATION bin)
+install(TARGETS isrsolver-bias-test DESTINATION bin)
+install(TARGETS isrsolver-chi2-test DESTINATION bin)
+install(TARGETS isrsolver-condnum-test DESTINATION bin)
+install(TARGETS isrsolver-iterative DESTINATION bin)
 install(TARGETS isrsolver-lcurve DESTINATION bin)
+install(TARGETS isrsolver-radcorr DESTINATION bin)
+install(TARGETS lcurve DESTINATION bin)
 install(TARGETS reg-perturb-errors DESTINATION bin)
+install(TARGETS test-chi2 DESTINATION bin)
+install(TARGETS test-draw-kernel DESTINATION bin)
+install(TARGETS test-draw-kernel-integral DESTINATION bin)
+install(TARGETS test-interp DESTINATION bin)
 install(FILES ${PROJECT_BINARY_DIR}/env.sh DESTINATION bin)
 install(TARGETS isr
   EXPORT ISRSolverTargets
