@@ -42,9 +42,8 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   double _alpha;
   Eigen::MatrixXd _interpPointWiseDerivativeProjector;
   Eigen::MatrixXd _mF;
-  Eigen::MatrixXd _mR;
   Eigen::MatrixXd _mL;
-  Eigen::FullPivLU<Eigen::MatrixXd> _luR;
+  Eigen::FullPivLU<Eigen::MatrixXd> _luT;
   Eigen::FullPivLU<Eigen::MatrixXd> _luL;
 };
 
