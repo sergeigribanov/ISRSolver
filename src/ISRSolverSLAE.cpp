@@ -10,8 +10,9 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <set>
-
 #include <iostream>
+#include <Eigen/Core>
+#include <Eigen/SVD>
 
 #include "integration.hpp"
 #include "kuraev_fadin.hpp"
@@ -179,4 +180,14 @@ Eigen::MatrixXd ISRSolverSLAE::_energySpreadMatrix() const {
 double ISRSolverSLAE::interpEval(const Eigen::VectorXd& y,
                                  double energy) const {
   return _interp.eval(y, energy);
+}
+
+double ISRSolverSLAE::evalConditionNumber() const {
+  Eigen::JacobiSVD<Eigen::MatrixXd> svd(getIntegralOperatorMatrix());
+  return svd.singularValues()(0) /
+      svd.singularValues()(svd.singularValues().size()-1);
+}
+
+void ISRSolverSLAE::printConditionNumber() const {
+  std::cout << evalConditionNumber() << std::endl;
 }

@@ -11,6 +11,7 @@
 #include "utils.hpp"
 namespace po = boost::program_options;
 
+//!!! TO DO: setup efficiency
 typedef struct {
   double thsd;
   std::string fcn;
@@ -51,7 +52,7 @@ int main(int argc, char* argv[]) {
     return 0;
   }
   auto fl = TFile::Open(opts.ifname.c_str(), "read");
-  auto fcn = find_object<TF1>(fl, opts.fcn);
+  auto fcn = dynamic_cast<TF1*>(fl->Get(opts.fcn.c_str()));
   std::function<double(double)> born_fcn = [&opts, &fcn](double s) {
     double e0 = opts.thsd;
     double e1 = fcn->GetXmin();

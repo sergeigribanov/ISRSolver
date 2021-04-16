@@ -31,7 +31,6 @@ void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }
 
-
 int main(int argc, char* argv[]) {
   po::options_description desc("Allowed options:");
   CmdOptions opts;

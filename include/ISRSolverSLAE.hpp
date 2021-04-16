@@ -19,6 +19,8 @@ class ISRSolverSLAE : public BaseISRSolver {
   void setRangeInterpSettings(const std::string&);
   void evalEqMatrix();
   double interpEval(const Eigen::VectorXd&, double) const;
+  double evalConditionNumber() const;
+  void printConditionNumber() const;
 
  protected:
   Eigen::MatrixXd& _getIntegralOperatorMatrix();

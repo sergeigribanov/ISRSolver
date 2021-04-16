@@ -22,11 +22,8 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
                       "solution of the Kuraev-Fadin equation.")
       ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
       ("enable-energy-spread,g", "Enable energy spread")
-      // ("enable-solution-positivity,p", "Setting positive limits to solution")
-      ("disable-solution-norm,f", 
-       "Disable solution norm in Tihonov's regularization functional")
-      ("disable-solution-derivative-norm,d",
-       "Disable solution derivative norm in Tikhonov's regularization functional")
+      ("use-solution-norm2,s",
+       "REGULARIZATOR: alpha*||solution||^2 if enabled, alpha*||d(solution) / dE||^2 otherwise.")
       ("alpha,a", po::value<double>(&(opts->alpha))->default_value(1.e-9),
        "Thikhonov's regularization parameter.")(
            "vcs-name,v", po::value<std::string>(&(opts->vcs_name))->default_value("vcs"),
@@ -77,8 +74,8 @@ int main(int argc, char* argv[]) {
   if (vmap.count("interp")) {
     solver->setRangeInterpSettings(opts.interp);
   }
-  if (vmap.count("disable-solution-derivative-norm")) {
-    solver->disableSolutionDerivativeNorm2();
+  if (vmap.count("use-solution-norm2")) {
+    solver->useSolutionNorm2();
   }
   if (vmap.count("enable-energy-spread")) {
     solver->enableEnergySpread();

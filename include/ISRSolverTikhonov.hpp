@@ -21,10 +21,8 @@ class ISRSolverTikhonov : public ISRSolverSLAE {
   double evalApproxRegRelativeError(const Eigen::VectorXd&) const;
   double evalApproxPerturbRelativeError(const Eigen::VectorXd&,
 					const Eigen::VectorXd&) const;
-  void enableSolutionNorm2();
-  void disableSolutionNorm2();
-  void enableSolutionDerivativeNorm2();
-  void disableSolutionDerivativeNorm2();
+  void useSolutionNorm2();
+  void useSolutionDerivativeNorm2();
 
  protected:
   const Eigen::MatrixXd& _getInterpPointWiseDerivativeProjector() const;
