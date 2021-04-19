@@ -312,20 +312,27 @@ target_link_libraries(isrsolver-KuraevFadin-convolution
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
   isr)
+
 set_target_properties(isr
 PROPERTIES
 PUBLIC_HEADER "${HEADERS}")
-install(TARGETS isrsolver-KuraevFadin-convolution DESTINATION bin)
+
 install(TARGETS isrsolver-SLAE DESTINATION bin)
-install(TARGETS isrsolver-TSVD DESTINATION bin)
 install(TARGETS isrsolver-Tikhonov DESTINATION bin)
+install(TARGETS isrsolver-TSVD DESTINATION bin)
+install(TARGETS isrsolver-LCurve-plot DESTINATION bin)
+install(TARGETS isrsolver-Tikhonov-LCurve DESTINATION bin)
+install(TARGETS isrsolver-calc-chi2 DESTINATION bin)
+install(TARGETS isrsolver-SLAE-chi2-test DESTINATION bin)
+install(TARGETS isrsolver-Tikhonov-chi2-test DESTINATION bin)
+install(TARGETS isrsolver-SLAE-ratio-test DESTINATION bin)
+install(TARGETS isrsolver-Tikhonov-ratio-test DESTINATION bin)
 install(TARGETS isrsolver-condnum-test DESTINATION bin)
 install(TARGETS isrsolver-iterative DESTINATION bin)
-install(TARGETS isrsolver-Tikhonov-LCurve DESTINATION bin)
 install(TARGETS isrsolver-radcorr DESTINATION bin)
-install(TARGETS isrsolver-LCurve-plot DESTINATION bin)
 install(TARGETS isrsolver-draw-kernel DESTINATION bin)
 install(TARGETS isrsolver-draw-kernel-integral DESTINATION bin)
+install(TARGETS isrsolver-KuraevFadin-convolution DESTINATION bin)
 install(FILES ${PROJECT_BINARY_DIR}/env.sh DESTINATION bin)
 install(TARGETS isr
   EXPORT ISRSolverTargets
