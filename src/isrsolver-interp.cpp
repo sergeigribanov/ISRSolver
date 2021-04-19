@@ -18,20 +18,20 @@ typedef struct {
 
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
-      ("help,h", "Help.")
-      ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+      ("help,h", "help message")
+      ("thsd,t", po::value<double>(&(opts->thsd)), "threshold (GeV)")
       ("cs-graph-name,c",
        po::value<std::string>(&(opts->graph_name))->default_value("bcs"),
-       "Name of a cross section TGraphErrors.")
+       "name of a cross section graph (TGraphErrors*)")
       ("ifname,i",
        po::value<std::string>(&(opts->ifname))->default_value("input.root"),
-       "Path to input file.")
+       "path to input file")
       ("ofname,o",
        po::value<std::string>(&(opts->ofname))->default_value("output.root"),
-       "Path to output file.")
+       "path to output file")
       ("interp,r",
        po::value<std::string>(&(opts->interp)),
-       "Path to JSON file with interpolation settings.");
+       "path to JSON file with interpolation settings");
 }
 
 void help(const po::options_description& desc) {
@@ -60,7 +60,7 @@ void interpBasis(const Eigen::VectorXd& y,
 }
 
 int main(int argc, char* argv[]) {
-  po::options_description desc("Allowed options:");
+  po::options_description desc("   This tool is for testing cross section interpolation. Allowed options");
   CmdOptions opts;
   setOptions(&desc, &opts);
   po::variables_map vmap;

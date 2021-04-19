@@ -16,16 +16,15 @@ typedef struct {
 
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
-      ("help,h", "A simple tool designed in order to find numerical"
-       "solution of the Kuraev-Fadin equation.")
-      ("enable-energy-spread,g", "Enable energy spread")
+      ("help,h", "help message")
+      ("enable-energy-spread,g", "enable energy spread")
       ("niter,n", po::value<std::size_t>(&(opts->niter))->default_value(10),
-       "Number of iterations")
-      ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+       "number of iterations")
+      ("thsd,t", po::value<double>(&(opts->thsd)), "threshold (GeV)")
       ("vcs-name,v", po::value<std::string>(&(opts->vcs_name))->default_value("vcs"),
-       "Name of the visible cross section graph.")
+       "name of the visible cross section graph (TGraphErrors*)")
       ("efficiency-name,e", po::value<std::string>(&(opts->efficiency_name)),
-       "TEfficiency object name")
+       "name of the detection efficiency object (TEfficiency*)")
       ( "ifname,i",
         po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
         "Path to input file.")
@@ -41,7 +40,7 @@ void help(const po::options_description& desc) {
 }
 
 int main(int argc, char* argv[]) {
-  po::options_description desc("Allowed options:");
+  po::options_description desc("   Common used iterative solver. Allowed options");
   CmdOptions opts;
   setOptions(&desc, &opts);
   po::variables_map vmap;

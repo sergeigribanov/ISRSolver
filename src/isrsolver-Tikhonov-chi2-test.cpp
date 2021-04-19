@@ -1,12 +1,14 @@
 #include <iostream>
 #include <boost/program_options.hpp>
 #include "Chi2Test.hpp"
+#include "ISRSolverTikhonov.hpp"
 namespace po = boost::program_options;
 
 typedef struct {
   double thsd;
   int n;
   double ampl;
+  double lambda;
   std::string path_to_model;
   std::string name_of_model_bcs;
   std::string name_of_model_vcs;
@@ -19,35 +21,38 @@ typedef struct {
 
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
-      ("help,h", "Help.")
-      ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
-      ("enable-energy-spread,g", "Enable energy spread")
-      ("ampl,l", po::value<double>(&(opts->ampl))->default_value(1.e+4),
-       "Initial chi-square amplitude.")
+      ("help,h", "help message")
+      ("thsd,t", po::value<double>(&(opts->thsd)), "threshold (GeV)")
+      ("enable-energy-spread,g", "enable energy spread")
+      ("lambda,l", po::value<double>(&(opts->lambda)), "regularization parameter (lambda)")
+      ("use-solution-norm2,s",
+       "regularization: lambda*||solution||^2 if enabled, lambda*||d(solution) / dE||^2 otherwise.")
+      ("ampl,a", po::value<double>(&(opts->ampl))->default_value(1.e+4),
+       "initial chi-square amplitude")
       ("num-rnd-draws,n", po::value<int>(&(opts->n))->default_value(100),
-       "Number of visible cross section random draws.")
+       "number of visible cross section random draws")
       ("vcs-name,v",
        po::value<std::string>(&(opts->vcs_name))->default_value("vcs"),
-       "Name of the visible cross section graph.")
+       "name of the visible cross section graph (TGraphErrors*)")
       ("efficiency-name,e", po::value<std::string>(&(opts->efficiency_name)),
-       "TEfficiency object name.")
+       "name of the detection efficiency object (TEfficiency*)")
       ("use-model,u", po::value<std::string>(&(opts->path_to_model)),
-       "Path to the file with the model Born and visible cross section TGraphErrors (if needed).")
+       "path to the file with the model Born and visible cross sections in the form of graphs (TGraphErrors*)")
       ("model-bcs-name,b",
        po::value<std::string>(&(opts->name_of_model_bcs))->default_value("bcsSRC"),
-       "Name of the model Born cross section TGraphErrors function")
+       "name of the model Born cross section graph (TGraphErrors*)")
       ("model-vcs-name,c",
        po::value<std::string>(&(opts->name_of_model_vcs))->default_value("vcsBlured"),
-       "Name of the model visible cross section TGraphErrors function")
+       "name of the model visible cross section graph (TGraphErrors*)")
       ( "ifname,i",
         po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
-        "Path to input file.")
+        "path to input file")
       ("ofname,o",
        po::value<std::string>(&(opts->ofname))->default_value("isrsolver-chi2-distribution.root"),
-       "Path to output file.")
+       "path to output file")
       ("interp,r",
        po::value<std::string>(&(opts->interp)),
-       "Path to JSON file with interpolation settings.");
+       "path to JSON file with interpolation settings");
 }
 
 void help(const po::options_description& desc) {
@@ -55,7 +60,8 @@ void help(const po::options_description& desc) {
 }
 
 int main(int argc, char* argv[]) {
-  po::options_description desc("Allowed options:");
+  po::options_description desc("   This tool calculates chi-square in multiple numerical experiments using "
+                               "Tikhonov regularization and fills chi-square histogram. Allowed options:");
   CmdOptions opts;
   setOptions(&desc, &opts);
   po::variables_map vmap;
@@ -65,17 +71,25 @@ int main(int argc, char* argv[]) {
     help(desc);
     return 0;
   }
-  ISRSolverSLAE solver(
+  if (!vmap.count("lambda")) {
+    std::cout << "[!] You should to set regularization parameter lambda." << std::endl;
+    return 0;
+  }
+  ISRSolverTikhonov solver(
       opts.ifname,
       {.efficiencyName = opts.efficiency_name,
        .visibleCSGraphName = opts.vcs_name,
        .thresholdEnergy = opts.thsd,
        .energyUnitMeVs = false});
+  solver.setAlpha(opts.lambda);
   if (vmap.count("interp")) {
     solver.setRangeInterpSettings(opts.interp);
   }
   if (vmap.count("enable-energy-spread")) {
     solver.enableEnergySpread();
+  }
+  if (vmap.count("use-solution-norm2")) {
+    solver.useSolutionNorm2();
   }
   if (vmap.count("use-model")) {
     chi2TestModel(opts.n, opts.ampl, &solver,

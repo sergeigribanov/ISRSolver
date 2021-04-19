@@ -17,14 +17,14 @@ typedef struct {
 
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
-      ("help,h", "Drawing Integral of Kuraev-Fadin kernel function")
-      ("num-of-points,n", po::value<int>(&(opts->n))->default_value(10000), "Center-of-mass energy")
-      ("energy,e", po::value<double>(&(opts->energy))->default_value(1.), "Center-of-mass energy")
-      ("xmin,m", po::value<double>(&(opts->xmin))->default_value(1.e-6), "Minimum value of x")
-      ("xmax,x", po::value<double>(&(opts->xmax))->default_value(0.5), "Maximum value of x")
+      ("help,h", "help message")
+      ("num-of-points,n", po::value<int>(&(opts->n))->default_value(10000), "number of center-of-mass energy points")
+      ("energy,e", po::value<double>(&(opts->energy))->default_value(1.), "center-of-mass energy")
+      ("xmin,m", po::value<double>(&(opts->xmin))->default_value(1.e-6), "minimum value of x")
+      ("xmax,x", po::value<double>(&(opts->xmax))->default_value(0.5), "maximum value of x")
       ("ofname,o", po::value<std::string>(&(opts->ofname))->
        default_value("output_kuraev-fadin_kernel_integral.root"),
-       "Output file path");
+       "output file path");
 }
 
 void help(const po::options_description& desc) {
@@ -32,7 +32,7 @@ void help(const po::options_description& desc) {
 }
 
 int main(int argc, char* argv[]) {
-  po::options_description desc("Allowed options:");
+  po::options_description desc("   This tool is designed in order to draw the x integral of the kernel function F(x,s). Allowed options");
   CmdOptions opts;
   setOptions(&desc, &opts);
   po::variables_map vmap;

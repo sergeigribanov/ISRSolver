@@ -20,21 +20,21 @@ typedef struct {
 
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
-      ("help,h", "Radiative correction calculator.")
-      ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+      ("help,h", "radiative correction calculator")
+      ("thsd,t", po::value<double>(&(opts->thsd)), "threshold (GeV)")
       ("number-of-radocrr-points,n", po::value<std::size_t>(&(opts->n))->default_value(1000),
-       "Number of radiative correction points.")
-      ("minen,m",  po::value<double>(&(opts->minen)), "Minimum energy.")
-      ("maxen,x",  po::value<double>(&(opts->maxen)), "Maximum energy.")
+       "number of radiative correction points")
+      ("minen,m",  po::value<double>(&(opts->minen)), "minimum energy")
+      ("maxen,x",  po::value<double>(&(opts->maxen)), "maximum energy")
       ( "ifname,i",
         po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
-        "Path to input file.")
+        "path to input file")
       ("ofname,o",
        po::value<std::string>(&(opts->ofname))->default_value("bcs.root"),
-       "Path to output file.")
+       "path to output file")
       ("born-cs-fcn-name",
        po::value<std::string>(&(opts->bcs_fcn_name))->default_value("f_bcs"),
-       "The name of the Born cross section TF1 function.");
+       "the name of the Born cross section function (TF1*)");
 }
 
 void help(const po::options_description& desc) {

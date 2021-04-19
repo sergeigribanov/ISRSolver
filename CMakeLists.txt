@@ -25,8 +25,9 @@ list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-TSVD.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-LCurve-plot.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-LCurve.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLAE-chi2test.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-chi2test.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-calc-chi2.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLAE-chi2-test.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-chi2-test.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLAE-ratio-test.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-ratio-test.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-condnum-test.cpp)
@@ -98,13 +99,13 @@ target_link_libraries(isrsolver-TSVD
   nlohmann_json::nlohmann_json
   isr)
 
-add_executable(isrsolver-SLAE-chi2test
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLAE-chi2test.cpp)
-target_include_directories(isrsolver-SLAE-chi2test
+add_executable(isrsolver-calc-chi2
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-calc-chi2.cpp)
+target_include_directories(isrsolver-calc-chi2
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-SLAE-chi2test
+target_link_libraries(isrsolver-calc-chi2
   PRIVATE
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
@@ -114,13 +115,29 @@ target_link_libraries(isrsolver-SLAE-chi2test
   nlohmann_json::nlohmann_json
   isr)
 
-add_executable(isrsolver-Tikhonov-chi2test
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-chi2test.cpp)
-target_include_directories(isrsolver-Tikhonov-chi2test
+add_executable(isrsolver-SLAE-chi2-test
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLAE-chi2-test.cpp)
+target_include_directories(isrsolver-SLAE-chi2-test
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-Tikhonov-chi2test
+target_link_libraries(isrsolver-SLAE-chi2-test
+  PRIVATE
+  GSL::gsl GSL::gslcblas
+  Eigen3::Eigen
+  ${Boost_LIBRARIES}
+  ${NLOPT_LIBRARIES}
+  ${ROOT_LIBRARIES}
+  nlohmann_json::nlohmann_json
+  isr)
+
+add_executable(isrsolver-Tikhonov-chi2-test
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-chi2-test.cpp)
+target_include_directories(isrsolver-Tikhonov-chi2-test
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/ISRSolver>)
+target_link_libraries(isrsolver-Tikhonov-chi2-test
   PRIVATE
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen

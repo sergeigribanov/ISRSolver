@@ -22,26 +22,24 @@ typedef struct {
 
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
-      ("help,h",
-       "A simple tool designed in order to find numerical"
-       "solution of the Kuraev-Fadin equation.")
-      ("num,n", po::value<int>(&(opts->n))->default_value(10), "Number of points")
+      ("help,h", "help message")
+      ("num,n", po::value<int>(&(opts->n))->default_value(10), "number of points")
        ("ensigma-max,m",
         po::value<double>(&(opts->ensigma_max))->default_value(0.1),
-        "Max center-of-mass energy sigma")
-       ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
+        "max center-of-mass energy sigma")
+       ("thsd,t", po::value<double>(&(opts->thsd)), "threshold (GeV)")
       ("vcs-name,v", po::value<std::string>(&(opts->vcs_name))->default_value("vcs"),
-       "Name of the visible cross section graph.")
+       "name of the visible cross section graph (TGraphErrors*)")
       ("efficiency-name,e", po::value<std::string>(&(opts->efficiency_name)),
-       "TEfficiency object name")
+       "name of the detection efficiency object (TEfficiency*)")
       ( "ifname,i",
         po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
-        "Path to input file.")
+        "path to input file")
       ("ofname,o",
        po::value<std::string>(&(opts->ofname))->default_value("cond_num_test.root"),
-       "Path to output file.")
+       "path to output file")
       ("interp,r", po::value<std::string>(&(opts->interp)),
-       "Path to JSON file with interpolation settings.");
+       "path to JSON file with interpolation settings");
 }
 
 void help(const po::options_description& desc) {
@@ -57,7 +55,8 @@ double evalCondNumber(ISRSolverSLAE* solver) {
 }
 
 int main(int argc, char* argv[]) {
-  po::options_description desc("Allowed options:");
+  po::options_description desc("This tool was designed to plot the condition number of an integral "
+                               "operator matrix versus the center-of-mass energy spread. Allowed options");
   CmdOptions opts;
   setOptions(&desc, &opts);
   po::variables_map vmap;

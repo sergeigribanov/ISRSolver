@@ -16,21 +16,21 @@ typedef struct {
 
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
-      ("help,h", "SOLVER: TSVD (Truncate Singular Value Decomposition)")
-      ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
-      ("enable-energy-spread,g", "Enable energy spread")
-      ("upper-tsvd-index,k", po::value<int>(&(opts->k))->default_value(1), "Upper TSVD index.")
-      ("keep-one,z", "Keep only k-th SVD harmonic.")
+      ("help,h", "help message")
+      ("thsd,t", po::value<double>(&(opts->thsd)), "threshold energy (GeV)")
+      ("enable-energy-spread,g", "enable energy spread")
+      ("upper-tsvd-index,k", po::value<int>(&(opts->k))->default_value(1), "upper TSVD index")
+      ("keep-one,z", "keep only k-th SVD harmonic")
       ("vcs-name,v", po::value<std::string>(&(opts->vcs_name))->default_value("vcs"),
-       "Name of the visible cross section graph.")
+       "name of a visible cross section graph (TGraphErrors*)")
       ("ifname,i", po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
-       "Path to input file.")
+       "path to input file")
       ("ofname,o", po::value<std::string>(&(opts->ofname))->default_value("bcs.root"),
-       "Path to output file.")
+       "path to output file")
       ("efficiency-name,e", po::value<std::string>(&(opts->efficiency_name)),
-       "TEfficiency object name.")
+       "name of a detection efficiency object (TEfficiency*)")
       ("interp,r", po::value<std::string>(&(opts->interp)),
-       "Path to JSON file with interpolation settings.");
+       "path to JSON file with interpolation settings");
 }
 
 void help(const po::options_description& desc) {
@@ -38,7 +38,7 @@ void help(const po::options_description& desc) {
 }
 
 int main(int argc, char* argv[]) {
-  po::options_description desc("Allowed options:");
+  po::options_description desc("   Solver that uses Truncated Singular Value Decomposition (TSVD). Allowed options");
   CmdOptions opts;
   setOptions(&desc, &opts);
   po::variables_map vmap;

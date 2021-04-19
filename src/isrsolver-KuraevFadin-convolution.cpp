@@ -20,20 +20,16 @@ typedef struct {
 } CmdOptions;
 
 void setOptions(po::options_description* desc, CmdOptions* opts) {
-  desc->add_options()("help",
-                      "A simple tool designed in order to find convolution of "
-                      "a Born cross section "
-                      "with the Kuraev-Fadin kernel.")(
-      "thsd", po::value<double>(&(opts->thsd)), "Threshold (GeV).")(
-      "fcn", po::value<std::string>(&(opts->fcn)),
-      "fcn is a name of a function used to describe a Born cross section, "
-      "which will be convaluted with the Kuraev-Fadin kernel.")(
-      "ifname",
+  desc->add_options()("help,h", "help message")
+      ("thsd,t", po::value<double>(&(opts->thsd)), "threshold energy (GeV)")(
+      "fcn,f", po::value<std::string>(&(opts->fcn)),
+      "name of the function that will be convolution with the kernel function F(x,s)")(
+      "ifname,i",
       po::value<std::string>(&(opts->ifname))->default_value("input.root"),
-      "Path to input file.")(
-      "ofname",
+      "path to input file")
+      ("ofname,o",
       po::value<std::string>(&(opts->ofname))->default_value("output.root"),
-      "Path to output file.");
+      "path to output file");
 }
 
 void help(const po::options_description& desc) {
@@ -41,7 +37,8 @@ void help(const po::options_description& desc) {
 }
 
 int main(int argc, char* argv[]) {
-  po::options_description desc("Allowed options:");
+  po::options_description desc("  This tool is designed in order to make convolution of a some "
+                               "custom (TF1*) function with the kernel function F(x,s). Allowed options");
   CmdOptions opts;
   setOptions(&desc, &opts);
   po::variables_map vmap;
