@@ -36,6 +36,7 @@ list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-draw-kernel.c
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-interp.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-KuraevFadin-convolution.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-radcorr.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-radcorr-function.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-iterative.cpp)
 file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/env.sh.in env.sh)
@@ -282,6 +283,23 @@ target_link_libraries(isrsolver-radcorr
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
   isr)
+
+
+add_executable(isrsolver-radcorr-function ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-radcorr-function.cpp)
+target_include_directories(isrsolver-radcorr-function
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/ISRSolver>)
+target_link_libraries(isrsolver-radcorr-function
+  PRIVATE
+  GSL::gsl GSL::gslcblas
+  Eigen3::Eigen
+  ${Boost_LIBRARIES}
+  ${NLOPT_LIBRARIES}
+  ${ROOT_LIBRARIES}
+  nlohmann_json::nlohmann_json
+  isr)
+
 add_executable(isrsolver-iterative ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-iterative.cpp)
 target_include_directories(isrsolver-iterative
   PUBLIC
@@ -330,6 +348,7 @@ install(TARGETS isrsolver-Tikhonov-ratio-test DESTINATION bin)
 install(TARGETS isrsolver-condnum-test DESTINATION bin)
 install(TARGETS isrsolver-iterative DESTINATION bin)
 install(TARGETS isrsolver-radcorr DESTINATION bin)
+install(TARGETS isrsolver-radcorr-function DESTINATION bin)
 install(TARGETS isrsolver-draw-kernel DESTINATION bin)
 install(TARGETS isrsolver-draw-kernel-integral DESTINATION bin)
 install(TARGETS isrsolver-KuraevFadin-convolution DESTINATION bin)
