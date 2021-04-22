@@ -5,6 +5,7 @@
 #include <TFile.h>
 #include <TF1.h>
 #include <TGraph.h>
+#include <TEfficiency.h>
 #include "kuraev_fadin.hpp"
 namespace po = boost::program_options;
 
@@ -15,6 +16,7 @@ typedef struct {
   double maxen;
   std::string ifname;
   std::string bcs_fcn_name;
+  std::string efficiency_name;
   std::string ofname;
 } CmdOptions;
 
@@ -26,15 +28,18 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
        "number of radiative correction points")
       ("minen,m",  po::value<double>(&(opts->minen)), "minimum energy")
       ("maxen,x",  po::value<double>(&(opts->maxen)), "maximum energy")
+
       ( "ifname,i",
-        po::value<std::string>(&(opts->ifname))->default_value("vcs.root"),
+        po::value<std::string>(&(opts->ifname))->default_value("input.root"),
         "path to input file")
       ("ofname,o",
-       po::value<std::string>(&(opts->ofname))->default_value("bcs.root"),
+       po::value<std::string>(&(opts->ofname))->default_value("output.root"),
        "path to output file")
-      ("born-cs-fcn-name",
+      ("born-cs-fcn-name,b",
        po::value<std::string>(&(opts->bcs_fcn_name))->default_value("f_bcs"),
-       "the name of the Born cross section function (TF1*)");
+       "the name of the Born cross section function (TF1*)")
+      ("efficiency-name,e", po::value<std::string>(&(opts->efficiency_name)),
+       "name of a detection efficiency object (TEfficiency*)");
 }
 
 void help(const po::options_description& desc) {
@@ -58,8 +63,13 @@ int main(int argc, char* argv[]) {
     std::cout << "[!] You need to set threshold energy, maximum and minimum energy" << std::endl;
     return 0;
   }
+  TEfficiency* teff = nullptr;
+
   auto fl = TFile::Open(opts.ifname.c_str(), "read");
   auto fbcs = dynamic_cast<TF1*>(fl->Get(opts.bcs_fcn_name.c_str())->Clone());
+  if (vmap.count("efficiency-name")) {
+    teff = dynamic_cast<TEfficiency*>(fl->Get(opts.efficiency_name.c_str())->Clone());
+  }
   fl->Close();
   delete fl;
   std::function<double(double)> fcn =
@@ -67,7 +77,12 @@ int main(int argc, char* argv[]) {
         double result = fbcs->Eval(energy);
         return result;
       };
-
+  std::function<double(double, double)> eff =
+      [teff](double x, double en) {
+        int bin = teff->FindFixBin(x, en);
+        double result = teff->GetEfficiency(bin);
+        return result;
+      };
   std::vector<double> ens;
   std::vector<double> radcorrs;
   ens.reserve(opts.n);
@@ -77,9 +92,14 @@ int main(int argc, char* argv[]) {
   for (std::size_t i = 1; i < opts.n + 1; ++i) {
     double en = opts.minen + i * eh;
     ens.push_back(en);
-    radcorrs.push_back(kuraev_fadin_convolution(en, fcn, 0, 1 - s_th / en / en) / fcn(en) - 1);
+    if (teff) {
+      radcorrs.push_back(kuraev_fadin_convolution(en, fcn, 0, 1 - s_th / en / en, eff) / fcn(en) - 1);
+    } else {
+      radcorrs.push_back(kuraev_fadin_convolution(en, fcn, 0, 1 - s_th / en / en) / fcn(en) - 1);
+    }
   }
   delete fbcs;
+  delete teff;
   TGraph gradcorr(opts.n, ens.data(), radcorrs.data());
   auto ofl = TFile::Open(opts.ofname.c_str(), "recreate");
   ofl->cd();
