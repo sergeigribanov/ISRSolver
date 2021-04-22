@@ -27,15 +27,45 @@ class BaseISRSolver {
    * @param inputPath an input path to .root file that contains visible
    cross section in a form of TGraphErrors object and detection
    efficiency (if needed) in a form of 1D or 2D TEfficiency object
-   * @param inputOpts an input options @see InputOptions
+   * @param inputOpts an input options that contain a name of the
+   detection efficiency TEfficiency object, a name of the visible
+   cross section TGraphErrors object, a threshold energy
+   @see InputOptions
    */
   BaseISRSolver(const std::string& inputPath, const InputOptions& inputOpts);
+  /**
+   * Copy constructor
+   */
   BaseISRSolver(const BaseISRSolver&);
+  /**
+   * Threshold energy getter
+   */
   double getThresholdEnergy() const;
+  /**
+   * Minimum energy getter
+   */
   double getMinEnergy() const;
+  /**
+   * Maximum energy getter
+   */
   double getMaxEnergy() const;
+  /**
+   * Destructor
+   */
   virtual ~BaseISRSolver();
+  /**
+   * Running the algorithm for finding a solution
+   */
   virtual void solve() = 0;
+  /**
+   * Saving results
+   * @param outputPath a path to the .root file where the results
+   are saved
+   * @param outputOpts an output options that contain a name
+   of the visible cross section TGraphErrors object
+   (in output file) and a name of the visible cross section
+   TGraphErrors name
+   */
   virtual void save(const std::string& outputPath,
                     const OutputOptions& outputOpts) = 0;
   const Eigen::VectorXd& bcs() const;
