@@ -14,8 +14,8 @@
 #include <Eigen/Core>
 #include <Eigen/SVD>
 
-#include "integration.hpp"
-#include "kuraev_fadin.hpp"
+#include "Integration.hpp"
+#include "KuraevFadin.hpp"
 
 using json = nlohmann::json;
 

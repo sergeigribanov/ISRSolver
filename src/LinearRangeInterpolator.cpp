@@ -1,5 +1,5 @@
-#include "integration.hpp"
-#include "kuraev_fadin.hpp"
+#include "Integration.hpp"
+#include "KuraevFadin.hpp"
 #include "LinearRangeInterpolator.hpp"
 
 std::function<double(double)> LinearRangeInterpolator::_fcn0 =

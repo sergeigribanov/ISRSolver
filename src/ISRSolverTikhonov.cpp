@@ -13,7 +13,7 @@
 #include <nlopt.hpp>
 #include <set>
 
-#include "integration.hpp"
+#include "Integration.hpp"
 
 ISRSolverTikhonov::ISRSolverTikhonov(const std::string& inputPath,
                                      const InputOptions& inputOpts,

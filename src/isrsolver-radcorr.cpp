@@ -6,7 +6,7 @@
 #include <TF1.h>
 #include <TGraph.h>
 #include <TEfficiency.h>
-#include "kuraev_fadin.hpp"
+#include "KuraevFadin.hpp"
 namespace po = boost::program_options;
 
 typedef struct {

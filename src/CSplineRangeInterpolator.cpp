@@ -1,6 +1,6 @@
 #include <iostream>
-#include "integration.hpp"
-#include "kuraev_fadin.hpp"
+#include "Integration.hpp"
+#include "KuraevFadin.hpp"
 #include "CSplineRangeInterpolator.hpp"
 
 CSplineRangeInterpolator::CSplineRangeInterpolator(

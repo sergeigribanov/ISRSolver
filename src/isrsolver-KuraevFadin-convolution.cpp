@@ -7,8 +7,8 @@
 #include <iostream>
 #include <string>
 
-#include "kuraev_fadin.hpp"
-#include "utils.hpp"
+#include "KuraevFadin.hpp"
+#include "Utils.hpp"
 namespace po = boost::program_options;
 
 //!!! TO DO: setup efficiency

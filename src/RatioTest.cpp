@@ -8,7 +8,7 @@
 #include <TGraphErrors.h>
 #include <TRandom3.h>
 #include "RatioTest.hpp"
-#include "utils.hpp"
+#include "Utils.hpp"
 
 void ratioTestModel(int n,
                     ISRSolverSLE* solver,

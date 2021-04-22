@@ -41,12 +41,12 @@ list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-iterative.cpp
 file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/env.sh.in env.sh)
 
-add_library(isr SHARED ${SOURCES})
-target_include_directories(isr
+add_library(ISR SHARED ${SOURCES})
+target_include_directories(ISR
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isr
+target_link_libraries(ISR
   PRIVATE
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
@@ -68,7 +68,7 @@ target_link_libraries(isrsolver-SLE
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-Tikhonov ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov.cpp)
 target_include_directories(isrsolver-Tikhonov
@@ -83,7 +83,7 @@ target_link_libraries(isrsolver-Tikhonov
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-TSVD ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-TSVD.cpp)
 target_include_directories(isrsolver-TSVD
@@ -98,7 +98,7 @@ target_link_libraries(isrsolver-TSVD
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-calc-chi2
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-calc-chi2.cpp)
@@ -114,7 +114,7 @@ target_link_libraries(isrsolver-calc-chi2
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-SLE-chi2-test
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE-chi2-test.cpp)
@@ -130,7 +130,7 @@ target_link_libraries(isrsolver-SLE-chi2-test
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-Tikhonov-chi2-test
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-chi2-test.cpp)
@@ -146,7 +146,7 @@ target_link_libraries(isrsolver-Tikhonov-chi2-test
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-SLE-ratio-test
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE-ratio-test.cpp)
@@ -162,7 +162,7 @@ target_link_libraries(isrsolver-SLE-ratio-test
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-Tikhonov-ratio-test
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-ratio-test.cpp)
@@ -178,7 +178,7 @@ target_link_libraries(isrsolver-Tikhonov-ratio-test
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-condnum-test ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-condnum-test.cpp)
 target_include_directories(isrsolver-condnum-test
@@ -193,7 +193,7 @@ target_link_libraries(isrsolver-condnum-test
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-draw-kernel ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-draw-kernel.cpp)
 target_include_directories(isrsolver-draw-kernel
@@ -208,7 +208,8 @@ target_link_libraries(isrsolver-draw-kernel
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
+
 add_executable(isrsolver-draw-kernel-integral ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-draw-kernel-integral.cpp)
 target_include_directories(isrsolver-draw-kernel-integral
   PUBLIC
@@ -222,7 +223,7 @@ target_link_libraries(isrsolver-draw-kernel-integral
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-interp ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-interp.cpp)
 target_include_directories(isrsolver-interp
@@ -237,7 +238,7 @@ target_link_libraries(isrsolver-interp
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-LCurve-plot ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-LCurve-plot.cpp)
 target_include_directories(isrsolver-LCurve-plot
@@ -252,7 +253,7 @@ target_link_libraries(isrsolver-LCurve-plot
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-Tikhonov-LCurve ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-LCurve.cpp)
 target_include_directories(isrsolver-Tikhonov-LCurve
@@ -267,7 +268,7 @@ target_link_libraries(isrsolver-Tikhonov-LCurve
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-radcorr ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-radcorr.cpp)
 target_include_directories(isrsolver-radcorr
@@ -282,8 +283,7 @@ target_link_libraries(isrsolver-radcorr
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
-
+  ISR)
 
 add_executable(isrsolver-radcorr-function ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-radcorr-function.cpp)
 target_include_directories(isrsolver-radcorr-function
@@ -298,7 +298,7 @@ target_link_libraries(isrsolver-radcorr-function
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-iterative ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-iterative.cpp)
 target_include_directories(isrsolver-iterative
@@ -313,7 +313,7 @@ target_link_libraries(isrsolver-iterative
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
 add_executable(isrsolver-KuraevFadin-convolution
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-KuraevFadin-convolution.cpp)
@@ -329,9 +329,9 @@ target_link_libraries(isrsolver-KuraevFadin-convolution
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json
-  isr)
+  ISR)
 
-set_target_properties(isr
+set_target_properties(ISR
 PROPERTIES
 PUBLIC_HEADER "${HEADERS}")
 
@@ -353,7 +353,7 @@ install(TARGETS isrsolver-draw-kernel DESTINATION bin)
 install(TARGETS isrsolver-draw-kernel-integral DESTINATION bin)
 install(TARGETS isrsolver-KuraevFadin-convolution DESTINATION bin)
 install(FILES ${PROJECT_BINARY_DIR}/env.sh DESTINATION bin)
-install(TARGETS isr
+install(TARGETS ISR
   EXPORT ISRSolverTargets
   LIBRARY DESTINATION lib
   PUBLIC_HEADER DESTINATION include/ISRSolver)

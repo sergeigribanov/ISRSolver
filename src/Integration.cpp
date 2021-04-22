@@ -1,5 +1,5 @@
 #define _USE_MATH_DEFINES
-#include "integration.hpp"
+#include "Integration.hpp"
 #include <cmath>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_integration.h>

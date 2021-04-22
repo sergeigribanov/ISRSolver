@@ -7,14 +7,28 @@
 
 #include "ISRSolverStructs.hpp"
 
+/**
+ * The exception that is thrown when the detection efficiency function has the
+ wrong number of arguments
+ */
 typedef struct : std::exception {
   const char* what() const noexcept {
     return "[!] Wrong efficiency dimension.\n";
   }
 } EfficiencyDimensionException;
 
+/**
+ * Solver base class
+ */
 class BaseISRSolver {
  public:
+  /**
+   * Constructor
+   * @param inputPath an input path to .root file that contains visible
+   cross section in a form of TGraphErrors object and detection
+   efficiency (if needed) in a form of 1D or 2D TEfficiency object
+   * @param inputOpts an input options @see InputOptions
+   */
   BaseISRSolver(const std::string& inputPath, const InputOptions& inputOpts);
   BaseISRSolver(const BaseISRSolver&);
   double getThresholdEnergy() const;

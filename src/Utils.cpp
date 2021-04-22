@@ -1,5 +1,5 @@
 #include <TRandom3.h>
-#include "utils.hpp"
+#include "Utils.hpp"
 
 Eigen::VectorXd randomDrawVisCS(const Eigen::VectorXd& vcs,
                                 const Eigen::VectorXd& vcsErr) {

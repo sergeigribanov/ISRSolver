@@ -13,7 +13,7 @@
 #include <TRandom3.h>
 #include <Math/PdfFuncMathCore.h>
 #include "Chi2Test.hpp"
-#include "utils.hpp"
+#include "Utils.hpp"
 namespace bacc = boost::accumulators;
 
 void chi2Test(int n,
