@@ -1,9 +1,9 @@
 #ifndef __ISRSOLVER_TSVD_HPP__
 #define __ISRSOLVER_TSVD_HPP__
 
-#include "ISRSolverSLAE.hpp"
+#include "ISRSolverSLE.hpp"
 
-class ISRSolverTSVD : public ISRSolverSLAE {
+class ISRSolverTSVD : public ISRSolverSLE {
  public:
   ISRSolverTSVD(const std::string&, const InputOptions&, int);
   ISRSolverTSVD(const ISRSolverTSVD&);

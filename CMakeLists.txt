@@ -20,15 +20,15 @@ include_directories(${GSL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${NLOPT_INCLUDE_DIRS})
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLAE.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-TSVD.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-LCurve-plot.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-LCurve.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-calc-chi2.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLAE-chi2-test.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE-chi2-test.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-chi2-test.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLAE-ratio-test.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE-ratio-test.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-ratio-test.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-condnum-test.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-draw-kernel-integral.cpp)
@@ -55,12 +55,12 @@ target_link_libraries(isr
   ${ROOT_LIBRARIES}
   nlohmann_json::nlohmann_json)
 
-add_executable(isrsolver-SLAE ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLAE.cpp)
-target_include_directories(isrsolver-SLAE
+add_executable(isrsolver-SLE ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE.cpp)
+target_include_directories(isrsolver-SLE
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-SLAE
+target_link_libraries(isrsolver-SLE
   PRIVATE
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
@@ -116,13 +116,13 @@ target_link_libraries(isrsolver-calc-chi2
   nlohmann_json::nlohmann_json
   isr)
 
-add_executable(isrsolver-SLAE-chi2-test
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLAE-chi2-test.cpp)
-target_include_directories(isrsolver-SLAE-chi2-test
+add_executable(isrsolver-SLE-chi2-test
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE-chi2-test.cpp)
+target_include_directories(isrsolver-SLE-chi2-test
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-SLAE-chi2-test
+target_link_libraries(isrsolver-SLE-chi2-test
   PRIVATE
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
@@ -148,13 +148,13 @@ target_link_libraries(isrsolver-Tikhonov-chi2-test
   nlohmann_json::nlohmann_json
   isr)
 
-add_executable(isrsolver-SLAE-ratio-test
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLAE-ratio-test.cpp)
-target_include_directories(isrsolver-SLAE-ratio-test
+add_executable(isrsolver-SLE-ratio-test
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE-ratio-test.cpp)
+target_include_directories(isrsolver-SLE-ratio-test
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-SLAE-ratio-test
+target_link_libraries(isrsolver-SLE-ratio-test
   PRIVATE
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
@@ -335,15 +335,15 @@ set_target_properties(isr
 PROPERTIES
 PUBLIC_HEADER "${HEADERS}")
 
-install(TARGETS isrsolver-SLAE DESTINATION bin)
+install(TARGETS isrsolver-SLE DESTINATION bin)
 install(TARGETS isrsolver-Tikhonov DESTINATION bin)
 install(TARGETS isrsolver-TSVD DESTINATION bin)
 install(TARGETS isrsolver-LCurve-plot DESTINATION bin)
 install(TARGETS isrsolver-Tikhonov-LCurve DESTINATION bin)
 install(TARGETS isrsolver-calc-chi2 DESTINATION bin)
-install(TARGETS isrsolver-SLAE-chi2-test DESTINATION bin)
+install(TARGETS isrsolver-SLE-chi2-test DESTINATION bin)
 install(TARGETS isrsolver-Tikhonov-chi2-test DESTINATION bin)
-install(TARGETS isrsolver-SLAE-ratio-test DESTINATION bin)
+install(TARGETS isrsolver-SLE-ratio-test DESTINATION bin)
 install(TARGETS isrsolver-Tikhonov-ratio-test DESTINATION bin)
 install(TARGETS isrsolver-condnum-test DESTINATION bin)
 install(TARGETS isrsolver-iterative DESTINATION bin)

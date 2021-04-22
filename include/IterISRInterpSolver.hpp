@@ -1,9 +1,9 @@
 #ifndef _ITER_ISR_INTERP_SOLVER_HPP_
 #define _ITER_ISR_INTERP_SOLVER_HPP_
-#include "ISRSolverSLAE.hpp"
+#include "ISRSolverSLE.hpp"
 #include "Interpolator.hpp"
 
-class IterISRInterpSolver : public ISRSolverSLAE {
+class IterISRInterpSolver : public ISRSolverSLE {
  public:
   IterISRInterpSolver(const std::string&, const InputOptions&);
   IterISRInterpSolver(const IterISRInterpSolver&);

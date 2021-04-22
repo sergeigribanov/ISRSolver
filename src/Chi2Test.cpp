@@ -18,7 +18,7 @@ namespace bacc = boost::accumulators;
 
 void chi2Test(int n,
               double initialChi2Ampl,
-              ISRSolverSLAE* solver,
+              ISRSolverSLE* solver,
               const Eigen::VectorXd& vcs,
               const Eigen::VectorXd& bcs0,
               const Eigen::VectorXd& vcsErr,
@@ -57,7 +57,7 @@ void chi2Test(int n,
 
 void chi2TestModel(int n,
                    double initialChi2Ampl,
-                   ISRSolverSLAE* solver,
+                   ISRSolverSLE* solver,
                    const std::string& modelPath,
                    const std::string& modelVCSName,
                    const std::string& modelBCSName,
@@ -83,7 +83,7 @@ void chi2TestModel(int n,
 
 void chi2TestData(int n,
                   double initialChi2Ampl,
-                  ISRSolverSLAE* solver,
+                  ISRSolverSLE* solver,
                   const std::string& outputPath) {
   solver->solve();
   Eigen::VectorXd vcsErr = solver->vcsErr();

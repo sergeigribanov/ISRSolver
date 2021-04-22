@@ -9,11 +9,11 @@ using json = nlohmann::json;
 
 IterISRInterpSolver::IterISRInterpSolver(const std::string& inputPath,
                                          const InputOptions& inputOpts) :
-    ISRSolverSLAE(inputPath, inputOpts),
+    ISRSolverSLE(inputPath, inputOpts),
     _nIter(10) {}
 
 IterISRInterpSolver::IterISRInterpSolver(const IterISRInterpSolver& solver) :
-    ISRSolverSLAE(solver),
+    ISRSolverSLE(solver),
     _nIter(solver._nIter),
     _radcorr(solver._radcorr) {}
 

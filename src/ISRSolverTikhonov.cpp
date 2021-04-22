@@ -18,13 +18,13 @@
 ISRSolverTikhonov::ISRSolverTikhonov(const std::string& inputPath,
                                      const InputOptions& inputOpts,
                                      double alpha)
-    : ISRSolverSLAE(inputPath, inputOpts),
+    : ISRSolverSLE(inputPath, inputOpts),
       _enabledSolutionNorm2(false),
       _enabledSolutionDerivativeNorm2(true),
       _alpha(alpha) {}
 
 ISRSolverTikhonov::ISRSolverTikhonov(const ISRSolverTikhonov& solver) :
-  ISRSolverSLAE::ISRSolverSLAE(solver),
+  ISRSolverSLE::ISRSolverSLE(solver),
   _enabledSolutionNorm2(solver._enabledSolutionNorm2),
   _enabledSolutionDerivativeNorm2(solver._enabledSolutionDerivativeNorm2),
   _alpha(solver._alpha),

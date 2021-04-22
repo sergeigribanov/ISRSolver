@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <boost/program_options.hpp>
-#include "ISRSolverSLAE.hpp"
+#include "ISRSolverSLE.hpp"
 namespace po = boost::program_options;
 
 typedef struct {
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     help(desc);
     return 0;
   }
-  ISRSolverSLAE solver(
+  ISRSolverSLE solver(
       opts.ifname,
       {.efficiencyName = opts.efficiency_name,
        .visibleCSGraphName = opts.vcs_name,

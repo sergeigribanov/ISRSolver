@@ -6,12 +6,12 @@
 ISRSolverTSVD::ISRSolverTSVD(const std::string& inputPath,
                              const InputOptions& inputOpts,
                              int truncIndexUpperLimit):
-    ISRSolverSLAE(inputPath, inputOpts),
+    ISRSolverSLE(inputPath, inputOpts),
     _truncIndexUpperLimit(truncIndexUpperLimit),
     _keepOne(false) {}
 
 ISRSolverTSVD::ISRSolverTSVD(const ISRSolverTSVD& solver):
-    ISRSolverSLAE::ISRSolverSLAE(solver),
+    ISRSolverSLE::ISRSolverSLE(solver),
     _truncIndexUpperLimit(solver._truncIndexUpperLimit),
     _keepOne(solver._keepOne),
     _mU(solver._mU),

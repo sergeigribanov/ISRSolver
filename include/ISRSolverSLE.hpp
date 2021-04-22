@@ -1,15 +1,15 @@
-#ifndef __ISRSOLVER_SLAE_HPP__
-#define __ISRSOLVER_SLAE_HPP__
+#ifndef __ISRSOLVER_SLE_HPP__
+#define __ISRSOLVER_SLE_HPP__
 
 #include <TF1.h>
 #include "Interpolator.hpp"
 #include "BaseISRSolver.hpp"
 
-class ISRSolverSLAE : public BaseISRSolver {
+class ISRSolverSLE : public BaseISRSolver {
  public:
-  ISRSolverSLAE(const std::string& inputPath, const InputOptions& inputOpts);
-  ISRSolverSLAE(const ISRSolverSLAE&);
-  virtual ~ISRSolverSLAE();
+  ISRSolverSLE(const std::string& inputPath, const InputOptions& inputOpts);
+  ISRSolverSLE(const ISRSolverSLE&);
+  virtual ~ISRSolverSLE();
   const Eigen::MatrixXd& getIntegralOperatorMatrix() const;
   const Eigen::MatrixXd& getBornCSCovMatrix() const;
   virtual void solve() override;

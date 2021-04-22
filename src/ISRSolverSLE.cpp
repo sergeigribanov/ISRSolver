@@ -1,4 +1,4 @@
-#include "ISRSolverSLAE.hpp"
+#include "ISRSolverSLE.hpp"
 
 #include <TFile.h>
 #include <TGraphErrors.h>
@@ -19,13 +19,13 @@
 
 using json = nlohmann::json;
 
-ISRSolverSLAE::ISRSolverSLAE(const std::string& inputPath,
+ISRSolverSLE::ISRSolverSLE(const std::string& inputPath,
                              const InputOptions& inputOpts) :
     BaseISRSolver(inputPath, inputOpts),
     _interp(Interpolator(ecm(), getThresholdEnergy())),
     _isEqMatrixPrepared(false) {}
 
-ISRSolverSLAE::ISRSolverSLAE(const ISRSolverSLAE& solver) :
+ISRSolverSLE::ISRSolverSLE(const ISRSolverSLE& solver) :
   BaseISRSolver::BaseISRSolver(solver),
   _interp(solver._interp),
   _isEqMatrixPrepared(solver._isEqMatrixPrepared),
@@ -33,25 +33,25 @@ ISRSolverSLAE::ISRSolverSLAE(const ISRSolverSLAE& solver) :
   _covMatrixBornCS(solver._covMatrixBornCS),
   _dotProdOp(solver._dotProdOp) {}
 
-ISRSolverSLAE::~ISRSolverSLAE() {}
+ISRSolverSLE::~ISRSolverSLE() {}
 
-const Eigen::MatrixXd& ISRSolverSLAE::getIntegralOperatorMatrix() const {
+const Eigen::MatrixXd& ISRSolverSLE::getIntegralOperatorMatrix() const {
   return _integralOperatorMatrix;
 }
 
-const Eigen::MatrixXd& ISRSolverSLAE::getBornCSCovMatrix() const {
+const Eigen::MatrixXd& ISRSolverSLE::getBornCSCovMatrix() const {
   return _covMatrixBornCS;
 }
 
-Eigen::MatrixXd& ISRSolverSLAE::_getIntegralOperatorMatrix() {
+Eigen::MatrixXd& ISRSolverSLE::_getIntegralOperatorMatrix() {
   return _integralOperatorMatrix;
 }
 
-Eigen::MatrixXd& ISRSolverSLAE::_getBornCSCovMatrix() {
+Eigen::MatrixXd& ISRSolverSLE::_getBornCSCovMatrix() {
   return _covMatrixBornCS;
 }
 
-void ISRSolverSLAE::solve() {
+void ISRSolverSLE::solve() {
   if (!_isEqMatrixPrepared) {
     evalEqMatrix();
     _isEqMatrixPrepared = true;
@@ -62,7 +62,7 @@ void ISRSolverSLAE::solve() {
                       _vcsInvCovMatrix() * _integralOperatorMatrix).inverse();
 }
 
-void ISRSolverSLAE::save(const std::string& outputPath,
+void ISRSolverSLE::save(const std::string& outputPath,
                          const OutputOptions& outputOpts) {
   TGraphErrors vcs(_getN(), _ecm().data(), _vcs().data(), _ecmErr().data(),
                    _vcsErr().data());
@@ -93,16 +93,16 @@ void ISRSolverSLAE::save(const std::string& outputPath,
   delete fl;
 }
 
-void ISRSolverSLAE::setRangeInterpSettings(
+void ISRSolverSLE::setRangeInterpSettings(
     const std::vector<std::tuple<bool, int, int>>& interpRangeSettings) {
   _interp = Interpolator(interpRangeSettings, ecm(), getThresholdEnergy());
 }
 
-void ISRSolverSLAE::setRangeInterpSettings(const std::string& pathToJSON) {
+void ISRSolverSLE::setRangeInterpSettings(const std::string& pathToJSON) {
   _interp = Interpolator(pathToJSON, ecm(), getThresholdEnergy());
 }
 
-void ISRSolverSLAE::evalEqMatrix() {
+void ISRSolverSLE::evalEqMatrix() {
   _integralOperatorMatrix = Eigen::MatrixXd::Zero(_getN(), _getN());
   // TO DO: optimize
   for (std::size_t j = 0; j < _getN(); ++j) {
@@ -115,7 +115,7 @@ void ISRSolverSLAE::evalEqMatrix() {
   }
 }
 
-TF1* ISRSolverSLAE::_createInterpFunction() const {
+TF1* ISRSolverSLE::_createInterpFunction() const {
   std::function<double(double*, double*)> fcn = [this](double* x, double* par) {
     return this->_interp.eval(this->bcs(), x[0]);
   };
@@ -124,7 +124,7 @@ TF1* ISRSolverSLAE::_createInterpFunction() const {
   return f1;
 }
 
-TF1* ISRSolverSLAE::_createDerivativeInterpFunction(
+TF1* ISRSolverSLE::_createDerivativeInterpFunction(
     std::size_t p, const std::string& name) const {
   std::function<double(double*, double*)> fcn = [p, this](double* x,
                                                           double* par) {
@@ -136,11 +136,11 @@ TF1* ISRSolverSLAE::_createDerivativeInterpFunction(
   return f1;
 }
 
-Eigen::VectorXd ISRSolverSLAE::_bcsErr() const {
+Eigen::VectorXd ISRSolverSLE::_bcsErr() const {
   return _covMatrixBornCS.diagonal().array().pow(0.5);
 }
 
-void ISRSolverSLAE::_evalDotProductOperator() {
+void ISRSolverSLE::_evalDotProductOperator() {
   std::size_t i;
   _dotProdOp = Eigen::RowVectorXd(_getN());
   // std::function<double(double)> fcn =
@@ -155,11 +155,11 @@ void ISRSolverSLAE::_evalDotProductOperator() {
   }
 }
 
-const Eigen::RowVectorXd& ISRSolverSLAE::_getDotProdOp() const {
+const Eigen::RowVectorXd& ISRSolverSLE::_getDotProdOp() const {
   return _dotProdOp;
 }
 
-Eigen::MatrixXd ISRSolverSLAE::_energySpreadMatrix() const {
+Eigen::MatrixXd ISRSolverSLE::_energySpreadMatrix() const {
   Eigen::MatrixXd result = Eigen::MatrixXd::Zero(_getN(), _getN());
   std::size_t i;
   std::size_t j;
@@ -177,17 +177,17 @@ Eigen::MatrixXd ISRSolverSLAE::_energySpreadMatrix() const {
   return result;
 }
 
-double ISRSolverSLAE::interpEval(const Eigen::VectorXd& y,
+double ISRSolverSLE::interpEval(const Eigen::VectorXd& y,
                                  double energy) const {
   return _interp.eval(y, energy);
 }
 
-double ISRSolverSLAE::evalConditionNumber() const {
+double ISRSolverSLE::evalConditionNumber() const {
   Eigen::JacobiSVD<Eigen::MatrixXd> svd(getIntegralOperatorMatrix());
   return svd.singularValues()(0) /
       svd.singularValues()(svd.singularValues().size()-1);
 }
 
-void ISRSolverSLAE::printConditionNumber() const {
+void ISRSolverSLE::printConditionNumber() const {
   std::cout << evalConditionNumber() << std::endl;
 }

@@ -1,9 +1,9 @@
 #ifndef __ISRSOLVER_TIKHONOV_HPP__
 #define __ISRSOLVER_TIKHONOV_HPP__
 
-#include "ISRSolverSLAE.hpp"
+#include "ISRSolverSLE.hpp"
 
-class ISRSolverTikhonov : public ISRSolverSLAE {
+class ISRSolverTikhonov : public ISRSolverSLE {
  public:
   ISRSolverTikhonov(const std::string& inputPath, const InputOptions& inputOpts,
                     double alpha = 1.e-2);

@@ -11,7 +11,7 @@
 #include "utils.hpp"
 
 void ratioTestModel(int n,
-                    ISRSolverSLAE* solver,
+                    ISRSolverSLE* solver,
                     const std::string& modelPath,
                     const std::string& modelVCSName,
                     const std::string& modelBCSName,

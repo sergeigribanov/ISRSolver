@@ -1,8 +1,8 @@
 #ifndef _ISRSOLVER_RATIO_TEST_HPP_
 #define _ISRSOLVER_RATIO_TEST_HPP_
-#include "ISRSolverSLAE.hpp"
+#include "ISRSolverSLE.hpp"
 
-void ratioTestModel(int, ISRSolverSLAE*,
+void ratioTestModel(int, ISRSolverSLE*,
                     const std::string&,
                     const std::string&,
                     const std::string&,

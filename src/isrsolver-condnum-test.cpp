@@ -5,7 +5,7 @@
 #include <Eigen/SVD>
 #include <TGraph.h>
 #include <TFile.h>
-#include "ISRSolverSLAE.hpp"
+#include "ISRSolverSLE.hpp"
 #include "utils.hpp"
 namespace po = boost::program_options;
 
@@ -46,7 +46,7 @@ void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }
 
-double evalCondNumber(ISRSolverSLAE* solver) {
+double evalCondNumber(ISRSolverSLE* solver) {
   solver->evalEqMatrix();
   Eigen::JacobiSVD<Eigen::MatrixXd> svd(solver->getIntegralOperatorMatrix());
   double cond = svd.singularValues()(0) /
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
     help(desc);
     return 0;
   }
-  ISRSolverSLAE solver(opts.ifname, {
+  ISRSolverSLE solver(opts.ifname, {
       .efficiencyName = opts.efficiency_name,
       .visibleCSGraphName = opts.vcs_name,
       .thresholdEnergy = opts.thsd,
