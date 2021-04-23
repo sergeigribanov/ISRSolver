@@ -79,8 +79,23 @@ class ISRSolverTikhonov : public ISRSolverSLE {
    * This method evaluates L-curve curvature derivative
    */
   double evalLCurveCurvatureDerivative() const;
+  /**
+   * This method returns true in the case when L2 norm square of
+   the numerical solution is used as regularizator. Otherwise this method
+   returns false.
+   */
   bool isDerivNorm2RegIsEnabled() const;
+  /**
+   * This method enables regularizator in a form of L2 norm square
+   of the numerical solution derivative and disables regularizator in a
+   form of L2 norm square of the numerical solution
+   */
   void enableDerivNorm2Regularizator();
+  /**
+   * This method disables regularizator in a form of L2 norm square
+   of the numerical solution derivative and enables regularizator in a
+   form of L2 norm square of the numerical solution
+   */
   void disableDerivNorm2Regularizator();
 
  protected:
@@ -88,16 +103,41 @@ class ISRSolverTikhonov : public ISRSolverSLE {
    * This method returns derivative operator matrix
    */
   const Eigen::MatrixXd& _getInterpPointWiseDerivativeProjector() const;
+  /**
+   * !!! TO DO
+   */
   double _evaldKsidLambda(const Eigen::VectorXd&) const;
+  /**
+   * !!! TO DO
+   */
   double _evald2Ksid2Lambda(const Eigen::VectorXd&,
                            const Eigen::VectorXd&) const;
+  /**
+   * This method calculates auxiliary matrices arising from regularization
+   */
   void _evalProblemMatrices();
+  /**
+   * This method evaluates derivative operator matrix
+   */
   void _evalInterpPointWiseDerivativeProjector();
 
  private:
+  /**
+   * This variable is true if regularizator uses numerical solution
+   derivative
+   */
   bool _enabledDerivNorm2Reg;
+  /**
+   * Regularization parameter
+   */
   double _lambda;
+  /**
+   * Derivative operator matrix
+   */
   Eigen::MatrixXd _interpPointWiseDerivativeProjector;
+  /*
+   * !!! TO DO
+   */
   Eigen::MatrixXd _mF;
   Eigen::MatrixXd _mL;
   Eigen::FullPivLU<Eigen::MatrixXd> _luT;
