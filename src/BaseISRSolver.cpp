@@ -1,12 +1,12 @@
 #include "BaseISRSolver.hpp"
 
+#include <algorithm>
+#include <vector>
+
 #include <TFile.h>
 #include <TGraphErrors.h>
 #include <TH1F.h>
 #include <TH2F.h>
-
-#include <algorithm>
-#include <vector>
 
 BaseISRSolver::BaseISRSolver(const std::string& inputPath,
                              const InputOptions& inputOpts)
