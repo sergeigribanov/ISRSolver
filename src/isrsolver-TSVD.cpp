@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
     solver.setRangeInterpSettings(opts.interp);
   }
   if (vmap.count("upper-tsvd-index")) {
-    solver.setTruncIndexUpperLimit(opts.k);
+    solver.setUpperTSVDIndex(opts.k);
   }
   if (vmap.count("keep-one")) {
     solver.enableKeepOne();

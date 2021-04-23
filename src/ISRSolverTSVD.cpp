@@ -5,29 +5,29 @@
 
 ISRSolverTSVD::ISRSolverTSVD(TGraphErrors* vcsGraph,
                              double thresholdEnergy,
-                             int truncIndexUpperLimit) :
+                             int upperTSVDIndex) :
     ISRSolverSLE(vcsGraph, thresholdEnergy),
-    _truncIndexUpperLimit(truncIndexUpperLimit),
+    _upperTSVDIndex(upperTSVDIndex),
     _keepOne(false) {}
 
 ISRSolverTSVD::ISRSolverTSVD(TGraphErrors* vcsGraph,
                              TEfficiency* eff,
                              double thresholdEnergy,
-                             int truncIndexUpperLimit) :
+                             int upperTSVDIndex) :
     ISRSolverSLE(vcsGraph, eff, thresholdEnergy),
-    _truncIndexUpperLimit(truncIndexUpperLimit),
+    _upperTSVDIndex(upperTSVDIndex),
     _keepOne(false) {}
 
 ISRSolverTSVD::ISRSolverTSVD(const std::string& inputPath,
                              const InputOptions& inputOpts,
-                             int truncIndexUpperLimit) :
+                             int upperTSVDIndex) :
     ISRSolverSLE(inputPath, inputOpts),
-    _truncIndexUpperLimit(truncIndexUpperLimit),
+    _upperTSVDIndex(upperTSVDIndex),
     _keepOne(false) {}
 
 ISRSolverTSVD::ISRSolverTSVD(const ISRSolverTSVD& solver):
     ISRSolverSLE::ISRSolverSLE(solver),
-    _truncIndexUpperLimit(solver._truncIndexUpperLimit),
+    _upperTSVDIndex(solver._upperTSVDIndex),
     _keepOne(solver._keepOne),
     _mU(solver._mU),
     _mV(solver._mV),
@@ -46,9 +46,9 @@ void ISRSolverTSVD::solve() {
     _mSing = svd.singularValues();
   }
   int firstIndex = 0;
-  int n = _truncIndexUpperLimit;
+  int n = _upperTSVDIndex;
   if (_keepOne) {
-    firstIndex = _truncIndexUpperLimit - 1;
+    firstIndex = _upperTSVDIndex - 1;
     n = 1;
   }
   Eigen::MatrixXd mK = _mU.block(0, firstIndex, _mU.rows(), n) *
@@ -58,12 +58,12 @@ void ISRSolverTSVD::solve() {
   _getBornCSCovMatrix() = (mK.transpose() * _vcsInvCovMatrix() * mK).inverse();
 }
 
-void ISRSolverTSVD::setTruncIndexUpperLimit(int truncIndexUpperLimit) {
-  _truncIndexUpperLimit = truncIndexUpperLimit;
+void ISRSolverTSVD::setUpperTSVDIndex(int upperTSVDIndex) {
+  _upperTSVDIndex = upperTSVDIndex;
 }
 
-int ISRSolverTSVD::getTruncIndexUpperLimit() const {
-  return _truncIndexUpperLimit;
+int ISRSolverTSVD::getUpperTSVDIndex() const {
+  return _upperTSVDIndex;
 }
 
 void ISRSolverTSVD::enableKeepOne() {
