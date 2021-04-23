@@ -68,43 +68,157 @@ class BaseISRSolver {
    */
   virtual void save(const std::string& outputPath,
                     const OutputOptions& outputOpts) = 0;
+  /**
+   * Numerical solution (Born cross section) getter
+   */
   const Eigen::VectorXd& bcs() const;
+  /**
+   * Center-of-mass energy getter
+   */
   const Eigen::VectorXd& ecm() const;
+  /**
+   * Center-of-mass energy error getter
+   */
   const Eigen::VectorXd& ecmErr() const;
+  /**
+   * Visible cross section getter
+   */
   const Eigen::VectorXd& vcs() const;
+  /**
+   * Visible cross section error getter
+   */
   const Eigen::VectorXd& vcsErr() const;
+  /**
+   * Detection efficiency function getter
+   */
   const std::function<double(double, double)>& efficiency() const;
+  /**
+   * This method is used to check energy spread mode. If this method
+   returns true than energy spread is enabled
+   (center-of-mass energy error is used by solver in this case),
+   energy spread mode is not enabled otherwise.
+   */
   bool isEnergySpreadEnabled() const;
+  /**
+   * Enable energy spread mode.
+   */
   void enableEnergySpread();
+  /**
+   * Disable energy spread mode
+   */
   void disableEnergySpread();
-  void resetVisibleCS(const Eigen::VectorXd&);
-  void resetVisibleCSErrors(const Eigen::VectorXd&);
-  void resetECMErrors(const Eigen::VectorXd&);
+  /**
+   * This method is used to reset visible cross section.
+   * @param vecVCS a vector of visible cross section values
+   at each center-of-mass energy point
+   */
+  void resetVisibleCS(const Eigen::VectorXd& vecVCS);
+  /**
+   * This method is used to reset visible cross section errors.
+   * @param vecVCSErr a vector of visible cross section errors
+   at each center-of-mass energy point.
+   */
+  void resetVisibleCSErrors(const Eigen::VectorXd& vecVCSErr);
+  /**
+   * This method is used to reset center-of-mass energy errors.
+   * @param vecECMErr a vector of center-of-mass energy errors.
+   */
+  void resetECMErrors(const Eigen::VectorXd& vecECMErr);
 
  protected:
+  /**
+   * This method is used to get number of center-of-mass
+   energy points
+   */
   std::size_t _getN() const;
+  /**
+   * Threshold energy const getter
+   */
   double _energyThreshold() const;
+  /**
+   * Const getter of the threshold energy square
+   */
   double _sThreshold() const;
-  double _s(std::size_t) const;
-  double _ecm(std::size_t) const;
-  double _ecmErr(std::size_t) const;
+  /**
+   * Const geter of the center-of-mass energy square.
+   * @param index an index of the center-of-mass energy point.
+   */
+  double _s(std::size_t index) const;
+  /**
+   * Center-of-mass energy const const getter.
+   * @param index an index of the center-of-mass energy point.
+   */
+  double _ecm(std::size_t index) const;
+  /**
+   * Center-of-mass energy error const getter.
+   * @param index an index of the center-of-mass energy point.
+   */
+  double _ecmErr(std::size_t index) const;
+  /**
+   * Center-of-mass energy non const getter
+   */
   Eigen::VectorXd& _ecm();
+  /**
+   * Center-of-mass energy error non getter
+   */
   Eigen::VectorXd& _ecmErr();
+  /**
+   * Visible cross section const getter
+   */
   const Eigen::VectorXd& _vcs() const;
+  /**
+   * Visible cross section non const getter
+   */
   Eigen::VectorXd& _vcs();
+  /**
+   * Visible cross section error const getter
+   */
   const Eigen::VectorXd& _vcsErr() const;
+  /**
+   * Visible cross section error non const getter
+   */
   Eigen::VectorXd& _vcsErr();
+  /**
+   * Born cross section non const getter
+   */
   Eigen::VectorXd& _bcs();
+  /**
+   * Visible cross section error getter in a form of covariance matrix
+   */
   Eigen::MatrixXd _vcsInvCovMatrix() const;
+  /**
+   * Initialize detection efficiency
+   */
   void _setupEfficiency() noexcept(false);
 
  private:
+  /**
+   * center-of-mass energy spread
+   */
   bool _energySpread;
+  /**
+   * threshold energy
+   */
   double _energyT;
+  /**
+   * number of center-of-mass energy points
+   */
   std::size_t _n;
+  /**
+   * visible cross section data
+   */
   CSVecData _visibleCSData;
+  /**
+   * detection efficiency function
+   */
   std::function<double(double, double)> _efficiency;
+  /**
+   * detection efficiency
+   */
   TEfficiency* _tefficiency;
+  /**
+   * numerical solution (Born cross section)
+   */
   Eigen::VectorXd _bornCS;
 };
 
