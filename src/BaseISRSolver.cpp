@@ -43,7 +43,7 @@ BaseISRSolver::BaseISRSolver(TGraphErrors* vcsGraph,
     : _energySpread(false),
       _energyT(thresholdEnergy),
       _efficiency([](double, double) {return 1.;}),
-      _tefficiency(nullptr) {
+      _tefficiency(std::shared_ptr<TEfficiency>(nullptr)) {
   setupVCS(vcsGraph);
 }
 
@@ -51,7 +51,8 @@ BaseISRSolver::BaseISRSolver(TGraphErrors* vcsGraph,
                              TEfficiency* eff,
                              double thresholdEnergy) :
     BaseISRSolver(vcsGraph, thresholdEnergy) {
-  _tefficiency = dynamic_cast<TEfficiency*>(eff->Clone());
+  _tefficiency = std::shared_ptr<TEfficiency>(
+      dynamic_cast<TEfficiency*>(eff->Clone()));
   _setupEfficiency();
 }
 
@@ -60,17 +61,18 @@ BaseISRSolver::BaseISRSolver(const std::string& inputPath,
     _energySpread(false),
     _energyT(inputOpts.thresholdEnergy),
     _efficiency([](double, double) {return 1.;}),
-    _tefficiency(nullptr) {
+    _tefficiency(std::shared_ptr<TEfficiency>(nullptr)) {
   auto fl = TFile::Open(inputPath.c_str(), "read");
   auto vcsGraph = dynamic_cast<TGraphErrors*>(
       fl->Get(inputOpts.visibleCSGraphName.c_str()));
   setupVCS(vcsGraph);
   if (inputOpts.efficiencyName.length() > 0) {
-    _tefficiency = dynamic_cast<TEfficiency*>(fl->Get(inputOpts.efficiencyName.c_str())->Clone());
+    _tefficiency = std::shared_ptr<TEfficiency>(
+        dynamic_cast<TEfficiency*>(fl->Get(inputOpts.efficiencyName.c_str())->Clone()));
   }
   fl->Close();
   delete fl;
-  if (_tefficiency)
+  if (_tefficiency.get())
     _setupEfficiency();
 }
 
@@ -82,26 +84,22 @@ BaseISRSolver::BaseISRSolver(const BaseISRSolver& solver) :
   _tefficiency(solver._tefficiency),
   _bornCS(solver._bornCS) {}
 
-BaseISRSolver::~BaseISRSolver() {
-  if (_tefficiency) {
-    delete _tefficiency;
-  }
-}
+BaseISRSolver::~BaseISRSolver() {}
 
 void BaseISRSolver::_setupEfficiency() {
-  if (_tefficiency->GetDimension() == 1) {
+  if (_tefficiency.get()->GetDimension() == 1) {
     _efficiency = [this](double, double energy) {
-      int bin = this->_tefficiency->FindFixBin(energy);
-      return this->_tefficiency->GetEfficiency(bin);
+      int bin = this->_tefficiency.get()->FindFixBin(energy);
+      return this->_tefficiency.get()->GetEfficiency(bin);
     };
   }
-  if (_tefficiency->GetDimension() == 2) {
+  if (_tefficiency.get()->GetDimension() == 2) {
     _efficiency = [this](double x, double energy) {
-      int bin = this->_tefficiency->FindFixBin(x, energy);
-      return this->_tefficiency->GetEfficiency(bin);
+      int bin = this->_tefficiency.get()->FindFixBin(x, energy);
+      return this->_tefficiency.get()->GetEfficiency(bin);
     };
   }
-  if (_tefficiency->GetDimension() > 2) {
+  if (_tefficiency.get()->GetDimension() > 2) {
     EfficiencyDimensionException ex;
     throw ex;
   }

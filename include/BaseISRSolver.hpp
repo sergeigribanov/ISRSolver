@@ -3,6 +3,7 @@
 
 #include <Eigen/Dense>
 #include <string>
+#include <memory>
 #include <TGraphErrors.h>
 #include <TEfficiency.h>
 
@@ -219,7 +220,7 @@ class BaseISRSolver {
   /**
    * detection efficiency
    */
-  TEfficiency* _tefficiency;
+  std::shared_ptr<TEfficiency> _tefficiency;
   /**
    * numerical solution (Born cross section)
    */
