@@ -60,10 +60,10 @@ int main(int argc, char* argv[]) {
     solver.setRangeInterpSettings(opts.interp);
   }
   if (vmap.count("lambda")) {
-    solver.setAlpha(opts.lambda);
+    solver.setLambda(opts.lambda);
   }
   if (vmap.count("use-solution-norm2")) {
-    solver.useSolutionNorm2();
+    solver.disableDerivNorm2Regularizator();
   }
   solver.solve();
   solver.save(opts.ofname,

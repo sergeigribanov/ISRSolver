@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     solver.setRangeInterpSettings(opts.interp);
   }
   if (vmap.count("use-solution-norm2")) {
-    solver.useSolutionNorm2();
+    solver.disableDerivNorm2Regularizator();
   }
   if (vmap.count("enable-energy-spread")) {
     solver.enableEnergySpread();
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
     std::cout << "[" << i + 1 << "/" << opts.lambda_n << "]" << std::endl;
     std::cout << "lambda = " << lambda << std::endl;
     std::cout << "--------" << std::endl;
-    solver.setAlpha(lambda);
+    solver.setLambda(lambda);
     solver.solve();
     x.push_back(solver.evalEqNorm2());
     y.push_back(solver.evalSmoothnessConstraintNorm2());

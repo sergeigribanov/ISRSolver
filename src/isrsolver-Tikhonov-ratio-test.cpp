@@ -7,7 +7,7 @@ namespace po = boost::program_options;
 typedef struct {
   double thsd;
   int n;
-  double alpha;
+  double lambda;
   std::string path_to_model;
   std::string name_of_model_bcs;
   std::string name_of_model_vcs;
@@ -24,9 +24,9 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
       ("thsd,t", po::value<double>(&(opts->thsd)), "Threshold (GeV).")
       ("num-rnd-draws,n", po::value<int>(&(opts->n))->default_value(100),
        "Number of visible cross section random draws.")
-      ("alpha,a", po::value<double>(&(opts->alpha)), "Regularization parameter (alpha).")
+      ("lambda,l", po::value<double>(&(opts->lambda)), "Regularization parameter (lambda).")
       ("use-solution-norm2,s",
-       "REGULARIZATOR: alpha*||solution||^2 if enabled, alpha*||d(solution) / dE||^2 otherwise.")
+       "REGULARIZATOR: lambda*||solution||^2 if enabled, lambda*||d(solution) / dE||^2 otherwise.")
       ("enable-energy-spread,g", "Enable energy spread")
       ("vcs-name,v",
        po::value<std::string>(&(opts->vcs_name))->default_value("vcs"),
@@ -67,8 +67,8 @@ int main(int argc, char* argv[]) {
     help(desc);
     return 0;
   }
-  if (!vmap.count("alpha")) {
-    std::cout << "[!] You should to set regularization parameter alpha." << std::endl;
+  if (!vmap.count("lambda")) {
+    std::cout << "[!] You should to set regularization parameter lambda." << std::endl;
     return 0;
   }
   if (!vmap.count("use-model")) {
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
       {.efficiencyName = opts.efficiency_name,
        .visibleCSGraphName = opts.vcs_name,
        .thresholdEnergy = opts.thsd});
-  solver.setAlpha(opts.alpha);
+  solver.setLambda(opts.lambda);
   if (vmap.count("interp")) {
     solver.setRangeInterpSettings(opts.interp);
   }
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
     solver.enableEnergySpread();
   }
   if (vmap.count("use-solution-norm2")) {
-    solver.useSolutionNorm2();
+    solver.disableDerivNorm2Regularizator();
   }
   ratioTestModel(opts.n, &solver,
                  opts.path_to_model,

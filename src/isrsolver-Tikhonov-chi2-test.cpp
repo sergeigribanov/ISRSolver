@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
       {.efficiencyName = opts.efficiency_name,
        .visibleCSGraphName = opts.vcs_name,
        .thresholdEnergy = opts.thsd});
-  solver.setAlpha(opts.lambda);
+  solver.setLambda(opts.lambda);
   if (vmap.count("interp")) {
     solver.setRangeInterpSettings(opts.interp);
   }
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
     solver.enableEnergySpread();
   }
   if (vmap.count("use-solution-norm2")) {
-    solver.useSolutionNorm2();
+    solver.disableDerivNorm2Regularizator();
   }
   if (vmap.count("use-model")) {
     chi2TestModel(opts.n, opts.ampl, &solver,

@@ -17,34 +17,30 @@
 
 ISRSolverTikhonov::ISRSolverTikhonov(TGraphErrors* vcsGraph,
                                      double thresholdEnergy,
-                                     double alpha) :
+                                     double lambda) :
     ISRSolverSLE(vcsGraph, thresholdEnergy),
-    _enabledSolutionNorm2(false),
-    _enabledSolutionDerivativeNorm2(true),
-    _alpha(alpha) {}
+    _enabledDerivNorm2Reg(true),
+    _lambda(lambda) {}
 
 ISRSolverTikhonov::ISRSolverTikhonov(TGraphErrors* vcsGraph,
                                      TEfficiency* eff,
                                      double thresholdEnergy,
-                                     double alpha) :
+                                     double lambda) :
     ISRSolverSLE(vcsGraph, eff, thresholdEnergy),
-    _enabledSolutionNorm2(false),
-    _enabledSolutionDerivativeNorm2(true),
-    _alpha(alpha) {}
+    _enabledDerivNorm2Reg(true),
+    _lambda(lambda) {}
 
 ISRSolverTikhonov::ISRSolverTikhonov(const std::string& inputPath,
                                      const InputOptions& inputOpts,
-                                     double alpha)
+                                     double lambda)
     : ISRSolverSLE(inputPath, inputOpts),
-      _enabledSolutionNorm2(false),
-      _enabledSolutionDerivativeNorm2(true),
-      _alpha(alpha) {}
+      _enabledDerivNorm2Reg(true),
+      _lambda(lambda) {}
 
 ISRSolverTikhonov::ISRSolverTikhonov(const ISRSolverTikhonov& solver) :
     ISRSolverSLE(solver),
-    _enabledSolutionNorm2(solver._enabledSolutionNorm2),
-    _enabledSolutionDerivativeNorm2(solver._enabledSolutionDerivativeNorm2),
-    _alpha(solver._alpha),
+    _enabledDerivNorm2Reg(true),
+    _lambda(solver._lambda),
     _interpPointWiseDerivativeProjector(solver._interpPointWiseDerivativeProjector) {}
 
 ISRSolverTikhonov::~ISRSolverTikhonov() {}
@@ -62,19 +58,23 @@ void ISRSolverTikhonov::solve() {
   _getBornCSCovMatrix() = mAp * _vcsInvCovMatrix().inverse() * mAp.transpose();
 }
 
-double ISRSolverTikhonov::getAlpha() const { return _alpha; }
-
-void ISRSolverTikhonov::useSolutionNorm2() {
-  _enabledSolutionNorm2 = true;
-  _enabledSolutionDerivativeNorm2 = false;
+double ISRSolverTikhonov::getLambda() const {
+  return _lambda;
 }
 
-void ISRSolverTikhonov::useSolutionDerivativeNorm2() {
-  _enabledSolutionNorm2 = false;
-  _enabledSolutionDerivativeNorm2 = true;
+bool ISRSolverTikhonov::isDerivNorm2RegIsEnabled() const {
+  return _enabledDerivNorm2Reg;
 }
 
-void ISRSolverTikhonov::setAlpha(double alpha) { _alpha = alpha; }
+void ISRSolverTikhonov::enableDerivNorm2Regularizator() {
+  _enabledDerivNorm2Reg = true;
+}
+
+void ISRSolverTikhonov::disableDerivNorm2Regularizator() {
+  _enabledDerivNorm2Reg = false;
+}
+
+void ISRSolverTikhonov::setLambda(double lambda) { _lambda = lambda; }
 
 void ISRSolverTikhonov::_evalInterpPointWiseDerivativeProjector() {
   _interpPointWiseDerivativeProjector = Eigen::MatrixXd::Zero(_getN(), _getN());
@@ -90,26 +90,9 @@ ISRSolverTikhonov::_getInterpPointWiseDerivativeProjector() const {
   return _interpPointWiseDerivativeProjector;
 }
 
-bool ISRSolverTikhonov::isSolutionNorm2Enabled() const {
-  return _enabledSolutionNorm2;
-}
-
-bool ISRSolverTikhonov::isSolutionNorm2DerivativeEnabled() const {
-  return _enabledSolutionDerivativeNorm2;
-}
-
 double ISRSolverTikhonov::evalEqNorm2() const {
   Eigen::VectorXd dv = getIntegralOperatorMatrix() * bcs() - _vcs();
   return dv.dot(_vcsInvCovMatrix() * dv);
-}
-
-double ISRSolverTikhonov::evalEqNorm2NoErr() const {
-  Eigen::VectorXd dv = getIntegralOperatorMatrix() * bcs() - _vcs();
-  return dv.dot(dv);
-}
-
-double ISRSolverTikhonov::evalApproxPerturbNorm2() const {
-  return _getDotProdOp() * _vcsErr().array().pow(2.).matrix();
 }
 
 double ISRSolverTikhonov::evalSmoothnessConstraintNorm2() const {
@@ -118,24 +101,24 @@ double ISRSolverTikhonov::evalSmoothnessConstraintNorm2() const {
 
 double ISRSolverTikhonov::evalLCurveCurvature() const {
   Eigen::VectorXd ds = -_luL.solve(bcs());
-  double dksi = _evaldKsidAlpha(ds);
-  return -std::fabs(1. / dksi / std::pow(1. + _alpha * _alpha, 1.5));
+  double dksi = _evaldKsidLambda(ds);
+  return -std::fabs(1. / dksi / std::pow(1. + _lambda * _lambda, 1.5));
 }
 
 double ISRSolverTikhonov::evalLCurveCurvatureDerivative() const {
   Eigen::VectorXd ds = -_luL.solve(bcs());
   Eigen::VectorXd d2s = -2. * _luL.solve(ds);
-  double dksi = _evaldKsidAlpha(ds);
-  double d2ksi = _evald2Ksid2Alpha(ds, d2s);
-  return -d2ksi * std::pow(dksi, -2.) * std::pow(1. + _alpha * _alpha, -1.5) +
-      -3. * _alpha / dksi * std::pow(1. + _alpha * _alpha, -2.5);
+  double dksi = _evaldKsidLambda(ds);
+  double d2ksi = _evald2Ksid2Lambda(ds, d2s);
+  return -d2ksi * std::pow(dksi, -2.) * std::pow(1. + _lambda * _lambda, -1.5) +
+      -3. * _lambda / dksi * std::pow(1. + _lambda * _lambda, -2.5);
 }
 
-double ISRSolverTikhonov::_evaldKsidAlpha(const Eigen::VectorXd& ds) const {
+double ISRSolverTikhonov::_evaldKsidLambda(const Eigen::VectorXd& ds) const {
   return 2. * bcs().dot(_mF * ds);
 }
 
-double ISRSolverTikhonov::_evald2Ksid2Alpha(const Eigen::VectorXd& ds,
+double ISRSolverTikhonov::_evald2Ksid2Lambda(const Eigen::VectorXd& ds,
                                             const Eigen::VectorXd& d2s) const {
   return 2. * ds.dot(_mF * ds) + 2. * bcs().dot(_mF * d2s);
 }
@@ -143,43 +126,17 @@ double ISRSolverTikhonov::_evald2Ksid2Alpha(const Eigen::VectorXd& ds,
 void ISRSolverTikhonov::_evalProblemMatrices() {
   Eigen::MatrixXd mAt = getIntegralOperatorMatrix().transpose();
   _mF = Eigen::MatrixXd::Zero(_getN(), _getN());
-  if (isSolutionNorm2Enabled()) {
+  if (isDerivNorm2RegIsEnabled()) {
+    _mF += _getInterpPointWiseDerivativeProjector().transpose() *
+           (_getInterpPointWiseDerivativeProjector().array().colwise() *
+            _getDotProdOp().transpose().array()).matrix();
+  } else {
     _mF += _getDotProdOp().asDiagonal();
   }
-  if (isSolutionNorm2DerivativeEnabled()) {
-    _mF += _getInterpPointWiseDerivativeProjector().transpose() *
-          (_getInterpPointWiseDerivativeProjector().array().colwise() *
-           _getDotProdOp().transpose().array()).matrix();
-  }
   Eigen::MatrixXd mT = mAt * _vcsInvCovMatrix() * getIntegralOperatorMatrix() +
-        _alpha * _mF;
+        _lambda * _mF;
   _mL = _mF.inverse() * mAt * _vcsInvCovMatrix() * getIntegralOperatorMatrix() +
-        _alpha * Eigen::MatrixXd::Identity(_getN(), _getN());
+        _lambda * Eigen::MatrixXd::Identity(_getN(), _getN());
   _luT = Eigen::FullPivLU<Eigen::MatrixXd>(mT);
   _luL = Eigen::FullPivLU<Eigen::MatrixXd>(_mL);
-}
-
-// !!! TO DO: modify reg and perturb errors
-double ISRSolverTikhonov::evalApproxRegRelativeError(const Eigen::VectorXd& origBCS) const {
-  ISRSolverTikhonov solver(*this);
-  solver._vcs() = getIntegralOperatorMatrix() * origBCS;
-  solver.solve();
-  Eigen::VectorXd dbcs = (origBCS - solver.bcs());
-  double errNorm = _getDotProdOp() * (dbcs.array() * dbcs.array()).matrix();
-  errNorm = std::sqrt(errNorm);
-  double bcsNorm = _getDotProdOp() * (origBCS.array() * origBCS.array()).matrix();
-  bcsNorm = std::sqrt(bcsNorm);
-  return errNorm / bcsNorm;
-}
-
-double ISRSolverTikhonov::evalApproxPerturbRelativeError(const Eigen::VectorXd& origBCS,
-							 const Eigen::VectorXd& vcsPerturbation) const {
-  ISRSolverTikhonov solver(*this);
-  solver._vcs() = vcsPerturbation;
-  solver.solve();
-  double errNorm = _getDotProdOp() * (solver.bcs().array() * solver.bcs().array()).matrix();
-  errNorm = std::sqrt(errNorm);
-  double bcsNorm = _getDotProdOp() * (origBCS.array() * origBCS.array()).matrix();
-  bcsNorm = std::sqrt(bcsNorm);
-  return errNorm / bcsNorm;
 }

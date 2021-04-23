@@ -45,7 +45,7 @@ void help(const po::options_description& desc) {
 
 double lambdaObjective(unsigned n, const double* plambda, double* grad, void* solver) {
    auto sp = reinterpret_cast<ISRSolverTikhonov*>(solver);
-   sp->setAlpha(*plambda);
+   sp->setLambda(*plambda);
    sp->solve();
    if (grad) {
      grad[0] = sp->evalLCurveCurvatureDerivative();
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
     solver->setRangeInterpSettings(opts.interp);
   }
   if (vmap.count("use-solution-norm2")) {
-    solver->useSolutionNorm2();
+    solver->disableDerivNorm2Regularizator();
   }
   if (vmap.count("enable-energy-spread")) {
     solver->enableEnergySpread();
