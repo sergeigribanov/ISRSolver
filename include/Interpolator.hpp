@@ -2,6 +2,7 @@
 #define __INTERPOLATOR_HPP__
 #include <string>
 #include <exception>
+#include <memory>
 #include <nlohmann/json.hpp>
 #include "BaseRangeInterpolator.hpp"
 
