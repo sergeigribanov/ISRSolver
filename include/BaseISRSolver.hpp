@@ -3,6 +3,7 @@
 
 #include <Eigen/Dense>
 #include <string>
+#include <TGraphErrors.h>
 #include <TEfficiency.h>
 
 #include "ISRSolverStructs.hpp"
@@ -33,6 +34,8 @@ class BaseISRSolver {
    @see InputOptions
    */
   BaseISRSolver(const std::string& inputPath, const InputOptions& inputOpts);
+  BaseISRSolver(TGraphErrors* vcsGraph, double thresholdEnergy);
+  BaseISRSolver(TGraphErrors* vcsGraph, TEfficiency* eff, double thresholdEnergy);
   /**
    * Copy constructor
    */
@@ -186,6 +189,7 @@ class BaseISRSolver {
    * Visible cross section error getter in a form of covariance matrix
    */
   Eigen::MatrixXd _vcsInvCovMatrix() const;
+  void setupVCS(TGraphErrors* vcsGraph);
   /**
    * Initialize detection efficiency
    */

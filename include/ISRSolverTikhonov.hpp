@@ -5,7 +5,15 @@
 
 class ISRSolverTikhonov : public ISRSolverSLE {
  public:
-  ISRSolverTikhonov(const std::string& inputPath, const InputOptions& inputOpts,
+  ISRSolverTikhonov(const std::string& inputPath,
+                    const InputOptions& inputOpts,
+                    double alpha = 1.e-2);
+  ISRSolverTikhonov(TGraphErrors* vcsGraph,
+                    double thresholdEnergy,
+                    double alpha = 1.e-2);
+  ISRSolverTikhonov(TGraphErrors* vcsGraph,
+                    TEfficiency* eff,
+                    double thresholdEnergy,
                     double alpha = 1.e-2);
   ISRSolverTikhonov(const ISRSolverTikhonov&);
   virtual ~ISRSolverTikhonov();

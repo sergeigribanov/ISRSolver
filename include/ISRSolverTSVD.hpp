@@ -6,6 +6,13 @@
 class ISRSolverTSVD : public ISRSolverSLE {
  public:
   ISRSolverTSVD(const std::string&, const InputOptions&, int);
+  ISRSolverTSVD(TGraphErrors* vcsGraph,
+                double thresholdEnergy,
+                int);
+  ISRSolverTSVD(TGraphErrors* vcsGraph,
+                TEfficiency* eff,
+                double thresholdEnergy,
+                int);
   ISRSolverTSVD(const ISRSolverTSVD&);
   virtual ~ISRSolverTSVD();
   virtual void solve() override;

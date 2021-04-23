@@ -4,44 +4,26 @@
 #include <vector>
 
 #include <TFile.h>
-#include <TGraphErrors.h>
 #include <TH1F.h>
 #include <TH2F.h>
 
-BaseISRSolver::BaseISRSolver(const std::string& inputPath,
-                             const InputOptions& inputOpts)
-  : _energySpread(false),
-  _energyT(inputOpts.thresholdEnergy),
-    _efficiency([](double, double) {return 1.;}),
-    _tefficiency(nullptr) {
-  auto fl = TFile::Open(inputPath.c_str(), "read");
-  auto graph = dynamic_cast<TGraphErrors*>(
-      fl->Get(inputOpts.visibleCSGraphName.c_str()));
-  _n = graph->GetN();
-  double energyKoeff;
-  if (inputOpts.energyUnitMeVs)
-    energyKoeff = 1.e-3;
-  else
-    energyKoeff = 1;
+void BaseISRSolver::setupVCS(TGraphErrors* vcsGraph) {
+  _n = vcsGraph->GetN();
   std::vector<CSData> visibleCS;
   visibleCS.reserve(_n);
   for (std::size_t i = 0; i < _n; ++i)
-    visibleCS.push_back({.cmEnergy = graph->GetX()[i] * energyKoeff,
-                          .cs = graph->GetY()[i],
-                          .cmEnergyError = graph->GetEX()[i] * energyKoeff,
-                          .csError = graph->GetEY()[i]});
-  if (inputOpts.efficiencyName.length() > 0) {
-    _tefficiency = dynamic_cast<TEfficiency*>(fl->Get(inputOpts.efficiencyName.c_str())->Clone("tefficiency"));
-  }
-  fl->Close();
-  delete fl;
-  std::sort(
-      visibleCS.begin(), visibleCS.end(),
-      [](const CSData& x, const CSData& y) { return x.cmEnergy < y.cmEnergy; });
-  _visibleCSData = {.cmEnergy = Eigen::VectorXd(_n),
-                     .cmEnergyError = Eigen::VectorXd(_n),
-                     .cs = Eigen::VectorXd(_n),
-                     .csError = Eigen::VectorXd(_n)};
+    visibleCS.push_back(
+        {.cmEnergy = vcsGraph->GetX()[i],
+        .cs = vcsGraph->GetY()[i],
+        .cmEnergyError = vcsGraph->GetEX()[i],
+        .csError = vcsGraph->GetEY()[i]});
+  std::sort(visibleCS.begin(), visibleCS.end(),
+            [](const CSData& x, const CSData& y) { return x.cmEnergy < y.cmEnergy; });
+  _visibleCSData = {
+    .cmEnergy = Eigen::VectorXd(_n),
+    .cmEnergyError = Eigen::VectorXd(_n),
+    .cs = Eigen::VectorXd(_n),
+    .csError = Eigen::VectorXd(_n)};
   std::transform(visibleCS.begin(), visibleCS.end(),
                  _visibleCSData.cmEnergy.data(),
                  [](const CSData& x) { return x.cmEnergy; });
@@ -54,6 +36,40 @@ BaseISRSolver::BaseISRSolver(const std::string& inputPath,
   std::transform(visibleCS.begin(), visibleCS.end(),
                  _visibleCSData.csError.data(),
                  [](const CSData& x) { return x.csError; });
+}
+
+BaseISRSolver::BaseISRSolver(TGraphErrors* vcsGraph,
+                             double thresholdEnergy)
+    : _energySpread(false),
+      _energyT(thresholdEnergy),
+      _efficiency([](double, double) {return 1.;}),
+      _tefficiency(nullptr) {
+  setupVCS(vcsGraph);
+}
+
+BaseISRSolver::BaseISRSolver(TGraphErrors* vcsGraph,
+                             TEfficiency* eff,
+                             double thresholdEnergy) :
+    BaseISRSolver(vcsGraph, thresholdEnergy) {
+  _tefficiency = dynamic_cast<TEfficiency*>(eff->Clone());
+  _setupEfficiency();
+}
+
+BaseISRSolver::BaseISRSolver(const std::string& inputPath,
+                             const InputOptions& inputOpts) :
+    _energySpread(false),
+    _energyT(inputOpts.thresholdEnergy),
+    _efficiency([](double, double) {return 1.;}),
+    _tefficiency(nullptr) {
+  auto fl = TFile::Open(inputPath.c_str(), "read");
+  auto vcsGraph = dynamic_cast<TGraphErrors*>(
+      fl->Get(inputOpts.visibleCSGraphName.c_str()));
+  setupVCS(vcsGraph);
+  if (inputOpts.efficiencyName.length() > 0) {
+    _tefficiency = dynamic_cast<TEfficiency*>(fl->Get(inputOpts.efficiencyName.c_str())->Clone());
+  }
+  fl->Close();
+  delete fl;
   if (_tefficiency)
     _setupEfficiency();
 }

@@ -3,9 +3,24 @@
 #include <Eigen/SVD>
 #include "ISRSolverTSVD.hpp"
 
+ISRSolverTSVD::ISRSolverTSVD(TGraphErrors* vcsGraph,
+                             double thresholdEnergy,
+                             int truncIndexUpperLimit) :
+    ISRSolverSLE(vcsGraph, thresholdEnergy),
+    _truncIndexUpperLimit(truncIndexUpperLimit),
+    _keepOne(false) {}
+
+ISRSolverTSVD::ISRSolverTSVD(TGraphErrors* vcsGraph,
+                             TEfficiency* eff,
+                             double thresholdEnergy,
+                             int truncIndexUpperLimit) :
+    ISRSolverSLE(vcsGraph, eff, thresholdEnergy),
+    _truncIndexUpperLimit(truncIndexUpperLimit),
+    _keepOne(false) {}
+
 ISRSolverTSVD::ISRSolverTSVD(const std::string& inputPath,
                              const InputOptions& inputOpts,
-                             int truncIndexUpperLimit):
+                             int truncIndexUpperLimit) :
     ISRSolverSLE(inputPath, inputOpts),
     _truncIndexUpperLimit(truncIndexUpperLimit),
     _keepOne(false) {}

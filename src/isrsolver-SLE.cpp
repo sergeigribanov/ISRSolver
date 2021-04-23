@@ -53,8 +53,7 @@ int main(int argc, char* argv[]) {
       opts.ifname,
       {.efficiencyName = opts.efficiency_name,
        .visibleCSGraphName = opts.vcs_name,
-       .thresholdEnergy = opts.thsd,
-       .energyUnitMeVs = false});
+       .thresholdEnergy = opts.thsd});
   if (vmap.count("enable-energy-spread")) {
     solver.enableEnergySpread();
   }

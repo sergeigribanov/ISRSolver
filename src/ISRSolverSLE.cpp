@@ -19,6 +19,19 @@
 
 using json = nlohmann::json;
 
+ISRSolverSLE::ISRSolverSLE(TGraphErrors* vcsGraph,
+                           double thresholdEnergy) :
+    BaseISRSolver(vcsGraph, thresholdEnergy),
+    _interp(Interpolator(ecm(), getThresholdEnergy())),
+    _isEqMatrixPrepared(false) {}
+
+ISRSolverSLE::ISRSolverSLE(TGraphErrors* vcsGraph,
+                           TEfficiency* eff,
+                           double thresholdEnergy) :
+    BaseISRSolver(vcsGraph, eff, thresholdEnergy),
+    _interp(Interpolator(ecm(), getThresholdEnergy())),
+    _isEqMatrixPrepared(false) {}
+
 ISRSolverSLE::ISRSolverSLE(const std::string& inputPath,
                              const InputOptions& inputOpts) :
     BaseISRSolver(inputPath, inputOpts),

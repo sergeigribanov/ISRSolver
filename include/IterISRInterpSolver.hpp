@@ -6,6 +6,11 @@
 class IterISRInterpSolver : public ISRSolverSLE {
  public:
   IterISRInterpSolver(const std::string&, const InputOptions&);
+  IterISRInterpSolver(TGraphErrors* vcsGraph,
+                      double thresholdEnergy);
+  IterISRInterpSolver(TGraphErrors* vcsGraph,
+                      TEfficiency* eff,
+                      double thresholdEnergy);
   IterISRInterpSolver(const IterISRInterpSolver&);
   virtual ~IterISRInterpSolver();
   virtual void solve() override;

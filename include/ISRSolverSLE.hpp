@@ -7,7 +7,13 @@
 
 class ISRSolverSLE : public BaseISRSolver {
  public:
-  ISRSolverSLE(const std::string& inputPath, const InputOptions& inputOpts);
+  ISRSolverSLE(const std::string& inputPath,
+               const InputOptions& inputOpts);
+  ISRSolverSLE(TGraphErrors* vcsGraph,
+               double thresholdEnergy);
+  ISRSolverSLE(TGraphErrors* vcsGraph,
+               TEfficiency* eff,
+               double thresholdEnergy);
   ISRSolverSLE(const ISRSolverSLE&);
   virtual ~ISRSolverSLE();
   const Eigen::MatrixXd& getIntegralOperatorMatrix() const;

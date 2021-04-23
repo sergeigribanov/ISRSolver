@@ -79,8 +79,7 @@ int main(int argc, char* argv[]) {
       opts.ifname,
       {.efficiencyName = opts.efficiency_name,
        .visibleCSGraphName = opts.vcs_name,
-       .thresholdEnergy = opts.thsd,
-       .energyUnitMeVs = false});
+       .thresholdEnergy = opts.thsd});
   solver.setAlpha(opts.alpha);
   if (vmap.count("interp")) {
     solver.setRangeInterpSettings(opts.interp);

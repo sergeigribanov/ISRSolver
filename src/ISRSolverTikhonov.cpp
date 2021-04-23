@@ -15,6 +15,23 @@
 
 #include "Integration.hpp"
 
+ISRSolverTikhonov::ISRSolverTikhonov(TGraphErrors* vcsGraph,
+                                     double thresholdEnergy,
+                                     double alpha) :
+    ISRSolverSLE(vcsGraph, thresholdEnergy),
+    _enabledSolutionNorm2(false),
+    _enabledSolutionDerivativeNorm2(true),
+    _alpha(alpha) {}
+
+ISRSolverTikhonov::ISRSolverTikhonov(TGraphErrors* vcsGraph,
+                                     TEfficiency* eff,
+                                     double thresholdEnergy,
+                                     double alpha) :
+    ISRSolverSLE(vcsGraph, eff, thresholdEnergy),
+    _enabledSolutionNorm2(false),
+    _enabledSolutionDerivativeNorm2(true),
+    _alpha(alpha) {}
+
 ISRSolverTikhonov::ISRSolverTikhonov(const std::string& inputPath,
                                      const InputOptions& inputOpts,
                                      double alpha)
@@ -24,12 +41,11 @@ ISRSolverTikhonov::ISRSolverTikhonov(const std::string& inputPath,
       _alpha(alpha) {}
 
 ISRSolverTikhonov::ISRSolverTikhonov(const ISRSolverTikhonov& solver) :
-  ISRSolverSLE::ISRSolverSLE(solver),
-  _enabledSolutionNorm2(solver._enabledSolutionNorm2),
-  _enabledSolutionDerivativeNorm2(solver._enabledSolutionDerivativeNorm2),
-  _alpha(solver._alpha),
-  _interpPointWiseDerivativeProjector(solver._interpPointWiseDerivativeProjector)
-{}
+    ISRSolverSLE(solver),
+    _enabledSolutionNorm2(solver._enabledSolutionNorm2),
+    _enabledSolutionDerivativeNorm2(solver._enabledSolutionDerivativeNorm2),
+    _alpha(solver._alpha),
+    _interpPointWiseDerivativeProjector(solver._interpPointWiseDerivativeProjector) {}
 
 ISRSolverTikhonov::~ISRSolverTikhonov() {}
 

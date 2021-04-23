@@ -67,8 +67,7 @@ int main(int argc, char* argv[]) {
   auto solver = new ISRSolverTikhonov(opts.ifname, {
       .efficiencyName = opts.efficiency_name,
       .visibleCSGraphName = opts.vcs_name,
-      .thresholdEnergy = opts.thsd,
-      .energyUnitMeVs = false});
+      .thresholdEnergy = opts.thsd});
   std::vector<double> z(1, opts.lambda);
   if (vmap.count("interp")) {
     solver->setRangeInterpSettings(opts.interp);

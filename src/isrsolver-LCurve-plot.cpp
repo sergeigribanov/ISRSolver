@@ -67,8 +67,7 @@ int main(int argc, char* argv[]) {
   ISRSolverTikhonov solver(opts.ifname, {
       .efficiencyName = opts.efficiency_name,
       .visibleCSGraphName = opts.vcs_name,
-      .thresholdEnergy = opts.thsd,
-      .energyUnitMeVs = false});
+      .thresholdEnergy = opts.thsd});
   if (vmap.count("interp")) {
     solver.setRangeInterpSettings(opts.interp);
   }

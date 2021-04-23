@@ -22,12 +22,10 @@ typedef struct {
   std::size_t nPointsLeft;
 } InterpPtSettings;
 
-// !!! remove energyUnitMeVs
 typedef struct {
   std::string efficiencyName;
   std::string visibleCSGraphName;
   double thresholdEnergy;
-  bool energyUnitMeVs;
 } InputOptions;
 
 typedef struct {
