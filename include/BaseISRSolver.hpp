@@ -35,8 +35,21 @@ class BaseISRSolver {
    @see InputOptions
    */
   BaseISRSolver(const std::string& inputPath, const InputOptions& inputOpts);
+  /**
+   * Constructor
+   * @param vcsGraph a visible cross section in a form of TGraphErrors
+   * @param thresholdEnergy a threshold energy (GeV)
+   */
   BaseISRSolver(TGraphErrors* vcsGraph, double thresholdEnergy);
-  BaseISRSolver(TGraphErrors* vcsGraph, TEfficiency* eff, double thresholdEnergy);
+  /**
+   * Constructor
+   * @param vcsGraph a visible cross section in a form of TGraphErrors
+   * @param eff a detection efficiency in a form of TEfficiency
+   * @param thresholdEnergy a threshold energy (GeV)
+   */
+  BaseISRSolver(TGraphErrors* vcsGraph,
+                TEfficiency* eff,
+                double thresholdEnergy);
   /**
    * Copy constructor
    */
@@ -190,6 +203,10 @@ class BaseISRSolver {
    * Visible cross section error getter in a form of covariance matrix
    */
   Eigen::MatrixXd _vcsInvCovMatrix() const;
+  /**
+   * Initialize visible cross section data
+   * @param vcsGraph a visible cross section in a form of TGraphErrors
+   */
   void setupVCS(TGraphErrors* vcsGraph);
   /**
    * Initialize detection efficiency

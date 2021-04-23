@@ -90,7 +90,6 @@ void ISRSolverSLE::save(const std::string& outputPath,
   Eigen::MatrixXd tmpInvCovM = _covMatrixBornCS.inverse().transpose();
   bornCSInvCovMatrix.SetMatrixArray(tmpInvCovM.data());
   auto f0 = _createInterpFunction();
-  auto f1 = _createDerivativeInterpFunction(1, "interp1DivFCN");
   auto fl = TFile::Open(outputPath.c_str(), "recreate");
   fl->cd();
   vcs.Write(outputOpts.visibleCSGraphName.c_str());
@@ -99,10 +98,8 @@ void ISRSolverSLE::save(const std::string& outputPath,
   bornCSCovMatrix.Write("covMatrixBornCS");
   bornCSInvCovMatrix.Write("invCovMatrixBornCS");
   f0->Write();
-  f1->Write();
   fl->Close();
   delete f0;
-  delete f1;
   delete fl;
 }
 
@@ -137,18 +134,6 @@ TF1* ISRSolverSLE::_createInterpFunction() const {
   return f1;
 }
 
-TF1* ISRSolverSLE::_createDerivativeInterpFunction(
-    std::size_t p, const std::string& name) const {
-  std::function<double(double*, double*)> fcn = [p, this](double* x,
-                                                          double* par) {
-    return this->_interp.derivEval(this->bcs(), x[0]);
-  };
-  auto f1 =
-      new TF1(name.c_str(), fcn, _energyThreshold(), _ecm(_getN() - 1), 0);
-  f1->SetNpx(1.e+4);
-  return f1;
-}
-
 Eigen::VectorXd ISRSolverSLE::_bcsErr() const {
   return _covMatrixBornCS.diagonal().array().pow(0.5);
 }
@@ -156,14 +141,7 @@ Eigen::VectorXd ISRSolverSLE::_bcsErr() const {
 void ISRSolverSLE::_evalDotProductOperator() {
   std::size_t i;
   _dotProdOp = Eigen::RowVectorXd(_getN());
-  // std::function<double(double)> fcn =
-  //     [&i, this](double energy) {
-  //       return this->_interp.basisEval(i, energy);
-  //     };
   for (i = 0; i < _getN(); ++i) {
-    // TO-DO : optimize
-    // double error;
-    // _dotProdOp(i) = integrate(fcn, getThresholdEnergy(), getMaxEnergy(), error);
     _dotProdOp(i) = _interp.evalIntegralBasis(i);
   }
 }
@@ -202,5 +180,5 @@ double ISRSolverSLE::evalConditionNumber() const {
 }
 
 void ISRSolverSLE::printConditionNumber() const {
-  std::cout << evalConditionNumber() << std::endl;
+  std::cout << "condition number = " << evalConditionNumber() << std::endl;
 }
