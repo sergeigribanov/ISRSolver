@@ -31,8 +31,9 @@ int BaseRangeInterpolator::getNumberOfSegments() const {
   return _numberOfSegments;
 }
 
-int BaseRangeInterpolator::_evalNumOfSegments(int rangeIndexMin,
-                                              int rangeIndexMax) {
+int BaseRangeInterpolator::_evalNumOfSegments(
+    int rangeIndexMin,
+    int rangeIndexMax) {
   const int numOfSegments = rangeIndexMin > 0?
                             rangeIndexMax - rangeIndexMin + 2:
                             rangeIndexMax - rangeIndexMin + 1;
