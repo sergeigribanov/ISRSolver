@@ -1,5 +1,5 @@
-#ifndef __KURAEV_FADIN_HPP__
-#define __KURAEV_FADIN_HPP__
+#ifndef _KURAEV_FADIN_HPP_
+#define _KURAEV_FADIN_HPP_
 #include <functional>
 
 double kuraev_fadin_convolution(double, const std::function<double(double)>&,

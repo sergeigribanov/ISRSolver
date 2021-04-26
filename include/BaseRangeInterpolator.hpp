@@ -1,5 +1,5 @@
-#ifndef __BASE_RANGE_ITERPOLATOR_HPP__
-#define __BASE_RANGE_ITERPOLATOR_HPP__
+#ifndef _BASE_RANGE_ITERPOLATOR_HPP_
+#define _BASE_RANGE_ITERPOLATOR_HPP_
 #include <functional>
 #include <Eigen/Dense>
 

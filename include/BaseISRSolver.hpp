@@ -1,5 +1,5 @@
-#ifndef __BASE_ISRSOLVER_HPP__
-#define __BASE_ISRSOLVER_HPP__
+#ifndef _BASE_ISRSOLVER_HPP_
+#define _BASE_ISRSOLVER_HPP_
 
 #include <Eigen/Dense>
 #include <string>

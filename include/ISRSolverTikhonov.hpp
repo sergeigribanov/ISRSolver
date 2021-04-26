@@ -1,5 +1,5 @@
-#ifndef __ISRSOLVER_TIKHONOV_HPP__
-#define __ISRSOLVER_TIKHONOV_HPP__
+#ifndef _ISRSOLVER_TIKHONOV_HPP_
+#define _ISRSOLVER_TIKHONOV_HPP_
 
 #include "ISRSolverSLE.hpp"
 

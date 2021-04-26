@@ -1,5 +1,5 @@
-#ifndef __ISRSOLVER_STRUCTS_HPP__
-#define __ISRSOLVER_STRUCTS_HPP__
+#ifndef _ISRSOLVER_STRUCTS_HPP_
+#define _ISRSOLVER_STRUCTS_HPP_
 
 #include <exception>
 

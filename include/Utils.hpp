@@ -8,5 +8,4 @@
 Eigen::VectorXd randomDrawVisCS(const Eigen::VectorXd&,
                                 const Eigen::VectorXd&);
 
-
 #endif

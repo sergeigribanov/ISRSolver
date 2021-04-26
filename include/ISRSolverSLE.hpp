@@ -1,5 +1,5 @@
-#ifndef __ISRSOLVER_SLE_HPP__
-#define __ISRSOLVER_SLE_HPP__
+#ifndef _ISRSOLVER_SLE_HPP_
+#define _ISRSOLVER_SLE_HPP_
 
 #include <TF1.h>
 #include "Interpolator.hpp"
