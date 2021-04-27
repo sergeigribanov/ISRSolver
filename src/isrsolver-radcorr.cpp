@@ -93,9 +93,9 @@ int main(int argc, char* argv[]) {
     double en = opts.minen + i * eh;
     ens.push_back(en);
     if (teff) {
-      radcorrs.push_back(kuraev_fadin_convolution(en, fcn, 0, 1 - s_th / en / en, eff) / fcn(en) - 1);
+      radcorrs.push_back(convolutionKuraevFadin(en, fcn, 0, 1 - s_th / en / en, eff) / fcn(en) - 1);
     } else {
-      radcorrs.push_back(kuraev_fadin_convolution(en, fcn, 0, 1 - s_th / en / en) / fcn(en) - 1);
+      radcorrs.push_back(convolutionKuraevFadin(en, fcn, 0, 1 - s_th / en / en) / fcn(en) - 1);
     }
   }
   delete fbcs;

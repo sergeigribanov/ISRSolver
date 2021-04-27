@@ -61,7 +61,7 @@ double CSplineRangeInterpolator::evalKuraevFadinBasisIntegral(
       };
   const double x_min = std::max(0., 1 - std::pow(_maxEnergy / en, 2));
   const double x_max = 1 - std::pow(_minEnergy / en, 2);
-  return kuraev_fadin_convolution(en, fcn, x_min, x_max, efficiency);
+  return convolutionKuraevFadin(en, fcn, x_min, x_max, efficiency);
 }
 
 double CSplineRangeInterpolator::evalIntegralBasis(int csIndex) const {

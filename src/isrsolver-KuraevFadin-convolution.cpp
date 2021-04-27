@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
       [&opts, &born_fcn](double* x, double* par) {
         double s = x[0] * x[0];
         double s_threshold = opts.thsd * opts.thsd;
-        return kuraev_fadin_convolution(s, born_fcn, 0, 1 - s_threshold / s);
+        return convolutionKuraevFadin(s, born_fcn, 0, 1 - s_threshold / s);
       };
   auto f_vcs = new TF1("f_vcs", vcs_fcn, std::max(opts.thsd, fcn->GetXmin()),
                        fcn->GetXmax(), 0);

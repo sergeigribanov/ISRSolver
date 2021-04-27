@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
   }
   std::function<double(double*, double*)> ker_int_fcn =
       [opts](double* px, double*) {
-        double result = kuraev_fadin_convolution(
+        double result = convolutionKuraevFadin(
             opts.energy, [](double) {return 1.;}, 0, px[0]);
         return result;
       };

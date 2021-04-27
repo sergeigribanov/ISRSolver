@@ -10,7 +10,7 @@
  * @param max_x an upper integration limut
  * @param efficiency a detection efficiency (default value = 1)
  */
-double kuraev_fadin_convolution(double energy,
+double convolutionKuraevFadin(double energy,
                                 const std::function<double(double)>& fcn,
                                 double min_x,
                                 double max_x,
@@ -22,6 +22,6 @@ double kuraev_fadin_convolution(double energy,
  * @param x an argument x
  * @param s a square of a center-of-mass energy
  */
-double kuraev_fadin_kernel(double x, double s);
+double kernelKuraevFadin(double x, double s);
 
 #endif

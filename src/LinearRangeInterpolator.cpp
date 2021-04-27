@@ -76,8 +76,8 @@ double LinearRangeInterpolator::_evalKuraevFadinBasisIntegralFirstTriangle(
   const double en = _extCMEnergies(energyIndex + 1);
   const double x0 = std::max(0., 1 - std::pow(enc / en, 2));
   const double x1 = 1 - std::pow(_extCMEnergies(csIndex) / en, 2);
-  const double i00 = kuraev_fadin_convolution(en, _fcn0, x0, x1, efficiency);
-  const double i01 = kuraev_fadin_convolution(en, _fcn1, x0, x1, efficiency);
+  const double i00 = convolutionKuraevFadin(en, _fcn0, x0, x1, efficiency);
+  const double i01 = convolutionKuraevFadin(en, _fcn1, x0, x1, efficiency);
   return _c01(csIndex) * i01 + _c00(csIndex) * i00;
 }
 
@@ -94,8 +94,8 @@ double LinearRangeInterpolator::_evalKuraevFadinBasisIntegralSecondTriangle(
   const double en = _extCMEnergies(energyIndex + 1);
   const double x0 = std::max(0., 1 - std::pow(encp / en, 2));
   const double x1 = 1 - std::pow(_extCMEnergies(csIndex + 1) / en, 2);
-  const double i10 = kuraev_fadin_convolution(en, _fcn0, x0, x1, efficiency);
-  const double i11 = kuraev_fadin_convolution(en, _fcn1, x0, x1, efficiency);
+  const double i10 = convolutionKuraevFadin(en, _fcn0, x0, x1, efficiency);
+  const double i11 = convolutionKuraevFadin(en, _fcn1, x0, x1, efficiency);
   return _c11(csIndex) * i11 + _c10(csIndex) * i10;
 }
 

@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
   }
   std::function<double(double*, double*)> ker_fcn =
       [opts](double* px, double*) {
-        double result = kuraev_fadin_kernel(px[0], opts.energy * opts.energy);
+        double result = kernelKuraevFadin(px[0], opts.energy * opts.energy);
         return result;
       };
   TF1 ker_f("kuraev_fadin_fcn", ker_fcn, opts.xmin, opts.xmax, 0);

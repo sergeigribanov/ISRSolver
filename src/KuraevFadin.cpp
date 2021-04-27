@@ -11,7 +11,7 @@ double fLog(double s) { return std::log(s / ELECTRON_M / ELECTRON_M); }
 
 double fBeta(double s) { return (2 * ALPHA_QED) / M_PI * (fLog(s) - 1); }
 
-double kuraev_fadin_kernel(double x, double s) {
+double kernelKuraevFadin(double x, double s) {
   double lnX = std::log(x);
   double mX = 1 - x;
   double lnMX = std::log(mX);
@@ -48,17 +48,17 @@ double kuraev_fadin_kernel(double x, double s) {
   return res;
 }
 
-double kuraev_fadin_kernel_multiplication(
+double kernelMultiplicationKuraevFadin(
     double x, double energy, const std::function<double(double)>& fcn) {
-  return fcn(energy * std::sqrt(1 - x)) * kuraev_fadin_kernel(x, energy * energy);
+  return fcn(energy * std::sqrt(1 - x)) * kernelKuraevFadin(x, energy * energy);
 }
 
-double kuraev_fadin_convolution(double energy,
+double convolutionKuraevFadin(double energy,
                                 const std::function<double(double)>& fcn,
                                 double min_x, double max_x,
 				const std::function<double(double, double)>& efficiency) {
   std::function<double(double)> fcnConv = [energy, &fcn, &efficiency](double x) {
-    return kuraev_fadin_kernel_multiplication(x, energy, fcn) * efficiency(x, energy);
+    return kernelMultiplicationKuraevFadin(x, energy, fcn) * efficiency(x, energy);
   };
   double error;
   double x0 = 4 * ELECTRON_M / energy;

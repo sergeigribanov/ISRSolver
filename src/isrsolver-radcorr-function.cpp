@@ -95,10 +95,10 @@ int main(int argc, char* argv[]) {
           return 0.;
         }
         if (teff) {
-          double result = kuraev_fadin_convolution(en, fcn, 0, 1 - s_th / en / en, eff) / fe - 1;
+          double result = convolutionKuraevFadin(en, fcn, 0, 1 - s_th / en / en, eff) / fe - 1;
           return result;
         }
-        double result = kuraev_fadin_convolution(en, fcn, 0, 1 - s_th / en / en) / fe - 1;
+        double result = convolutionKuraevFadin(en, fcn, 0, 1 - s_th / en / en) / fe - 1;
         return result;
       };
   TF1 radf("radcorr", &radcorr_fcn, opts.minen, opts.maxen, 0);
