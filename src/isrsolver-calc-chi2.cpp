@@ -8,13 +8,33 @@
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
+/**
+ * A part of program options
+ */
 typedef struct {
+  /**
+   * Name of model Born cross section object (TF1)
+   */
   std::string name_of_model_bcs;
+  /**
+   * Name of the numerical solution (Born cross section)
+   * object (TGraphErrors)
+   */
   std::string bcs_name;
+  /**
+   * Path to a .root file with a model data
+   */
   std::string path_to_model;
+  /**
+   * Path to a .root file with a numerical
+   * solution (Born cross section) data
+   */
   std::string ifname;
 } CmdOptions;
 
+/**
+ * Setting up program options
+ */
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
       ("help,h", "help message")
@@ -31,15 +51,35 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
         "path to input file");
 }
 
+/**
+ * Help message
+ */
 void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }
 
+/**
+ * Eval chi-square
+ * @param opts a part of the program options
+ */
 std::pair<double, double> evalChi2(const CmdOptions& opts) {
+  /**
+   * Opening input file that contains Born cross section (numerical solution),
+   * its covariance matrix and inverse covariance matrix
+   */
   auto ifl = TFile::Open(opts.ifname.c_str(), "read");
   ifl->cd();
+  /**
+   * Reading Born cross section (numerical solution)
+   */
   auto ibcs = dynamic_cast<TGraphErrors*>(ifl->Get(opts.bcs_name.c_str())->Clone("ibcs"));
+  /**
+   * Reading inverse covariance matrix of the numerical solution
+   */
   auto icovInv = dynamic_cast<TMatrixD*>(ifl->Get("invCovMatrixBornCS")->Clone("icovInv"));
+  /**
+   * Reading covariance matrix of the numerical solution
+   */
   auto icov = dynamic_cast<TMatrixD*>(ifl->Get("covMatrixBornCS")->Clone("icov"));
   ifl->Close();
 
@@ -50,17 +90,33 @@ std::pair<double, double> evalChi2(const CmdOptions& opts) {
   Eigen::Map<Eigen::MatrixXd> covMx(icov->GetMatrixArray(), n, n);
   Eigen::VectorXd mdata =Eigen::VectorXd::Zero(n);
 
+  /**
+   * Opening the file with a model data
+   */
   auto mfl = TFile::Open(opts.path_to_model.c_str(), "read");
   mfl->cd();
+  /**
+   * Reading model Born cross section
+   */
   auto mbcs = dynamic_cast<TF1*>(mfl->Get(opts.name_of_model_bcs.c_str()));
+  /**
+   * Converting model Born cross section to a vector format
+   */
   for (int i = 0; i < x.size(); ++i) {
     mdata(i) = mbcs->Eval(x(i));
   }
   mfl->Close();
   delete mfl;
   Eigen::VectorXd dy = data - mdata;
+  /**
+   * Calculating chi-square using full covariance matrix
+   */
   double chi2 = dy.dot(invCov * dy);
   Eigen::VectorXd diagErr2 = covMx.diagonal().array().pow(-1.);
+  /**
+   * Calculating chi-square using only diagonal elements of
+   * covariance matrix
+   */
   double chi2Diag = dy.dot(diagErr2.asDiagonal() * dy);
   return std::make_pair(chi2, chi2Diag);
 }
