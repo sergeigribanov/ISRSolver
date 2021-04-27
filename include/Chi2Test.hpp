@@ -1,6 +1,7 @@
 #ifndef _CHI2_TEST_HPP_
 #define _CHI2_TEST_HPP_
 #include <string>
+#include <exception>
 #include "ISRSolverStructs.hpp"
 #include "ISRSolverSLE.hpp"
 
@@ -39,5 +40,15 @@ void chi2TestModel(ISRSolverSLE* solver,
  */
 void chi2TestData(ISRSolverSLE* solver,
                   const Chi2TestArgs& args);
+
+/**
+ * This exception is throwing if visible and Born cross sections data have different sizes
+ */
+class DifferentModelCrossSectionSizes : public std::exception {
+  const char* what() const noexcept {
+    return "[!] Model visible and Born section data have different sizes. "
+        "Center-of-mass energy points of these cross sections must be the same.\n";
+  }
+};
 
 #endif

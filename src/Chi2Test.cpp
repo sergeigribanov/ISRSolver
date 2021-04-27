@@ -129,7 +129,10 @@ void chi2TestModel(ISRSolverSLE* solver,
    * Getting a pointer to a model Born cross section graph
    */
   auto g_vcs = dynamic_cast<TGraphErrors*>(ifl->Get(args.modelVCSName.c_str()));
-  // !!! TO DO : exception if vcs and bcs0 sizes are different
+  if (g_vcs->GetN() != g_bcs->GetN()) {
+    DifferentModelCrossSectionSizes ex;
+    throw ex;
+  }
   /**
    * Fill model visible and Born cross section vectors
    */
