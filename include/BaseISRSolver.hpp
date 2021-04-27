@@ -10,7 +10,7 @@
 
 /**
  * The exception that is thrown when the detection efficiency function has the
- wrong number of arguments
+ * wrong number of arguments
  */
 typedef struct : std::exception {
   const char* what() const noexcept {
@@ -26,12 +26,12 @@ class BaseISRSolver {
   /**
    * Constructor
    * @param inputPath an input path to .root file that contains visible
-   cross section in a form of TGraphErrors object and detection
-   efficiency (if needed) in a form of 1D or 2D TEfficiency object
+   * cross section in a form of TGraphErrors object and detection
+   * efficiency (if needed) in a form of 1D or 2D TEfficiency object
    * @param inputOpts an input options that contain a name of the
-   detection efficiency TEfficiency object, a name of the visible
-   cross section TGraphErrors object, a threshold energy
-   @see InputOptions
+   *  detection efficiency TEfficiency object, a name of the visible
+   * cross section TGraphErrors object, a threshold energy
+   * @see InputOptions
    */
   BaseISRSolver(const std::string& inputPath, const InputOptions& inputOpts);
   /**
@@ -76,11 +76,11 @@ class BaseISRSolver {
   /**
    * Saving results
    * @param outputPath a path to the .root file where the results
-   are saved
+   * are saved
    * @param outputOpts an output options that contain a name
-   of the visible cross section TGraphErrors object
-   (in output file) and a name of the visible cross section
-   TGraphErrors name
+   * of the visible cross section TGraphErrors object
+   * (in output file) and a name of the visible cross section
+   * TGraphErrors name
    */
   virtual void save(const std::string& outputPath,
                     const OutputOptions& outputOpts) = 0;
@@ -110,9 +110,9 @@ class BaseISRSolver {
   const std::function<double(double, double)>& efficiency() const;
   /**
    * This method is used to check energy spread mode. If this method
-   returns true than energy spread is enabled
-   (center-of-mass energy error is used by solver in this case),
-   energy spread mode is not enabled otherwise.
+   * returns true than energy spread is enabled
+   * (center-of-mass energy error is used by solver in this case),
+   * energy spread mode is not enabled otherwise.
    */
   bool isEnergySpreadEnabled() const;
   /**
@@ -126,7 +126,7 @@ class BaseISRSolver {
   /**
    * This method is used to reset visible cross section.
    * @param vecVCS a vector of visible cross section values
-   at each center-of-mass energy point
+   * at each center-of-mass energy point
    */
   void resetVisibleCS(const Eigen::VectorXd& vecVCS);
   /**
@@ -144,7 +144,7 @@ class BaseISRSolver {
  protected:
   /**
    * This method is used to get number of center-of-mass
-   energy points
+   * energy points
    */
   std::size_t _getN() const;
   /**

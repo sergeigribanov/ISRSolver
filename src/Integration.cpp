@@ -1,16 +1,21 @@
 #define _USE_MATH_DEFINES
-#include "Integration.hpp"
 #include <cmath>
+#include <iostream>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_integration.h>
+#include "Integration.hpp"
 
-#include <iostream>
-
+/**
+ * Wrapper that converts std::function to appropriate format
+ */
 double wrapper(double x, void* fcnp) {
   auto fp = static_cast<std::function<double(double)>*>(fcnp);
   return (*fp)(x);
 }
 
+/**
+ * Adaptive singular integration using GSL
+ */
 double integrateS(std::function<double(double)>& fcn, double a, double b,
                   double& error) {
   int N = 100000;
@@ -42,6 +47,9 @@ double integrateS(std::function<double(double)>& fcn, double a, double b,
   return result;
 }
 
+/**
+ * Adaptive integration using GSL
+ */
 double integrate(std::function<double(double)>& fcn, double a, double b,
                  double& error) {
   int N = 1000000;
@@ -72,6 +80,9 @@ double integrate(std::function<double(double)>& fcn, double a, double b,
   return result;
 }
 
+/**
+ * Gaussian convolution using GSL
+ */
 double gaussian_conv(double energy,
                      double sigma2,
                      std::function<double(double)>& fcn) {

@@ -19,12 +19,12 @@ typedef struct : std::exception {
 
 /**
  * This class is designed in order to interpolate unknown Born
- cross section points
+ * cross section points
  */
 class Interpolator {
  public:
   /**
-   * Constructor
+   * Default constructor
    */
   Interpolator();
   /**
@@ -66,11 +66,11 @@ class Interpolator {
   virtual ~Interpolator();
   /**
    * Kuraev-Fadin convolution with a basis interpolation function
-   that corresponds to the cross section point indx csIndex.
+   * that corresponds to the cross section point indx csIndex.
    * @param energyIndex an index of center-of-mass energy at
-   which convolution is evaluated
+   * which convolution is evaluated
    * @param csIndex an index of cross-section point that corresponds
-   to considered basis interpolation function
+   * to considered basis interpolation function
    * @param efficiency a detection efficiency
    */
   double evalKuraevFadinBasisIntegral(
@@ -110,25 +110,26 @@ class Interpolator {
       double energy) const;
   /**
    * Getting the minimum center-of-mass energy associated with
-   the considered interpolator
+   * the considered interpolator
    */
   double getMinEnergy() const;
   /**
    * Getting the maximum center-of-mass energy associated with
-   the considered interpolator
+   * the considered interpolator
    */
   double getMaxEnergy() const;
   /**
-   * Getting the minimum center-of-mass energy that
-   belongs interpolation sub range, which contains
-   cross section point with csIndex (?)
-   * @param csIndex an index of a cross section point
+   * Getting the minimum center-of-mass energy
+   * that belongs interpolation range, which contains
+   * the center-of-mass energy segment with index csIndex
+   * @param csIndex an index of center-of-mass energy segment
   */
   double getMinEnergy(int csIndex) const;
   /**
-   * Getting the maximum center-of-mass energy that
-   belongs interpolation sub range, which contains
-   cross section point with csIndex (?)
+   * Getting the maximum center-of-mass energy
+   * that belongs interpolation range, which contains
+   * the center-of-mass energy segment with index csIndex
+   * @param csIndex an index of center-of-mass energy segment
    */
   double getMaxEnergy(int csIndex) const;
   /**
