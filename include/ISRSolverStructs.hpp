@@ -135,6 +135,36 @@ typedef struct {
 } Chi2TestArgs;
 
 /**
+ * Ratio model test arguments
+ * (Ratio of a numerical solution to a model Born cross section)
+ * @see ratioTestModel
+ */
+typedef struct {
+  /**
+   * A number of numerical experiments
+   */
+  int n;
+  /**
+   * A path to model .root file
+   */
+  std::string modelPath;
+  /**
+   * A name of model visible cross section
+   object (TGraphErrors)
+  */
+  std::string modelVCSName;
+  /**
+   * A name of model Born cross section
+   object (TGraphErrors)
+  */
+  std::string modelBCSName;
+  /**
+   * A path to .root file with results
+   */
+  std::string outputPath;
+} RatioTestModelArgs;
+
+/**
  * Interpolation settings exception
  */
 typedef struct : std::exception {

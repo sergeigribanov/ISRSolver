@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
     return 0;
   }
   if (!vmap.count("use-model")) {
-    std::cout << "[!] use-model command option is obligatory." << std::endl;
+    std::cout << "[!] use-model command option is obligatory" << std::endl;
     return 0;
   }
   ISRSolverSLE solver(
@@ -79,10 +79,11 @@ int main(int argc, char* argv[]) {
   if (vmap.count("enable-energy-spread")) {
     solver.enableEnergySpread();
   }
-  ratioTestModel(opts.n, &solver,
-                 opts.path_to_model,
-                 opts.name_of_model_vcs,
-                 opts.name_of_model_bcs,
-                 opts.ofname);
+  ratioTestModel(&solver,
+                 {.n = opts.n,
+                  .modelPath = opts.path_to_model,
+                  .modelVCSName = opts.name_of_model_vcs,
+                  .modelBCSName = opts.name_of_model_bcs,
+                  .outputPath = opts.ofname});
   return 0;
 }

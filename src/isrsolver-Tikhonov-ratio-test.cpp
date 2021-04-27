@@ -90,10 +90,11 @@ int main(int argc, char* argv[]) {
   if (vmap.count("use-solution-norm2")) {
     solver.disableDerivNorm2Regularizator();
   }
-  ratioTestModel(opts.n, &solver,
-                 opts.path_to_model,
-                 opts.name_of_model_vcs,
-                 opts.name_of_model_bcs,
-                 opts.ofname);
+  ratioTestModel(&solver,
+                 {.n = opts.n,
+                  .modelPath = opts.path_to_model,
+                  .modelVCSName = opts.name_of_model_vcs,
+                  .modelBCSName = opts.name_of_model_bcs,
+                  .outputPath = opts.ofname});
   return 0;
 }

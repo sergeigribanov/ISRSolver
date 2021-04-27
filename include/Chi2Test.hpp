@@ -21,12 +21,22 @@ void chi2Test(ISRSolverSLE* solver,
 
 /**
  * Chi-square model test
- *
+ * @parm solver a solver
+ * @parm modelArgs a structure with input arguments
+ * @see ISRSolverSLE
+ * @see Chi2TestModelArgs
  */
-void chi2TestModel(ISRSolverSLE*,
-                   const Chi2TestModelArgs&);
+void chi2TestModel(ISRSolverSLE* solver,
+                   const Chi2TestModelArgs& modelArgs);
 
-void chi2TestData(ISRSolverSLE*,
-                  const Chi2TestArgs&);
+/**
+ * Chi-square data test
+ * @param solver a solver
+ * @param args a structure with input arguments
+ * @see ISRSolverSLE
+ * @see Chi2TestArgs
+ */
+void chi2TestData(ISRSolverSLE* solver,
+                  const Chi2TestArgs& args);
 
 #endif
