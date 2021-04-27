@@ -8,7 +8,7 @@
 /**
  * Electron mass
  */
-#define ELECTRON_M 5.10998928e-0
+#define ELECTRON_M 5.10998928e-04
 /**
  * GeV to nb conversion factor
  */
