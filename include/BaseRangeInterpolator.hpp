@@ -28,22 +28,33 @@ class BaseRangeInterpolator {
   BaseRangeInterpolator(const BaseRangeInterpolator&);
   /**
    * This method returns true if cross section point
-   * with csIndex belongs this interpolation range (?)
+   * with csIndex belongs this interpolation sub range
    * @param csIndex an index of a cross section point
    */
   bool hasCSIndex(int csIndex) const;
   /**
    * This method returns true if energy belongs
-   to a full interpolator test
+   to the considered interpolation sub range
    * @param energy a center-of-mass energy
    */
   bool isEnergyInRange(double energy) const;
   /**
-   * This method returns index of the first sub range (?)
+   * This method returns the index of the first segment
+   (a segment with lowest center-of-mass energies) that belongs
+   to the considered sub range
    */
   int getBeginIndex() const;
   /**
-   * This method returns a number of used sub ranges
+   * This method returns a number of center-of-mass energy
+   segments (from one
+   cross section point to another) in the considered
+   sub range.
+   * The segment indices are defined as follows.
+   * If index=0, the center-of-mass energy segment
+   between threshold energy and the first center-of-mass
+   energy is considered. In the case when index=1,
+   the center-of-mass energy segment between the first
+   and the second center-of-mass energy points is considered.
    */
   int getNumberOfSegments() const;
   /**
@@ -102,7 +113,8 @@ class BaseRangeInterpolator {
   virtual double evalIntegralBasis(int csIndex) const = 0;
  protected:
   /**
-   * Evaluating number of interpolation sub ranges
+   * Evaluating number of segments of the current
+   interpolation sub range
    * @param rangeIndexMin a minimum sub range index
    * @param rangeIndexMax a maximum sub range index
    */
@@ -110,7 +122,7 @@ class BaseRangeInterpolator {
       int rangeIndexMin,
       int rangeIndexMax);
   /**
-   * Evaluating begin number
+   * Evaluating the begin index
    * @param rangeIndexMin a minimum sub range index
    * @param rangeIndexMax a maximum sub range index
    */
@@ -122,7 +134,8 @@ class BaseRangeInterpolator {
    */
   int _numberOfSegments;
   /**
-   * Begin index
+   * The lowest segment index in the
+   considered interpolation sub range.
    */
   int _beginIndex;
   /**

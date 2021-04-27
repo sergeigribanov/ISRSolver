@@ -11,6 +11,7 @@
  * @param vcs a visible cross section
  * @param bcs0 a reference Born cross section
  * @param vcsErr a visible cross section errors
+ * @see ISRSolverSLE
  * @see Chi2TestArgs
  */
 void chi2Test(ISRSolverSLE* solver,
