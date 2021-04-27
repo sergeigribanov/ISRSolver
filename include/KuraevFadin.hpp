@@ -2,11 +2,26 @@
 #define _KURAEV_FADIN_HPP_
 #include <functional>
 
-double kuraev_fadin_convolution(double, const std::function<double(double)>&,
-                                double, double,
-				const std::function<double(double, double)>& =
-				[](double, double) {return 1.;});
+/**
+ * Convolution of a function with the Kuraev-Fadin kernel function and a detection efficiency
+ * @param energy a center-of-mass energy
+ * @param fcn a function that is convoluted
+ * @param min_x a lower integration limit
+ * @param max_x an upper integration limut
+ * @param efficiency a detection efficiency (default value = 1)
+ */
+double kuraev_fadin_convolution(double energy,
+                                const std::function<double(double)>& fcn,
+                                double min_x,
+                                double max_x,
+                                const std::function<double(double, double)>& efficiency =
+                                [](double, double) {return 1.;});
 
-double kuraev_fadin_kernel(double, double);
+/**
+ * The Kuraev-Fadin kernel function.
+ * @param x an argument x
+ * @param s a square of a center-of-mass energy
+ */
+double kuraev_fadin_kernel(double x, double s);
 
 #endif
