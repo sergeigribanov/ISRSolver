@@ -78,13 +78,18 @@ int main(int argc, char* argv[]) {
     solver.enableEnergySpread();
   }
   if (vmap.count("use-model")) {
-    chi2TestModel(opts.n, opts.ampl, &solver,
-                  opts.path_to_model,
-                  opts.name_of_model_vcs,
-                  opts.name_of_model_bcs,
-                  opts.ofname);
+    chi2TestModel(&solver,
+                  {.n = opts.n,
+                   .initialChi2Ampl = opts.ampl,
+                   .modelPath = opts.path_to_model,
+                   .modelVCSName = opts.name_of_model_vcs,
+                   .modelBCSName = opts.name_of_model_bcs,
+                   .outputPath = opts.ofname});
   } else {
-    chi2TestData(opts.n, opts.ampl, &solver, opts.ofname);
+    chi2TestData(&solver,
+                 {.n = opts.n,
+                  .initialChi2Ampl = opts.ampl,
+                  .outputPath = opts.ofname});
   }
   return 0;
 }

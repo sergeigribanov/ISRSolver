@@ -2,6 +2,7 @@
 #define _ISRSOLVER_STRUCTS_HPP_
 
 #include <exception>
+#include <Eigen/Dense>
 
 /**
  * Cross section data at a single point
@@ -78,6 +79,60 @@ typedef struct {
    */
   std::string bornCSGraphName;
 } OutputOptions;
+
+/**
+ * Chi-square model test arguments
+ * @see chi2TestModel
+ */
+typedef struct {
+  /**
+   * A number of numerical experiments
+   */
+  int n;
+  /**
+   * An initial value of chi-square fit parameter
+   */
+  double initialChi2Ampl;
+  /**
+   * A path to model .root file
+   */
+  std::string modelPath;
+  /**
+   * A name of model visible cross section
+   object (TGraphErrors)
+   */
+  std::string modelVCSName;
+  /**
+   * A name of model Born cross section
+   object (TGraphErrors)
+   */
+  std::string modelBCSName;
+  /**
+   * A path to .root file with results
+   */
+  std::string outputPath;
+} Chi2TestModelArgs;
+
+
+/**
+ * Chi-square test arguments
+ * @see chi2TestData
+ * @see chi2Test
+ */
+typedef struct {
+  /**
+   * A number of numerical experiments
+   */
+  int n;
+  /**
+   * An initial value of chi-square fit parameter
+   */
+  double initialChi2Ampl;
+  /**
+   * A path to .root file with results
+   */
+  std::string outputPath;
+} Chi2TestArgs;
 
 /**
  * Interpolation settings exception
