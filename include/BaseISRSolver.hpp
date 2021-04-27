@@ -6,7 +6,6 @@
 #include <memory>
 #include <TGraphErrors.h>
 #include <TEfficiency.h>
-
 #include "ISRSolverStructs.hpp"
 
 /**

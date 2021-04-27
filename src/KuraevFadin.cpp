@@ -1,11 +1,11 @@
 #define _USE_MATH_DEFINES
-#include "KuraevFadin.hpp"
 
 #include <cmath>
 #include <functional>
 
 #include "Integration.hpp"
-#include "physical_constants.hpp"
+#include "PhysicalConstants.hpp"
+#include "KuraevFadin.hpp"
 
 double fLog(double s) { return std::log(s / ELECTRON_M / ELECTRON_M); }
 
