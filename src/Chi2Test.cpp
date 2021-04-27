@@ -117,8 +117,6 @@ void chi2TestModel(ISRSolverSLE* solver,
    */
   solver->solve();
   Eigen::VectorXd vcsErr = solver->vcsErr();
-  Eigen::VectorXd vcs = Eigen::VectorXd(vcsErr.size());
-  Eigen::VectorXd bcs0 = Eigen::VectorXd(vcsErr.size());
   /**
    * Reading a file with model data
    */
@@ -132,18 +130,11 @@ void chi2TestModel(ISRSolverSLE* solver,
    */
   auto g_vcs = dynamic_cast<TGraphErrors*>(ifl->Get(args.modelVCSName.c_str()));
   // !!! TO DO : exception if vcs and bcs0 sizes are different
-  // TO DO : sort array, copy buffers
   /**
    * Fill model visible and Born cross section vectors
    */
-  // Eigen::Map<Eigen::VectorXd> vcs(g_vcs->GetY(), g_vcs->GetN());
-  // Eigen::Map<Eigen::VectorXd> bcs0(g_bcs->GetY(), g_bcs->GetN());
-  for (int i = 0; i < g_bcs->GetN(); ++i) {
-    bcs0(i) = g_bcs->GetY()[i];
-    vcs(i) = g_vcs->GetY()[i];
-  }
-  ifl->Close();
-  delete ifl;
+  Eigen::Map<Eigen::VectorXd> vcs(g_vcs->GetY(), g_vcs->GetN());
+  Eigen::Map<Eigen::VectorXd> bcs0(g_bcs->GetY(), g_bcs->GetN());
   /**
    * Run chi-square test
    */
@@ -152,6 +143,8 @@ void chi2TestModel(ISRSolverSLE* solver,
             .initialChi2Ampl = args.initialChi2Ampl,
             .outputPath = args.outputPath},
            vcs, bcs0, vcsErr);
+  ifl->Close();
+  delete ifl;
 }
 
 /**
