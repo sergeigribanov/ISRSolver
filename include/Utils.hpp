@@ -5,7 +5,12 @@
 #include <Eigen/Dense>
 #include <TFile.h>
 
-Eigen::VectorXd randomDrawVisCS(const Eigen::VectorXd&,
-                                const Eigen::VectorXd&);
+/**
+ * Random redraw of a visible cross section
+ * @param vcs an initial visible cross section
+ * @param vcsErr a visible cross section errors
+ */
+Eigen::VectorXd randomDrawVisCS(const Eigen::VectorXd& vcs,
+                                const Eigen::VectorXd& vcsErr);
 
 #endif
