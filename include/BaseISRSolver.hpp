@@ -89,7 +89,7 @@ class BaseISRSolver {
    */
   const Eigen::VectorXd& bcs() const;
   /**
-   * Center-of-mass energy getter
+   * Center-of-mass energy const getter
    */
   const Eigen::VectorXd& ecm() const;
   /**
@@ -97,11 +97,11 @@ class BaseISRSolver {
    */
   const Eigen::VectorXd& ecmErr() const;
   /**
-   * Visible cross section getter
+   * Visible cross section const getter
    */
   const Eigen::VectorXd& vcs() const;
   /**
-   * Visible cross section error getter
+   * Visible cross section error const getter
    */
   const Eigen::VectorXd& vcsErr() const;
   /**
@@ -152,17 +152,17 @@ class BaseISRSolver {
    */
   double _energyThreshold() const;
   /**
-   * Const getter of the threshold energy square
+   * Const getter of a threshold energy square
    */
   double _sThreshold() const;
   /**
-   * Const geter of the center-of-mass energy square.
-   * @param index an index of the center-of-mass energy point.
+   * Const geter of a center-of-mass energy square.
+   * @param index an index of a center-of-mass energy point.
    */
   double _s(std::size_t index) const;
   /**
    * Center-of-mass energy const const getter.
-   * @param index an index of the center-of-mass energy point.
+   * @param index an index of a center-of-mass energy point.
    */
   double _ecm(std::size_t index) const;
   /**
@@ -175,7 +175,7 @@ class BaseISRSolver {
    */
   Eigen::VectorXd& _ecm();
   /**
-   * Center-of-mass energy error non getter
+   * Center-of-mass energy error non const getter
    */
   Eigen::VectorXd& _ecmErr();
   /**
@@ -208,7 +208,7 @@ class BaseISRSolver {
    */
   void setupVCS(TGraphErrors* vcsGraph);
   /**
-   * Initialize detection efficiency
+   * Initialize a detection efficiency
    */
   void _setupEfficiency() noexcept(false);
 
