@@ -7,14 +7,35 @@
 #include "KuraevFadin.hpp"
 namespace po = boost::program_options;
 
+/**
+ * A part of program options
+ */
 typedef struct {
+  /**
+   * Number of points in graph
+   */
   int n;
+  /**
+   * The value of the center-of-mass energy
+   */
   double energy;
+  /**
+   * Minimum x
+   */
   double xmin;
+  /**
+   * Maximum x
+   */
   double xmax;
+  /**
+   * Output file path
+   */
   std::string ofname;
 } CmdOptions;
 
+/**
+ * Setting up program options
+ */
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
       ("help,h", "help message")
@@ -27,6 +48,9 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
        "output file path");
 }
 
+/**
+ * Help message
+ */
 void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }

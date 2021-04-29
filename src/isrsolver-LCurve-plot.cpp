@@ -8,19 +8,52 @@
 #include "ISRSolverTikhonov.hpp"
 namespace po = boost::program_options;
 
+/**
+ * A part of program options
+ */
 typedef struct {
+  /**
+   * Threshold energy
+   */
   double thsd;
+  /**
+   * Minimum lambda
+   */
   double lambda_min;
+  /**
+   * Maximum lambda
+   */
   double lambda_max;
+  /**
+   * Number of regularization parameter steps
+   */
   int lambda_n;
+  /**
+   * Name of a visible cross section graph (TGraphErrors)
+   */
   std::string vcs_name;
+  /**
+   * Name of a detection efficiency (TEfficiency)
+   */
   std::string efficiency_name;
+  /**
+   * Input path to the .root file that contains a visible cross
+   * section and detection efficiency
+   */
   std::string ifname;
+  /**
+   * Output file path
+   */
   std::string ofname;
+  /**
+   * Path to the file with interpolation settings
+   */
   std::string interp;
-  std::string solver;
 } CmdOptions;
 
+/**
+ * Setting up program options
+ */
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
       ("help,h", "help message")
@@ -49,6 +82,9 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
        "path to JSON file with interpolation settings");
 }
 
+/**
+ * Help message
+ */
 void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }
@@ -64,6 +100,9 @@ int main(int argc, char* argv[]) {
     help(desc);
     return 0;
   }
+  /**
+   * Creating Tikhonov solver
+   */
   ISRSolverTikhonov solver(opts.ifname, {
       .efficiencyName = opts.efficiency_name,
       .visibleCSGraphName = opts.vcs_name,
@@ -86,21 +125,46 @@ int main(int argc, char* argv[]) {
   a.reserve(opts.lambda_n);
   curv.reserve(opts.lambda_n);
   double h = std::pow(opts.lambda_max / opts.lambda_min,  1. / (opts.lambda_n - 1));
+  /**
+   * Loop over regularization parameter values
+   */
   for (int i = 0; i < opts.lambda_n; ++i) {
     double lambda = opts.lambda_min * std::pow(h, i);
     std::cout << "[" << i + 1 << "/" << opts.lambda_n << "]" << std::endl;
     std::cout << "lambda = " << lambda << std::endl;
     std::cout << "--------" << std::endl;
+    /**
+     * Setting regularization parameter
+     */
     solver.setLambda(lambda);
+    /**
+     * Solving the problem
+     */
     solver.solve();
+    /**
+     * Collecting L-curve and L-curve curvature
+     */
     x.push_back(solver.evalEqNorm2());
     y.push_back(solver.evalSmoothnessConstraintNorm2());
     a.push_back(lambda);
     curv.push_back(solver.evalLCurveCurvature());
   }
+  /**
+   * Creating the chi-square graph
+   */
   TGraph chi2(opts.lambda_n, a.data(), x.data());
+  /**
+   * Creating the L-curve graph
+   */
   TGraph lcurve(opts.lambda_n, x.data(), y.data());
+  /**
+   * Creating the L-curve curvature graph
+   */
   TGraph curvature(opts.lambda_n, a.data(), curv.data());
+  /**
+   * Saving L-curve and L-curve curvature to the output
+   * file
+   */
   auto fl = TFile::Open(opts.ofname.c_str(), "recreate");
   fl->cd();
   chi2.Write("chi2");

@@ -8,14 +8,36 @@
 #include "Interpolator.hpp"
 namespace po = boost::program_options;
 
+/**
+ * A part of program options
+ */
 typedef struct {
+  /**
+   * Threshold energy
+   */
   double thsd;
+  /**
+   * Name of the graph (TGraphErrors) to be interpolated
+   */
   std::string graph_name;
+  /**
+   * Input file path
+   */
   std::string ifname;
+  /**
+   * Output file path
+   */
   std::string ofname;
+  /**
+   * Path to the file that contains interpolation
+   * settings
+   */
   std::string interp;
 } CmdOptions;
 
+/**
+ * Setting up program options
+ */
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
       ("help,h", "help message")
@@ -34,14 +56,23 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
        "path to JSON file with interpolation settings");
 }
 
+/**
+ * Help message
+ */
 void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }
 
+/**
+ * Interpolation
+ */
 void interpBasis(const Eigen::VectorXd& y,
                  const Interpolator& interp,
                  double emax,
                  const CmdOptions& opts) {
+  /**
+   * Creating interpolation function
+   */
   std::function<double(double*, double*)> fcn =
       [interp, y](double* px, double*) {
         double result = 0;
@@ -52,6 +83,10 @@ void interpBasis(const Eigen::VectorXd& y,
       };
   TF1 f0("f_interp", fcn, opts.thsd, emax, 0);
   f0.SetNpx(10000);
+  /**
+   * Saving the interpolation function to the output
+   * file
+   */
   auto fl = TFile::Open(opts.ofname.c_str(), "recreate");
   fl->cd();
   f0.Write();

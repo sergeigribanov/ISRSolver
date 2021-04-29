@@ -8,17 +8,49 @@
 #include "KuraevFadin.hpp"
 namespace po = boost::program_options;
 
+/**
+ * A part of program options
+ */
 typedef struct {
+  /**
+   * Number of points used to plot radiative
+   * correction function
+   */
   std::size_t n;
+  /**
+   * Threshold energy
+   */
   double thsd;
+  /**
+   * Minimum center-of-mass energy
+   */
   double minen;
+  /**
+   * Maximum center-of-mass energy
+   */
   double maxen;
+  /**
+   * Path to the input .root file that contains
+   * Born cross section function
+   */
   std::string ifname;
+  /**
+   * Name of the Born cross section function
+   */
   std::string bcs_fcn_name;
+  /**
+   * Name of the detection efficiency object (TEfficiency)
+   */
   std::string efficiency_name;
+  /**
+   * Path to the output file
+   */
   std::string ofname;
 } CmdOptions;
 
+/**
+ * Setting up program options
+ */
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
       ("help,h", "radiative correction calculator")
@@ -41,6 +73,9 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
        "name of a detection efficiency object (TEfficiency*)");
 }
 
+/**
+ * Help message
+ */
 void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }
@@ -63,19 +98,35 @@ int main(int argc, char* argv[]) {
     return 0;
   }
   TEfficiency* teff = nullptr;
-
+  /**
+   * Opening input file
+   */
   auto fl = TFile::Open(opts.ifname.c_str(), "read");
+  /**
+   * Reading the Born cross section function from the input file
+   */
   auto fbcs = dynamic_cast<TF1*>(fl->Get(opts.bcs_fcn_name.c_str())->Clone());
+  /**
+   * Reading the detection efficiency from the input file
+   */
   if (vmap.count("efficiency-name")) {
     teff = dynamic_cast<TEfficiency*>(fl->Get(opts.efficiency_name.c_str())->Clone());
   }
   fl->Close();
   delete fl;
+  /**
+   * Converting the Born cross section function to
+   * a form of std::function
+   */
   std::function<double(double)> fcn =
       [fbcs](double energy) {
         double result = fbcs->Eval(energy);
         return result;
       };
+  /**
+   * Converting the detection efficiency to a form
+   * of std::function
+   */
   std::function<double(double, double)> eff =
       [teff](double x, double en) {
         int bin = teff->FindFixBin(x, en);
@@ -87,6 +138,9 @@ int main(int argc, char* argv[]) {
   ens.reserve(opts.n);
   radcorrs.reserve(opts.n);
   const double s_th = opts.thsd * opts.thsd;
+  /**
+   * Creating radiative correction function
+   */
   std::function<double(double*, double*)> radcorr_fcn =
       [s_th, teff,fcn, eff](double* px, double*) {
         const double en = px[0];
@@ -103,6 +157,10 @@ int main(int argc, char* argv[]) {
       };
   TF1 radf("radcorr", &radcorr_fcn, opts.minen, opts.maxen, 0);
   radf.SetNpx(opts.n);
+  /**
+   * Saving radiative correction function
+   * to the output file
+   */
   auto ofl = TFile::Open(opts.ofname.c_str(), "recreate");
   ofl->cd();
   radf.Write();

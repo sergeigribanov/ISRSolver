@@ -5,16 +5,46 @@
 #include "ISRSolverTikhonov.hpp"
 namespace po = boost::program_options;
 
+/**
+ * A part of program options
+ */
 typedef struct {
+  /**
+   * Threshold energy
+   */
   double thsd;
+  /**
+   * Regularization parameter
+   */
   double lambda;
+  /**
+   * Name of the visible cross section graph
+   * (TGraphErrors)
+   */
   std::string vcs_name;
+  /**
+   * Name of the detection efficiency object
+   * (TEfficiency)
+   */
   std::string efficiency_name;
+  /**
+   * Path to that input .root file that contains
+   * the visible cross section and detection efficiency
+   */
   std::string ifname;
+  /**
+   * Output file path
+   */
   std::string ofname;
+  /**
+   * Path to the .json file with interpolation settings
+   */
   std::string interp;
 } CmdOptions;
 
+/**
+ * Setting up program options
+ */
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
       ("help,h", "help message")
@@ -39,17 +69,35 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
        "path to JSON file with interpolation settings");
 }
 
+/**
+ * Help message
+ */
 void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }
 
+/**
+ * Objective function that return the L-curve curvature with a negative sign
+ */
 double lambdaObjective(unsigned n, const double* plambda, double* grad, void* solver) {
    auto sp = reinterpret_cast<ISRSolverTikhonov*>(solver);
+   /**
+    * Setting regularization parameter
+    */
    sp->setLambda(*plambda);
+   /**
+    * Finding a numerical solution
+    */
    sp->solve();
    if (grad) {
+     /**
+      * Evaluate L-curve curvature gradient
+      */
      grad[0] = sp->evalLCurveCurvatureDerivative();
    }
+   /**
+    * Return L-curve curvature
+    */
    return sp->evalLCurveCurvature();
 }
 
@@ -64,6 +112,9 @@ int main(int argc, char* argv[]) {
     help(desc);
     return 0;
   }
+  /**
+   * Creating Tikhonov solver
+   */
   auto solver = new ISRSolverTikhonov(opts.ifname, {
       .efficiencyName = opts.efficiency_name,
       .visibleCSGraphName = opts.vcs_name,
@@ -78,15 +129,29 @@ int main(int argc, char* argv[]) {
   if (vmap.count("enable-energy-spread")) {
     solver->enableEnergySpread();
   }
+  /**
+   * Creating NLOPT optimizer
+   */
   nlopt::opt opt(nlopt::LD_MMA, 1);
   std::vector<double> lowerBounds(1, 0);
   opt.set_lower_bounds(lowerBounds);
   opt.set_min_objective(lambdaObjective, solver);
   opt.set_xtol_rel(1.e-6);
   double minf;
+  /**
+   * Run the L-curve curvature maximization
+   */
   opt.optimize(z, minf);
+  /**
+   * Printing optimal regularization parameter
+   * and L-curve curvature that corresponds
+   * to this parameter
+   */
   std::cout << "lambda = " << z[0] << std::endl;
   std::cout << "curvature = " << minf << std::endl;
+  /**
+   * Saving results to the output file
+   */
   solver->save(opts.ofname,
                {.visibleCSGraphName = opts.vcs_name, .bornCSGraphName = "bcs"});
   delete solver;

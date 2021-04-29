@@ -4,16 +4,47 @@
 #include "ISRSolverTikhonov.hpp"
 namespace po = boost::program_options;
 
+/**
+ * A part of program options
+ */
 typedef struct {
+  /**
+   * Threshold energy
+   */
   double thsd;
+  /**
+   * Regularization parameter
+   */
   double lambda;
+  /**
+   * Name of the visible cross section
+   * graph (TGraphErrors)
+   */
   std::string vcs_name;
+  /**
+   * Name of the detection efficiency
+   * object (TEfficiency)
+   */
   std::string efficiency_name;
+  /**
+   * Path to the input .root file that contains
+   * the visible cross graph (TGraphErrors) and
+   * detection efficiency (TEfficiency)
+   */
   std::string ifname;
+  /**
+   * Output file path
+   */
   std::string ofname;
+  /**
+   * Path to the .json file with interpolation
+   */
   std::string interp;
 } CmdOptions;
 
+/**
+ * Setting up program options
+ */
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
       ("help,h", "help message")
@@ -34,6 +65,9 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
        "path to JSON file with interpolation settings");
 }
 
+/**
+ * Help message
+ */
 void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }
@@ -49,6 +83,9 @@ int main(int argc, char* argv[]) {
     help(desc);
     return 0;
   }
+  /**
+   * Creating Tikhonov solver
+   */
   ISRSolverTikhonov solver(opts.ifname, {
 	    .efficiencyName = opts.efficiency_name,
 	    .visibleCSGraphName = opts.vcs_name,
@@ -60,12 +97,21 @@ int main(int argc, char* argv[]) {
     solver.setRangeInterpSettings(opts.interp);
   }
   if (vmap.count("lambda")) {
+    /**
+     * Setting regularization parameter
+     */
     solver.setLambda(opts.lambda);
   }
   if (vmap.count("use-solution-norm2")) {
     solver.disableDerivNorm2Regularizator();
   }
+  /**
+   * Finding a numerical solution
+   */
   solver.solve();
+  /**
+   * Saving result into the output file
+   */
   solver.save(opts.ofname,
               {.visibleCSGraphName = opts.vcs_name,
                .bornCSGraphName = "bcs"});

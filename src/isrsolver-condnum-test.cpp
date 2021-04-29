@@ -9,17 +9,49 @@
 #include "Utils.hpp"
 namespace po = boost::program_options;
 
+/**
+ * A part of program options
+ */
 typedef struct {
+  /**
+   * Threshold energy
+   */
   double thsd;
+  /**
+   * Number of points in graph
+   */
   int n;
+  /**
+   * Maximum standard deviation of the center-of-mass energy
+   */
   double ensigma_max;
+  /**
+   * Name of the visible cross section object (TGraphErrors)
+   */
   std::string vcs_name;
+  /**
+   * Name of the detection efficiency object (TEfficiency)
+   */
   std::string efficiency_name;
+  /**
+   * Path to the input .root file that contains visible cross
+   * section and detection efficiency
+   */
   std::string ifname;
+  /**
+   * Path to to the output file that contains the condition number
+   * dependence on standard deviation of the center-of-mass energy
+   */
   std::string ofname;
+  /**
+   * Path to the file that contains interpolation settings
+   */
   std::string interp;
 } CmdOptions;
 
+/**
+ * Setting up program options
+ */
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
       ("help,h", "help message")
@@ -42,21 +74,40 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
        "path to JSON file with interpolation settings");
 }
 
+/**
+ * Help message
+ */
 void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }
 
+/**
+ * Evaluate the condition number of the integral operator matrix
+ * @param solver a solver
+ */
 double evalCondNumber(ISRSolverSLE* solver) {
+  /**
+   * Evaluating integral operator matrix
+   */
   solver->evalEqMatrix();
+  /**
+   * SVD decomposition of the integral operator matrix
+   */
   Eigen::JacobiSVD<Eigen::MatrixXd> svd(solver->getIntegralOperatorMatrix());
+  /**
+   * Evaluating the condition number using maximum and minimum
+   * singular values
+   */
   double cond = svd.singularValues()(0) /
                 svd.singularValues()(svd.singularValues().size()-1);
   return cond;
 }
 
 int main(int argc, char* argv[]) {
-  po::options_description desc("This tool was designed to plot the condition number of an integral "
-                               "operator matrix versus the center-of-mass energy spread. Allowed options");
+  po::options_description desc(
+      "This tool was designed to plot the condition number of an integral "
+      "operator matrix versus the center-of-mass energy standard deviation. "
+      "Allowed options");
   CmdOptions opts;
   setOptions(&desc, &opts);
   po::variables_map vmap;

@@ -4,16 +4,44 @@
 #include "IterISRInterpSolver.hpp"
 namespace po = boost::program_options;
 
+/**
+ * A part of program options
+ */
 typedef struct {
+  /**
+   * Number of iterations
+   */
   std::size_t niter;
+  /**
+   * Threshold energy
+   */
   double thsd;
+  /**
+   * Name of the visible cross section graph (TGraphErrors)
+   */
   std::string vcs_name;
+  /**
+   * Name of the detection efficiency object (TEfficiency)
+   */
   std::string efficiency_name;
+  /**
+   * Path to the input file that contains the visible cross section
+   * and the detection efficiency
+   */
   std::string ifname;
+  /**
+   * Path to the output file
+   */
   std::string ofname;
+  /**
+   * Path to the file with interpolation settings
+   */
   std::string interp;
 } CmdOptions;
 
+/**
+ * Setting up program options
+ */
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
       ("help,h", "help message")
@@ -35,6 +63,9 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
        "Path to JSON file with interpolation settings.");
 }
 
+/**
+ * Help message
+ */
 void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }

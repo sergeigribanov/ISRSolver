@@ -9,17 +9,48 @@
 #include "KuraevFadin.hpp"
 namespace po = boost::program_options;
 
+/**
+ * A part of program options
+ */
 typedef struct {
+  /**
+   * Number of points in radiative correction graph
+   */
   std::size_t n;
+  /**
+   * Threshold energy
+   */
   double thsd;
+  /**
+   * Minimum center-of-mass energy
+   */
   double minen;
+  /**
+   * Maximum center-of-mass energy
+   */
   double maxen;
+  /**
+   * Path to the input .root file that contains
+   * Born cross section function (TF1)
+   */
   std::string ifname;
+  /**
+   * Name of the Born cross section function (TF1)
+   */
   std::string bcs_fcn_name;
+  /**
+   * Name of the detection efficiency object (TEfficiency)
+   */
   std::string efficiency_name;
+  /**
+   * Output file path
+   */
   std::string ofname;
 } CmdOptions;
 
+/**
+ * Setting up program options
+ */
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
       ("help,h", "radiative correction calculator")
@@ -42,6 +73,9 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
        "name of a detection efficiency object (TEfficiency*)");
 }
 
+/**
+ * Help message
+ */
 void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }

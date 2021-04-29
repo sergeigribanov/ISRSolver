@@ -3,19 +3,65 @@
 #include "RatioTest.hpp"
 namespace po = boost::program_options;
 
+/**
+ * A part of program options
+ */
 typedef struct {
+  /**
+   * Threshold energy
+   */
   double thsd;
+  /**
+   * Number of points in the ratio graph
+   */
   int n;
+  /**
+   * Path to the .root file that contains
+   * the model Born cross section graph
+   * (TGraphErrors)
+   */
   std::string path_to_model;
+  /**
+   * Name of the model Born cross section
+   * graph (TGraphErrors)
+   */
   std::string name_of_model_bcs;
+  /**
+   * Name of the visible Born cross section
+   * graph (TGraphErrors)
+   */
   std::string name_of_model_vcs;
+  /**
+   * Name of the visible cross section
+   * graph (TGraphErrors)
+   */
   std::string vcs_name;
+  /**
+   * Name of the detection efficiency object
+   * (TEfficiency)
+   */
   std::string efficiency_name;
+  /**
+   * Path to the input .root file
+   * that contains the visible cross
+   * section graph and the detection
+   * efficiency
+   */
   std::string ifname;
+  /**
+   * Path to the output file
+   */
   std::string ofname;
+  /**
+   * Path to the .json file with
+   * interpolation settings
+   */
   std::string interp;
 } CmdOptions;
 
+/**
+ * Setting up program options
+ */
 void setOptions(po::options_description* desc, CmdOptions* opts) {
   desc->add_options()
       ("help,h", "help message")
@@ -47,14 +93,18 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
        "path to JSON file with interpolation settings");
 }
 
+/**
+ * Help message
+ */
 void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
 }
 
 int main(int argc, char* argv[]) {
-  po::options_description desc("   This tool is calculates ratio between a numerical solution and a model Born cross section. "
-                               "This ratio is averaged over multiple numerical experiments. The naive method is used in each "
-                               "numerical experiment to obtain the numerical solution for the Born cross section. Allowed options");
+  po::options_description desc(
+      "   This tool is calculates ratio between a numerical solution and a model Born cross section. "
+      "This ratio is averaged over multiple numerical experiments. The naive method is used in each "
+      "numerical experiment to obtain the numerical solution for the Born cross section. Allowed options");
   CmdOptions opts;
   setOptions(&desc, &opts);
   po::variables_map vmap;
@@ -68,6 +118,9 @@ int main(int argc, char* argv[]) {
     std::cout << "[!] use-model command option is obligatory" << std::endl;
     return 0;
   }
+  /**
+   * Creating SLE solver
+   */
   ISRSolverSLE solver(
       opts.ifname,
       {.efficiencyName = opts.efficiency_name,
@@ -79,6 +132,10 @@ int main(int argc, char* argv[]) {
   if (vmap.count("enable-energy-spread")) {
     solver.enableEnergySpread();
   }
+  /**
+   * Obtaining mean ratio of the numerical solution
+   * to the model Born cross section
+   */
   ratioTestModel(&solver,
                  {.n = opts.n,
                   .modelPath = opts.path_to_model,
