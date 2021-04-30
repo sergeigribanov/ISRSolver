@@ -59,7 +59,7 @@ void help(const po::options_description& desc) {
 }
 
 /**
- * Eval chi-square
+ * Evaluate chi-square
  * @param opts a part of the program options
  */
 std::pair<double, double> evalChi2(const CmdOptions& opts) {
