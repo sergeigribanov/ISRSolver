@@ -20,24 +20,7 @@ include_directories(${GSL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${NLOPT_INCLUDE_DIRS})
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-TSVD.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-LCurve-plot.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-LCurve.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-calc-chi2.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE-chi2-test.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-chi2-test.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE-ratio-test.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-ratio-test.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-condnum-test.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-draw-kernel-integral.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-draw-kernel.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-interp.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-KuraevFadin-convolution.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-radcorr.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-radcorr-function.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-iterative.cpp)
+list(FILTER SOURCES EXCLUDE REGEX "isrsolver.+.cpp")
 file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/env.sh.in env.sh)
 
@@ -47,7 +30,6 @@ target_include_directories(ISR
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>)
 target_link_libraries(ISR
-  PRIVATE
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
   ${Boost_LIBRARIES}
@@ -56,280 +38,64 @@ target_link_libraries(ISR
   nlohmann_json::nlohmann_json)
 
 add_executable(isrsolver-SLE ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE.cpp)
-target_include_directories(isrsolver-SLE
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-SLE
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-SLE ISR)
 
 add_executable(isrsolver-Tikhonov ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov.cpp)
-target_include_directories(isrsolver-Tikhonov
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-Tikhonov
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-Tikhonov ISR)
 
 add_executable(isrsolver-TSVD ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-TSVD.cpp)
-target_include_directories(isrsolver-TSVD
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-TSVD
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-TSVD ISR)
 
 add_executable(isrsolver-calc-chi2
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-calc-chi2.cpp)
-target_include_directories(isrsolver-calc-chi2
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-calc-chi2
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-calc-chi2 ISR)
 
 add_executable(isrsolver-SLE-chi2-test
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE-chi2-test.cpp)
-target_include_directories(isrsolver-SLE-chi2-test
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-SLE-chi2-test
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-SLE-chi2-test ISR)
 
 add_executable(isrsolver-Tikhonov-chi2-test
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-chi2-test.cpp)
-target_include_directories(isrsolver-Tikhonov-chi2-test
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-Tikhonov-chi2-test
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-Tikhonov-chi2-test ISR)
 
 add_executable(isrsolver-SLE-ratio-test
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE-ratio-test.cpp)
-target_include_directories(isrsolver-SLE-ratio-test
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-SLE-ratio-test
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-SLE-ratio-test ISR)
 
 add_executable(isrsolver-Tikhonov-ratio-test
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-ratio-test.cpp)
-target_include_directories(isrsolver-Tikhonov-ratio-test
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-Tikhonov-ratio-test
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-Tikhonov-ratio-test ISR)
 
 add_executable(isrsolver-condnum-test ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-condnum-test.cpp)
-target_include_directories(isrsolver-condnum-test
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-condnum-test
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-condnum-test ISR)
 
 add_executable(isrsolver-draw-kernel ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-draw-kernel.cpp)
-target_include_directories(isrsolver-draw-kernel
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-draw-kernel
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-draw-kernel ISR)
 
 add_executable(isrsolver-draw-kernel-integral ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-draw-kernel-integral.cpp)
-target_include_directories(isrsolver-draw-kernel-integral
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-draw-kernel-integral
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-draw-kernel-integral ISR)
 
 add_executable(isrsolver-interp ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-interp.cpp)
-target_include_directories(isrsolver-interp
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-interp
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-interp ISR)
 
 add_executable(isrsolver-LCurve-plot ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-LCurve-plot.cpp)
-target_include_directories(isrsolver-LCurve-plot
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-LCurve-plot
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-LCurve-plot ISR)
 
 add_executable(isrsolver-Tikhonov-LCurve ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-LCurve.cpp)
-target_include_directories(isrsolver-Tikhonov-LCurve
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-Tikhonov-LCurve
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-Tikhonov-LCurve ISR)
 
 add_executable(isrsolver-radcorr ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-radcorr.cpp)
-target_include_directories(isrsolver-radcorr
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-radcorr
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-radcorr ISR)
 
 add_executable(isrsolver-radcorr-function ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-radcorr-function.cpp)
-target_include_directories(isrsolver-radcorr-function
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-radcorr-function
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-radcorr-function ISR)
 
 add_executable(isrsolver-iterative ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-iterative.cpp)
-target_include_directories(isrsolver-iterative
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-iterative
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-iterative ISR)
 
 add_executable(isrsolver-KuraevFadin-convolution
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-KuraevFadin-convolution.cpp)
-target_include_directories(isrsolver-KuraevFadin-convolution
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(isrsolver-KuraevFadin-convolution
-  PRIVATE
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json
-  ISR)
+target_link_libraries(isrsolver-KuraevFadin-convolution ISR)
 
 set_target_properties(ISR
 PROPERTIES
