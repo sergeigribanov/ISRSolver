@@ -16,12 +16,17 @@ include(${ROOT_USE_FILE})
 find_package(GSL REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package (Python3 COMPONENTS Development NumPy)
 include_directories(${GSL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${NLOPT_INCLUDE_DIRS})
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+file(GLOB PYSOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/Py*.cpp)
 list(FILTER SOURCES EXCLUDE REGEX "isrsolver.+.cpp")
+list(FILTER SOURCES EXCLUDE REGEX "Py.+.cpp")
 file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
+list(FILTER HEADERS EXCLUDE REGEX "Py.+.hpp")
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/env.sh.in env.sh)
 
 add_library(ISR SHARED ${SOURCES})
@@ -96,6 +101,16 @@ target_link_libraries(isrsolver-iterative ISR)
 add_executable(isrsolver-KuraevFadin-convolution
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-KuraevFadin-convolution.cpp)
 target_link_libraries(isrsolver-KuraevFadin-convolution ISR)
+
+add_library(PyISR SHARED ${PYSOURCES})
+target_include_directories(PyISR
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/ISRSolver>
+  PRIVATE
+  ${Python3_INCLUDE_DIRS})
+target_link_libraries(PyISR ISR ${Python3_LIBRARIES})
+set_target_properties(PyISR PROPERTIES PREFIX "")
 
 set_target_properties(ISR
 PROPERTIES
