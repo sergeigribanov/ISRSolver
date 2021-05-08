@@ -108,7 +108,8 @@ target_include_directories(PyISR
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>
   PRIVATE
-  ${Python3_INCLUDE_DIRS})
+  ${Python3_INCLUDE_DIRS}
+  ${Python3_NumPy_INCLUDE_DIRS})
 target_link_libraries(PyISR ISR ${Python3_LIBRARIES})
 set_target_properties(PyISR PROPERTIES PREFIX "")
 
@@ -138,6 +139,9 @@ install(TARGETS ISR
   EXPORT ISRSolverTargets
   LIBRARY DESTINATION lib
   PUBLIC_HEADER DESTINATION include/ISRSolver)
+install(TARGETS PyISR
+  LIBRARY DESTINATION lib/python)
+
 install(EXPORT ISRSolverTargets
   FILE ISRSolverTargets.cmake
   DESTINATION lib/cmake)

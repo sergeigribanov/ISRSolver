@@ -1,8 +1,9 @@
 #ifndef _PY_KURAEV_FADIN_HPP_
 #define _PY_KURAEV_FADIN_HPP_
+#define PY_SSIZE_T_CLEAN
 #include <functional>
-#include <iostream>
 #include <Python.h>
+#include <structmember.h>
 #include "KuraevFadin.hpp"
 static PyObject* pyKernelKuraevFadin(PyObject* self,
                                    PyObject* args) {
@@ -49,7 +50,7 @@ static PyObject* pyConvolutionKuraevFadin(PyObject* self,
       [efficiency](double x, double en) {
         PyObject *arglist = Py_BuildValue("(dd)", x, en);;
         PyObject *rv = PyObject_CallObject(efficiency, arglist);
-        double result = PyFloat_AS_DOUBLE(rv); // MOVE to AS_DOUBLE
+        double result = PyFloat_AS_DOUBLE(rv);
         Py_CLEAR(rv);
         Py_CLEAR(arglist);
         return result;

@@ -54,6 +54,60 @@ void BaseISRSolver::setupVCS(TGraphErrors* vcsGraph) {
                  [](const CSData& x) { return x.csError; });
 }
 
+BaseISRSolver::BaseISRSolver(std::size_t numberOfPoints,
+                             double* energy, double* visibleCS,
+                             double* energyErr, double* visibleCSErr,
+                             double thresholdEnergy,
+                             const std::function<double(double, double)>&
+                             efficiency) :
+    _energyT(thresholdEnergy),
+    _n(numberOfPoints),
+    _efficiency(efficiency),
+    _tefficiency(nullptr) {
+  Eigen::VectorXd enV(_n);
+  Eigen::VectorXd csV(_n);
+  Eigen::VectorXd enErrV(_n);
+  Eigen::VectorXd csErrV(_n);
+  std::copy(energy, energy + _n,
+                 enV.data());
+   std::copy(visibleCS, visibleCS + _n,
+             csV.data());
+   if (energyErr) {
+     _energySpread = true;
+     std::copy(energyErr, energyErr + _n,
+               enErrV.data());
+   } else {
+     _energySpread = false;
+     enErrV = Eigen::VectorXd::Zero(_n);
+   }
+  std::copy(visibleCSErr, visibleCSErr + _n,
+            csErrV.data());
+  std::vector<int> index(_n, 0);
+  for (std::size_t i = 0; i < _n; ++i) {
+    index[i] = i;
+  }
+  std::sort(index.begin(), index.end(),
+            [enV](int i1, int i2)
+            { return enV(i1) < enV(i2); });
+  _visibleCSData = {
+    .cmEnergy = Eigen::VectorXd(_n),
+    .cmEnergyError = Eigen::VectorXd(_n),
+    .cs = Eigen::VectorXd(_n),
+    .csError = Eigen::VectorXd(_n)};
+  std::transform(index.begin(), index.end(),
+                 _visibleCSData.cmEnergy.data(),
+                 [enV](int i) {return enV(i);});
+  std::transform(index.begin(), index.end(),
+                 _visibleCSData.cmEnergyError.data(),
+                 [enErrV](int i) {return enErrV(i);});
+  std::transform(index.begin(), index.end(),
+                 _visibleCSData.cs.data(),
+                 [csV](int i) {return csV(i);});
+  std::transform(index.begin(), index.end(),
+                 _visibleCSData.csError.data(),
+                 [csErrV](int i) {return csErrV(i);});
+}
+
 /**
  * Constructor
  * @param vcsGraph a visible cross section in a form of TGraphErrors

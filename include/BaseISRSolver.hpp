@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include <string>
 #include <memory>
+#include <vector>
 #include <TGraphErrors.h>
 #include <TEfficiency.h>
 #include "ISRSolverStructs.hpp"
@@ -23,6 +24,12 @@ typedef struct : std::exception {
  */
 class BaseISRSolver {
  public:
+  BaseISRSolver(std::size_t numberOfPoints,
+                double* energy, double* visibleCS,
+                double* energyErr, double* visibleCSErr,
+                double thresholdEnergy,
+                const std::function<double(double, double)>&
+                efficiency);
   /**
    * Constructor
    * @param inputPath an input path to .root file that contains visible
