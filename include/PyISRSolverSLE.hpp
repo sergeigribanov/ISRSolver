@@ -1,41 +1,9 @@
 #ifndef _PY_ISRSOLVER_SLE_HPP_
 #define _PY_ISRSOLVER_SLE_HPP_
-#define PY_SSIZE_T_CLEAN
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include <Python.h>
-#include <structmember.h>
-#include <numpy/arrayobject.h>
-#include "ISRSolverSLE.hpp"
-
-typedef struct {
-    PyObject_HEAD
-    PyObject *eff;
-    ISRSolverSLE *solver;
-} PyISRSolverSLEObject;
-
-static void
-PyISRSolverSLE_dealloc(PyISRSolverSLEObject *self)
-{
-  if (self->solver) {
-    delete self->solver;
-  }
-  Py_XDECREF(self->eff);
-  Py_TYPE(self)->tp_free((PyObject *) self);
-}
-
-static PyObject *
-PyISRSolverSLE_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    PyISRSolverSLEObject *self;
-    self = (PyISRSolverSLEObject *) type->tp_alloc(type, 0);
-    if (self != NULL) {
-      self->solver = nullptr;
-    }
-    return (PyObject *) self;
-}
+#include "PyISRSolver.hpp"
 
 static int
-PyISRSolverSLE_init(PyISRSolverSLEObject *self, PyObject *args, PyObject *kwds)
+PyISRSolverSLE_init(PyISRSolverObject *self, PyObject *args, PyObject *kwds)
 {
   // !!! TO-DO: check dimension
   unsigned long nC;
@@ -93,104 +61,30 @@ PyISRSolverSLE_init(PyISRSolverSLEObject *self, PyObject *args, PyObject *kwds)
   return 0;
 }
 
-// static PyMemberDef PyISRSolverSLE_members[] = {
-//     {"number", T_INT, offsetof(PyISRSolverSLEObject, number), 0,
-//      "custom number"},
-//     {NULL}  /* Sentinel */
-// };
-
-// static int
-// PyISRSolverSLE_setlast(PyISRSolverSLEObject *self, PyObject *value, void *closure)
-// {
-//     PyObject *tmp;
-//     if (value == NULL) {
-//         PyErr_SetString(PyExc_TypeError, "Cannot delete the last attribute");
-//         return -1;
-//     }
-//     if (!PyUnicode_Check(value)) {
-//         PyErr_SetString(PyExc_TypeError,
-//                         "The last attribute value must be a string");
-//         return -1;
-//     }
-//     tmp = self->last;
-//     Py_INCREF(value);
-//     self->last = value;
-//     Py_DECREF(tmp);
-//     return 0;
-// }
-
-// static PyGetSetDef PyISRSolverSLE_getsetters[] = {
-//     {"first", (getter) PyISRSolverSLE_getfirst, (setter) PyISRSolverSLE_setfirst,
-//      "first name", NULL},
-//     {"last", (getter) PyISRSolverSLE_getlast, (setter) PyISRSolverSLE_setlast,
-//      "last name", NULL},
-//     {NULL}  /* Sentinel */
-// };
-
-
-static PyObject *
-PyISRSolverSLE_n(PyISRSolverSLEObject *self, void *closure)
-{
-  return PyLong_FromSsize_t(self->solver->getN());
-}
-
 static PyGetSetDef PyISRSolverSLE_getsetters[] = {
-    {"n", (getter) PyISRSolverSLE_n, NULL,
+    {"n", (getter) PyISRSolver_n, NULL,
      "Number of points", NULL},
     {NULL}  /* Sentinel */
 };
 
-static PyObject *PyISRSolverSLE_ecm(PyISRSolverSLEObject *self) {
-  const std::size_t n = self->solver->getN();
-  npy_intp dims[1];
-  dims[0] = n;
-  return PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, extractECMPointer(self->solver));
-}
-
-static PyObject *PyISRSolverSLE_ecm_err(PyISRSolverSLEObject *self) {
-  const std::size_t n = self->solver->getN();
-  npy_intp dims[1];
-  dims[0] = n;
-  return PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, extractECMErrPointer(self->solver));
-}
-
-static PyObject *PyISRSolverSLE_vcs(PyISRSolverSLEObject *self) {
-  const std::size_t n = self->solver->getN();
-  npy_intp dims[1];
-  dims[0] = n;
-  return PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, extractVCSPointer(self->solver));
-}
-
-static PyObject *PyISRSolverSLE_vcs_err(PyISRSolverSLEObject *self) {
-  const std::size_t n = self->solver->getN();
-  npy_intp dims[1];
-  dims[0] = n;
-  return PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, extractVCSErrPointer(self->solver));
-}
-
-static PyObject *PyISRSolverSLE_bcs(PyISRSolverSLEObject *self) {
-  const std::size_t n = self->solver->getN();
-  npy_intp dims[1];
-  dims[0] = n;
-  return PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, extractBCSPointer(self->solver));
-}
-
-static PyObject *PyISRSolverSLE_bcs_cov_matrix(PyISRSolverSLEObject *self) {
+static PyObject *PyISRSolverSLE_bcs_cov_matrix(PyISRSolverObject *self) {
   const std::size_t n = self->solver->getN();
   npy_intp dims[2];
   dims[0] = n;
   dims[1] = n;
+  ISRSolverSLE* solver = reinterpret_cast<ISRSolverSLE*>(self->solver);
   PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_SimpleNewFromData(
-      2, dims, NPY_FLOAT64, extractBCSCovMatrix(self->solver)));
+      2, dims, NPY_FLOAT64, extractBCSCovMatrix(solver)));
   return PyArray_Transpose(array, NULL);
 }
 
-static PyObject *PyISRSolverSLE_bcs_inv_cov_matrix(PyISRSolverSLEObject *self) {
+static PyObject *PyISRSolverSLE_bcs_inv_cov_matrix(PyISRSolverObject *self) {
   const std::size_t n = self->solver->getN();
   npy_intp dims[2];
   dims[0] = n;
   dims[1] = n;
-  Eigen::Map<Eigen::MatrixXd> cov(extractBCSCovMatrix(self->solver), n, n);
+  ISRSolverSLE* solver = reinterpret_cast<ISRSolverSLE*>(self->solver);
+  Eigen::Map<Eigen::MatrixXd> cov(extractBCSCovMatrix(solver), n, n);
   Eigen::MatrixXd icov = cov.inverse();
   const int n2 = n * n;
   double* data = new double[n2];
@@ -200,68 +94,29 @@ static PyObject *PyISRSolverSLE_bcs_inv_cov_matrix(PyISRSolverSLEObject *self) {
   return PyArray_Transpose(array, NULL);
 }
 
-static PyObject *PyISRSolverSLE_intop_matrix(PyISRSolverSLEObject *self) {
+static PyObject *PyISRSolverSLE_intop_matrix(PyISRSolverObject *self) {
   const std::size_t n = self->solver->getN();
   npy_intp dims[2];
   dims[0] = n;
   dims[1] = n;
+  ISRSolverSLE* solver = reinterpret_cast<ISRSolverSLE*>(self->solver);
   PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_SimpleNewFromData(
-      2, dims, NPY_FLOAT64, extractIntOpMatrix(self->solver)));
+      2, dims, NPY_FLOAT64, extractIntOpMatrix(solver)));
   return PyArray_Transpose(array, NULL);
 }
 
-static PyObject *PyISRSolverSLE_solve(PyISRSolverSLEObject *self) {
-  // !!! TO-DO: return none
-  self->solver->solve();
-  return PyLong_FromSsize_t(0);
-}
-
-static PyObject *PyISRSolverSLE_save(PyISRSolverSLEObject *self, PyObject *args, PyObject *kwds) {
-  char* outputPath = NULL;
-  char* visibleCSGraphName = NULL;
-  char* bornCSGraphName = NULL;
-  static const char *kwlist[] = {"output_path", "vcs_name", "bcs_name", NULL};
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "s|ss",
-                                   const_cast<char**>(kwlist),
-                                   &outputPath,
-                                   &visibleCSGraphName,
-                                   &bornCSGraphName)) {
-    return 0;
-  }
-  std::string outputPathS = outputPath;
-  std::string visibleCSGraphNameS;
-  std::string bornCSGraphNameS;
-  //!!!  delete [] outputPath;
-  if (!visibleCSGraphName) {
-    visibleCSGraphNameS = "vcs";
-  } else {
-    visibleCSGraphNameS = visibleCSGraphName;
-    //!!! delete [] visibleCSGraphName;
-  }
-  if (!bornCSGraphName) {
-    bornCSGraphNameS = "bcs";
-  } else {
-    bornCSGraphNameS = bornCSGraphName;
-    //!!! delete [] bornCSGraphName;
-  }
-  self->solver->save(outputPathS,
-                     {.visibleCSGraphName = visibleCSGraphNameS,
-                      .bornCSGraphName = bornCSGraphNameS});
-  return PyLong_FromSsize_t(0);
-}
-
 static PyMethodDef PyISRSolverSLE_methods[] = {
-    {"solve", (PyCFunction) PyISRSolverSLE_solve, METH_NOARGS,
+    {"solve", (PyCFunction) PyISRSolver_solve, METH_NOARGS,
      "Find solution"
     },
-    {"save", (PyCFunction) PyISRSolverSLE_save, METH_VARARGS | METH_KEYWORDS,
+    {"save", (PyCFunction) PyISRSolver_save, METH_VARARGS | METH_KEYWORDS,
      "Save results"
     },
-    {"bcs", (PyCFunction) PyISRSolverSLE_bcs, METH_NOARGS, "Get numerical solution (Born cross section)"},
-    {"ecm", (PyCFunction) PyISRSolverSLE_ecm, METH_NOARGS, "Get center-of-mass energy"},
-    {"ecm_err", (PyCFunction) PyISRSolverSLE_ecm_err, METH_NOARGS, "Get center-of-mass energy errors"},
-    {"vcs", (PyCFunction) PyISRSolverSLE_vcs, METH_NOARGS, "Get visible cross section"},
-    {"vcs_err", (PyCFunction) PyISRSolverSLE_vcs_err, METH_NOARGS, "Get visible cross section errors"},
+    {"bcs", (PyCFunction) PyISRSolver_bcs, METH_NOARGS, "Get numerical solution (Born cross section)"},
+    {"ecm", (PyCFunction) PyISRSolver_ecm, METH_NOARGS, "Get center-of-mass energy"},
+    {"ecm_err", (PyCFunction) PyISRSolver_ecm_err, METH_NOARGS, "Get center-of-mass energy errors"},
+    {"vcs", (PyCFunction) PyISRSolver_vcs, METH_NOARGS, "Get visible cross section"},
+    {"vcs_err", (PyCFunction) PyISRSolver_vcs_err, METH_NOARGS, "Get visible cross section errors"},
     {"bcs_cov_matrix", (PyCFunction) PyISRSolverSLE_bcs_cov_matrix, METH_NOARGS,
      "Get covariance matrix of the numerical solution (Born cross section)"},
     {"bcs_inv_cov_matrix", (PyCFunction) PyISRSolverSLE_bcs_inv_cov_matrix, METH_NOARGS,
@@ -274,9 +129,9 @@ static PyMethodDef PyISRSolverSLE_methods[] = {
 static PyTypeObject PyISRSolverSLEType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "PyISR.PyISRSolverSLE", /* tp_name */
-    sizeof(PyISRSolverSLEObject),  /* tp_basicsize */
+    sizeof(PyISRSolverObject),  /* tp_basicsize */
     0, /* tp_itemsize */
-    (destructor) PyISRSolverSLE_dealloc, /* .tp_dealloc  */
+    (destructor) PyISRSolver_dealloc, /* .tp_dealloc  */
     0, /* tp_print */
     0, /* tp_getattr */
     0, /* tp_setattr */
@@ -309,7 +164,7 @@ static PyTypeObject PyISRSolverSLEType = {
     0, /* tp_dictoffset */
     (initproc) PyISRSolverSLE_init, /* tp_init */
     0, /* tp_alloc */
-    PyISRSolverSLE_new, /* tp_new */
+    PyISRSolver_new, /* tp_new */
 };
 
 #endif
