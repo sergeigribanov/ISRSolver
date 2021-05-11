@@ -60,6 +60,11 @@ class Interpolator {
   (const std::string&  pathToJSON,
    const Eigen::VectorXd& cmEnergies,
    double thresholdEnergy);
+
+  Interpolator(const json& obj,
+               const Eigen::VectorXd& cmEnergies,
+               double thresholdEnergy);
+
   /**
    * Destructor
    */
@@ -132,6 +137,8 @@ class Interpolator {
    * @param csIndex an index of center-of-mass energy segment
    */
   double getMaxEnergy(int csIndex) const;
+
+  static std::vector<std::tuple<bool, int, int>> loadInterpRangeSettingJSON(const json& obj);
   /**
    * Load interpolation settings from file
    * @param pathToJSON a path to a .json file with settings

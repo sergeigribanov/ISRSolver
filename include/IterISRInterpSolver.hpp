@@ -8,6 +8,13 @@
  */
 class IterISRInterpSolver : public ISRSolverSLE {
  public:
+
+  IterISRInterpSolver(std::size_t numberOfPoints,
+                      double* energy, double* visibleCS,
+                      double* energyErr, double* visibleCSErr,
+                      double thresholdEnergy,
+                      const std::function<double(double, double)>&
+                      efficiency);
   /**
    * Constructor
    * @param inputPath an input path to .root file that contains visible

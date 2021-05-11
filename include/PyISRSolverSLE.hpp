@@ -2,63 +2,51 @@
 #define _PY_ISRSOLVER_SLE_HPP_
 #include "PyISRSolver.hpp"
 
-static int
-PyISRSolverSLE_init(PyISRSolverObject *self, PyObject *args, PyObject *kwds)
-{
-  // !!! TO-DO: check dimension
-  unsigned long nC;
-  PyArrayObject *energy = NULL;
-  PyArrayObject *visibleCS = NULL;
-  PyArrayObject *energyErr = NULL;
-  PyArrayObject *visibleCSErr = NULL;
-  PyObject* enableEnergySpread = NULL;
-  double thresholdC;
-  self->eff = NULL;
-  static const char *kwlist[] =
-      {"n", "energy", "vis_cs", "energy_err",
-       "vis_cs_err", "threshold", "efficiency",
-       "enableEnergySpread", NULL};
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "kO!O!O!O!d|OO",
-                                   const_cast<char**>(kwlist),
-                                   &nC,
-                                   &PyArray_Type, &energy,
-                                   &PyArray_Type, &visibleCS,
-                                   &PyArray_Type, &energyErr,
-                                   &PyArray_Type, &visibleCSErr,
-                                   &thresholdC, &self->eff,
-                                   &enableEnergySpread)) {
-    return -1;
+static PyObject *PyISRSolverSLE_set_interp_settings(PyISRSolverObject *self, PyObject *args) {
+  // !!! TO-DO: return none
+  PyObject* obj;
+  if (!PyArg_ParseTuple(args, "O", &obj)) {
+    return 0;
   }
-  Py_XINCREF(self->eff);
-  if (!PyCallable_Check(self->eff)) {
-    PyErr_SetString(PyExc_TypeError, "ISRSolverSLE: a callable efficiency object is required");
-    return -1;
+  PyObject *iterator = PyObject_GetIter(obj);
+  PyObject* item;
+  PyObject* subitem;
+  PyObject* index;
+  bool el0;
+  int el1;
+  int el2;
+  std::vector<std::tuple<bool, int, int>> result;
+  result.reserve(PyObject_Length(obj));
+  while ((item = PyIter_Next(iterator))) {
+    index = PyLong_FromSsize_t(0);
+    subitem = PyObject_GetItem(item, index);
+    if (PyObject_IsTrue(subitem)) {
+      el0 = true;
+    } else {
+      el0 = false;
+    }
+    Py_DECREF(index);
+    Py_DECREF(subitem);
+
+    index = PyLong_FromSsize_t(1);
+    subitem = PyObject_GetItem(item, index);
+    el1 = PyLong_AsLong(subitem);
+    Py_DECREF(index);
+    Py_DECREF(subitem);
+
+    index = PyLong_FromSsize_t(2);
+    subitem = PyObject_GetItem(item, index);
+    el2 = PyLong_AsLong(subitem);
+    Py_DECREF(index);
+    Py_DECREF(subitem);
+
+    Py_DECREF(item);
+    result.push_back(std::make_tuple(el0, el1, el2));
   }
-  std::function<double(double, double)> effC =
-      [self](double x, double en) {
-        PyObject *arglist = Py_BuildValue("(dd)", x, en);;
-        PyObject *rv = PyObject_CallObject(self->eff, arglist);
-        double result = PyFloat_AS_DOUBLE(rv);
-        Py_CLEAR(rv);
-        Py_CLEAR(arglist);
-        return result;
-      };
-  double *energyCArrayC = (double*) PyArray_DATA(energy);
-  double *visibleCSArrayC = (double*) PyArray_DATA(visibleCS);
-  double *energyErrArrayC = (double*) PyArray_DATA(energyErr);
-  double *visibleCSErrArrayC = (double*) PyArray_DATA(visibleCSErr);
-  self->solver = new ISRSolverSLE(nC,
-                                  energyCArrayC, visibleCSArrayC,
-                                  energyErrArrayC, visibleCSErrArrayC,
-                                  thresholdC, effC);
-  if (!enableEnergySpread) {
-    self->solver->disableEnergySpread();
-  } else if (PyObject_IsTrue(enableEnergySpread)) {
-    self->solver->enableEnergySpread();
-  } else {
-    self->solver->disableEnergySpread();
-  }
-  return 0;
+  Py_DECREF(iterator);
+  ISRSolverSLE* solver = reinterpret_cast<ISRSolverSLE*>(self->solver);
+  solver->setRangeInterpSettings(result);
+  return PyLong_FromSsize_t(0);
 }
 
 static PyGetSetDef PyISRSolverSLE_getsetters[] = {
@@ -123,12 +111,13 @@ static PyMethodDef PyISRSolverSLE_methods[] = {
      "Evaluate inverse covariance matrix of the numerical solution (Born cross section)"},
     {"intop_matrix", (PyCFunction) PyISRSolverSLE_intop_matrix, METH_NOARGS,
      "Integral operator matrix"},
+    {"set_interp_settings", (PyCFunction) PyISRSolverSLE_set_interp_settings, METH_VARARGS, "Set interpolation settings"},
     {NULL}  /* Sentinel */
 };
 
 static PyTypeObject PyISRSolverSLEType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "PyISR.PyISRSolverSLE", /* tp_name */
+    "PyISR.ISRSolverSLE", /* tp_name */
     sizeof(PyISRSolverObject),  /* tp_basicsize */
     0, /* tp_itemsize */
     (destructor) PyISRSolver_dealloc, /* .tp_dealloc  */
@@ -147,7 +136,7 @@ static PyTypeObject PyISRSolverSLEType = {
     0, /* tp_setattro */
     0, /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    "PyISRSolverSLE objects", /* tp_doc */
+    "ISRSolverSLE objects", /* tp_doc */
     0, /* tp_traverse */
     0, /* tp_clear */
     0, /* tp_richcompare */
@@ -162,7 +151,7 @@ static PyTypeObject PyISRSolverSLEType = {
     0, /* tp_descr_get */
     0, /* tp_descr_set */
     0, /* tp_dictoffset */
-    (initproc) PyISRSolverSLE_init, /* tp_init */
+    (initproc) PyISRSolver_init<ISRSolverSLE>, /* tp_init */
     0, /* tp_alloc */
     PyISRSolver_new, /* tp_new */
 };

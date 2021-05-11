@@ -7,6 +7,18 @@
 #include "IterISRInterpSolver.hpp"
 using json = nlohmann::json;
 
+IterISRInterpSolver::IterISRInterpSolver(
+    std::size_t numberOfPoints,
+    double* energy, double* visibleCS,
+    double* energyErr, double* visibleCSErr,
+    double thresholdEnergy,
+    const std::function<double(double, double)>&
+    efficiency) :
+    ISRSolverSLE(numberOfPoints, energy, visibleCS,
+                 energyErr, visibleCSErr,  thresholdEnergy,
+                 efficiency),
+    _nIter(10) {}
+
 IterISRInterpSolver::IterISRInterpSolver(TGraphErrors* vcsGraph,
                                          double thresholdEnergy) :
     ISRSolverSLE(vcsGraph, thresholdEnergy),

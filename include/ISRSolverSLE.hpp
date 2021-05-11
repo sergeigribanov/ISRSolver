@@ -2,8 +2,11 @@
 #define _ISRSOLVER_SLE_HPP_
 
 #include <TF1.h>
+#include <nlohmann/json.hpp>
 #include "Interpolator.hpp"
 #include "BaseISRSolver.hpp"
+
+using json = nlohmann::json;
 
 class ISRSolverSLE;
 double* extractIntOpMatrix(ISRSolverSLE*);
@@ -89,6 +92,7 @@ class ISRSolverSLE : public BaseISRSolver {
    */
   void setRangeInterpSettings(const std::vector<std::tuple<bool, int, int>>&
                               interpRangeSettings);
+  void setRangeInterpSettingsJSON(const json& interpRangeSettings);
   /**
    * This method applying interpolation settings of numerical solution
    * @param pathToJSON a path to .json file with interpolation settings

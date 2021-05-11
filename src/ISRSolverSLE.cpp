@@ -8,7 +8,6 @@
 #include <boost/lexical_cast.hpp>
 #include <cmath>
 #include <fstream>
-#include <nlohmann/json.hpp>
 #include <set>
 #include <iostream>
 #include <Eigen/Core>
@@ -16,8 +15,6 @@
 
 #include "Integration.hpp"
 #include "KuraevFadin.hpp"
-
-using json = nlohmann::json;
 
 double* extractIntOpMatrix(ISRSolverSLE* solver) {
   return solver->_integralOperatorMatrix.data();
@@ -127,6 +124,10 @@ void ISRSolverSLE::save(const std::string& outputPath,
 
 void ISRSolverSLE::setRangeInterpSettings(
     const std::vector<std::tuple<bool, int, int>>& interpRangeSettings) {
+  _interp = Interpolator(interpRangeSettings, ecm(), getThresholdEnergy());
+}
+
+void ISRSolverSLE::setRangeInterpSettingsJSON(const json& interpRangeSettings) {
   _interp = Interpolator(interpRangeSettings, ecm(), getThresholdEnergy());
 }
 

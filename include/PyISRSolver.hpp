@@ -115,5 +115,64 @@ static PyObject *PyISRSolver_save(PyISRSolverObject *self, PyObject *args, PyObj
   return PyLong_FromSsize_t(0);
 }
 
+template <class T>
+static int
+PyISRSolver_init(PyISRSolverObject *self, PyObject *args, PyObject *kwds)
+{
+  // !!! TO-DO: check dimension
+  unsigned long nC;
+  PyArrayObject *energy = NULL;
+  PyArrayObject *visibleCS = NULL;
+  PyArrayObject *energyErr = NULL;
+  PyArrayObject *visibleCSErr = NULL;
+  PyObject* enableEnergySpread = NULL;
+  double thresholdC;
+  self->eff = NULL;
+  static const char *kwlist[] =
+      {"n", "energy", "vis_cs", "energy_err",
+       "vis_cs_err", "threshold", "efficiency",
+       "enableEnergySpread", NULL};
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "kO!O!O!O!d|OO",
+                                   const_cast<char**>(kwlist),
+                                   &nC,
+                                   &PyArray_Type, &energy,
+                                   &PyArray_Type, &visibleCS,
+                                   &PyArray_Type, &energyErr,
+                                   &PyArray_Type, &visibleCSErr,
+                                   &thresholdC, &self->eff,
+                                   &enableEnergySpread)) {
+    return -1;
+  }
+  Py_XINCREF(self->eff);
+  if (!PyCallable_Check(self->eff)) {
+    PyErr_SetString(PyExc_TypeError, "ISRSolver: a callable efficiency object is required");
+    return -1;
+  }
+  std::function<double(double, double)> effC =
+      [self](double x, double en) {
+        PyObject *arglist = Py_BuildValue("(dd)", x, en);;
+        PyObject *rv = PyObject_CallObject(self->eff, arglist);
+        double result = PyFloat_AS_DOUBLE(rv);
+        Py_CLEAR(rv);
+        Py_CLEAR(arglist);
+        return result;
+      };
+  double *energyCArrayC = (double*) PyArray_DATA(energy);
+  double *visibleCSArrayC = (double*) PyArray_DATA(visibleCS);
+  double *energyErrArrayC = (double*) PyArray_DATA(energyErr);
+  double *visibleCSErrArrayC = (double*) PyArray_DATA(visibleCSErr);
+  self->solver = new T(nC, energyCArrayC, visibleCSArrayC,
+                       energyErrArrayC, visibleCSErrArrayC,
+                       thresholdC, effC);
+  if (!enableEnergySpread) {
+    self->solver->disableEnergySpread();
+  } else if (PyObject_IsTrue(enableEnergySpread)) {
+    self->solver->enableEnergySpread();
+  } else {
+    self->solver->disableEnergySpread();
+  }
+  return 0;
+}
+
 
 #endif

@@ -146,6 +146,7 @@ bool Interpolator::checkRangeInterpSettings(
   return false;
 }
 
+
 /**
  * Constructor
  * @param pathToJSON a path to .json file with interpolation settings
@@ -157,6 +158,30 @@ Interpolator::Interpolator(const std::string& pathToJSON,
                            double thresholdEnergy):
     Interpolator(Interpolator::loadInterpRangeSettings(pathToJSON),
                  cmEnergies, thresholdEnergy) {}
+
+
+Interpolator::Interpolator(
+    const json& obj,
+    const Eigen::VectorXd& cmEnergies,
+    double thresholdEnergy) :
+    Interpolator(Interpolator::loadInterpRangeSettingJSON(obj),
+                 cmEnergies, thresholdEnergy) {}
+
+std::vector<std::tuple<bool, int, int>> Interpolator::loadInterpRangeSettingJSON(
+    const json& obj) {
+  std::vector<std::tuple<bool, int, int>> result;
+  result.reserve(obj.size());
+  /**
+   * Converting JSON data to appropriate format
+   */
+  for (const auto& el : obj) {
+    result.push_back(
+        std::make_tuple(el[0].get<bool>(),
+                        el[1].get<int>(),
+                        el[2].get<int>()));
+  }
+  return result;
+}
 
 /**
  * Load interpolation settings from file
@@ -173,16 +198,10 @@ std::vector<std::tuple<bool, int, int>> Interpolator::loadInterpRangeSettings(
    * Reading .json file to json object
    */
   fl >> s;
-  std::vector<std::tuple<bool, int, int>> result;
-  result.reserve(s.size());
   /**
    * Converting JSON data to appropriate format
    */
-  for (const auto& el : s) {
-    result.push_back(std::make_tuple(el[0].get<bool>(),
-                                     el[1].get<int>(),
-                                     el[2].get<int>()));
-  }
+  auto result = loadInterpRangeSettingJSON(s);
   fl.close();
   return result;
 }
