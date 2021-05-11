@@ -174,6 +174,54 @@ PyISRSolverSLE_init(PyISRSolverSLEObject *self, PyObject *args, PyObject *kwds)
 //     {NULL}  /* Sentinel */
 // };
 
+static PyObject *PyISRSolverSLE_ecm(PyISRSolverSLEObject *self) {
+  const std::size_t n = self->solver->getN();
+  npy_intp dims[1];
+  dims[0] = n;
+  return PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, extractECMPointer(self->solver));
+}
+
+static PyObject *PyISRSolverSLE_bcs(PyISRSolverSLEObject *self) {
+  const std::size_t n = self->solver->getN();
+  npy_intp dims[1];
+  dims[0] = n;
+  return PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, extractBCSPointer(self->solver));
+}
+
+static PyObject *PyISRSolverSLE_bcs_cov_matrix(PyISRSolverSLEObject *self) {
+  const std::size_t n = self->solver->getN();
+  npy_intp dims[2];
+  dims[0] = n;
+  dims[1] = n;
+  PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_SimpleNewFromData(
+      2, dims, NPY_FLOAT64, extractBCSCovMatrix(self->solver)));
+  return PyArray_Transpose(array, NULL);
+}
+
+static PyObject *PyISRSolverSLE_bcs_inv_cov_matrix(PyISRSolverSLEObject *self) {
+  const std::size_t n = self->solver->getN();
+  npy_intp dims[2];
+  dims[0] = n;
+  dims[1] = n;
+  Eigen::Map<Eigen::MatrixXd> cov(extractBCSCovMatrix(self->solver), n, n);
+  Eigen::MatrixXd icov = cov.inverse();
+  const int n2 = n * n;
+  double* data = new double[n2];
+  std::copy(icov.data(), icov.data() + n2, data);
+  PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_SimpleNewFromData(
+      2, dims, NPY_FLOAT64, data));
+  return PyArray_Transpose(array, NULL);
+}
+
+static PyObject *PyISRSolverSLE_intop_matrix(PyISRSolverSLEObject *self) {
+  const std::size_t n = self->solver->getN();
+  npy_intp dims[2];
+  dims[0] = n;
+  dims[1] = n;
+  PyArrayObject* array = reinterpret_cast<PyArrayObject*>(PyArray_SimpleNewFromData(
+      2, dims, NPY_FLOAT64, extractIntOpMatrix(self->solver)));
+  return PyArray_Transpose(array, NULL);
+}
 
 static PyObject *PyISRSolverSLE_solve(PyISRSolverSLEObject *self) {
   // !!! TO-DO: return none
@@ -222,6 +270,14 @@ static PyMethodDef PyISRSolverSLE_methods[] = {
     {"save", (PyCFunction) PyISRSolverSLE_save, METH_VARARGS | METH_KEYWORDS,
      "Save results"
     },
+    {"bcs", (PyCFunction) PyISRSolverSLE_bcs, METH_NOARGS, "Get Born cross section"},
+    {"ecm", (PyCFunction) PyISRSolverSLE_ecm, METH_NOARGS, "Get center-of-mass energy"},
+    {"bcs_cov_matrix", (PyCFunction) PyISRSolverSLE_bcs_cov_matrix, METH_NOARGS,
+     "Get Born cross section covariance matrix"},
+    {"bcs_inv_cov_matrix", (PyCFunction) PyISRSolverSLE_bcs_inv_cov_matrix, METH_NOARGS,
+     "Get Born cross section inverse covariance matrix"},
+    {"intop_matrix", (PyCFunction) PyISRSolverSLE_intop_matrix, METH_NOARGS,
+     "Integral operator matrix"},
     {NULL}  /* Sentinel */
 };
 

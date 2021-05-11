@@ -5,6 +5,10 @@
 #include "Interpolator.hpp"
 #include "BaseISRSolver.hpp"
 
+class ISRSolverSLE;
+double* extractIntOpMatrix(ISRSolverSLE*);
+double* extractBCSCovMatrix(ISRSolverSLE*);
+
 /**
  * Solver that solving integral equation using the naive method (without
  regularization). In this case the integral equation is reduced to a system of
@@ -163,6 +167,8 @@ class ISRSolverSLE : public BaseISRSolver {
    * Dot product weights
    */
   Eigen::RowVectorXd _dotProdOp;
+  friend double* extractIntOpMatrix(ISRSolverSLE*);
+  friend double* extractBCSCovMatrix(ISRSolverSLE*);
 };
 
 #endif

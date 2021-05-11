@@ -19,6 +19,14 @@
 
 using json = nlohmann::json;
 
+double* extractIntOpMatrix(ISRSolverSLE* solver) {
+  return solver->_integralOperatorMatrix.data();
+}
+
+double* extractBCSCovMatrix(ISRSolverSLE* solver) {
+  return solver->_covMatrixBornCS.data();
+}
+
 ISRSolverSLE::ISRSolverSLE(std::size_t numberOfPoints,
                            double* energy, double* visibleCS,
                            double* energyErr, double* visibleCSErr,

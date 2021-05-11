@@ -12,5 +12,4 @@
  */
 Eigen::VectorXd randomDrawVisCS(const Eigen::VectorXd& vcs,
                                 const Eigen::VectorXd& vcsErr);
-
 #endif

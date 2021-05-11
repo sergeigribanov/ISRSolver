@@ -5,6 +5,26 @@
 #include <TH2F.h>
 #include "BaseISRSolver.hpp"
 
+double* extractECMPointer(BaseISRSolver* solver) {
+  return solver->_visibleCSData.cmEnergy.data();
+}
+
+double* extractECMErrPointer(BaseISRSolver* solver) {
+  return solver->_visibleCSData.cmEnergyError.data();
+}
+
+double* extractVCSPointer(BaseISRSolver* solver) {
+  return solver->_visibleCSData.cs.data();
+}
+
+double* extractVCSErrPointer(BaseISRSolver* solver) {
+  return solver->_visibleCSData.csError.data();
+}
+
+double* extractBCSPointer(BaseISRSolver* solver) {
+  return solver->_bornCS.data();
+}
+
 /**
  * Initialize visible cross section data
  * @param vcsGraph a visible cross section in a form of TGraphErrors
@@ -236,6 +256,8 @@ void BaseISRSolver::_setupEfficiency() {
     throw ex;
   }
 }
+
+std::size_t BaseISRSolver::getN() const { return _n; }
 
 /**
  * This method is used to get number of center-of-mass

@@ -9,6 +9,14 @@
 #include <TEfficiency.h>
 #include "ISRSolverStructs.hpp"
 
+
+class BaseISRSolver;
+double* extractECMPointer(BaseISRSolver*);
+double* extractECMErrPointer(BaseISRSolver*);
+double* extractVCSPointer(BaseISRSolver*);
+double* extractVCSErrPointer(BaseISRSolver*);
+double* extractBCSPointer(BaseISRSolver*);
+
 /**
  * The exception that is thrown when the detection efficiency function has the
  * wrong number of arguments
@@ -148,12 +156,14 @@ class BaseISRSolver {
    */
   void resetECMErrors(const Eigen::VectorXd& vecECMErr);
 
+  std::size_t getN() const;
+
  protected:
   /**
    * This method is used to get number of center-of-mass
    * energy points
    */
-  std::size_t _getN() const;
+  std::size_t _getN() const; // !!! remove and replace with getN() every where
   /**
    * Threshold energy const getter
    */
@@ -248,6 +258,11 @@ class BaseISRSolver {
    * numerical solution (Born cross section)
    */
   Eigen::VectorXd _bornCS;
+  friend double* extractECMPointer(BaseISRSolver*);
+  friend double* extractECMErrPointer(BaseISRSolver*);
+  friend double* extractVCSPointer(BaseISRSolver*);
+  friend double* extractVCSErrPointer(BaseISRSolver*);
+  friend double* extractBCSPointer(BaseISRSolver*);
 };
 
 #endif
