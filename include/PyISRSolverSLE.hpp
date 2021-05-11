@@ -99,40 +99,6 @@ PyISRSolverSLE_init(PyISRSolverSLEObject *self, PyObject *args, PyObject *kwds)
 //     {NULL}  /* Sentinel */
 // };
 
-// static PyObject *
-// PyISRSolverSLE_getfirst(PyISRSolverSLEObject *self, void *closure)
-// {
-//     Py_INCREF(self->first);
-//     return self->first;
-// }
-
-// static int
-// PyISRSolverSLE_setfirst(PyISRSolverSLEObject *self, PyObject *value, void *closure)
-// {
-//     PyObject *tmp;
-//     if (value == NULL) {
-//         PyErr_SetString(PyExc_TypeError, "Cannot delete the first attribute");
-//         return -1;
-//     }
-//     if (!PyUnicode_Check(value)) {
-//         PyErr_SetString(PyExc_TypeError,
-//                         "The first attribute value must be a string");
-//         return -1;
-//     }
-//     tmp = self->first;
-//     Py_INCREF(value);
-//     self->first = value;
-//     Py_DECREF(tmp);
-//     return 0;
-// }
-
-// static PyObject *
-// PyISRSolverSLE_getlast(PyISRSolverSLEObject *self, void *closure)
-// {
-//     Py_INCREF(self->last);
-//     return self->last;
-// }
-
 // static int
 // PyISRSolverSLE_setlast(PyISRSolverSLEObject *self, PyObject *value, void *closure)
 // {
@@ -161,24 +127,45 @@ PyISRSolverSLE_init(PyISRSolverSLEObject *self, PyObject *args, PyObject *kwds)
 //     {NULL}  /* Sentinel */
 // };
 
-// static PyObject *
-// PyISRSolverSLE_name(PyISRSolverSLEObject *self, PyObject *Py_UNUSED(ignored))
-// {
-//     return PyUnicode_FromFormat("%S %S", self->first, self->last);
-// }
 
-// static PyMethodDef PyISRSolverSLE_methods[] = {
-//     {"name", (PyCFunction) PyISRSolverSLE_name, METH_NOARGS,
-//      "Return the name, combining the first and last name"
-//     },
-//     {NULL}  /* Sentinel */
-// };
+static PyObject *
+PyISRSolverSLE_n(PyISRSolverSLEObject *self, void *closure)
+{
+  return PyLong_FromSsize_t(self->solver->getN());
+}
+
+static PyGetSetDef PyISRSolverSLE_getsetters[] = {
+    {"n", (getter) PyISRSolverSLE_n, NULL,
+     "Number of points", NULL},
+    {NULL}  /* Sentinel */
+};
 
 static PyObject *PyISRSolverSLE_ecm(PyISRSolverSLEObject *self) {
   const std::size_t n = self->solver->getN();
   npy_intp dims[1];
   dims[0] = n;
   return PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, extractECMPointer(self->solver));
+}
+
+static PyObject *PyISRSolverSLE_ecm_err(PyISRSolverSLEObject *self) {
+  const std::size_t n = self->solver->getN();
+  npy_intp dims[1];
+  dims[0] = n;
+  return PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, extractECMErrPointer(self->solver));
+}
+
+static PyObject *PyISRSolverSLE_vcs(PyISRSolverSLEObject *self) {
+  const std::size_t n = self->solver->getN();
+  npy_intp dims[1];
+  dims[0] = n;
+  return PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, extractVCSPointer(self->solver));
+}
+
+static PyObject *PyISRSolverSLE_vcs_err(PyISRSolverSLEObject *self) {
+  const std::size_t n = self->solver->getN();
+  npy_intp dims[1];
+  dims[0] = n;
+  return PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, extractVCSErrPointer(self->solver));
 }
 
 static PyObject *PyISRSolverSLE_bcs(PyISRSolverSLEObject *self) {
@@ -270,12 +257,15 @@ static PyMethodDef PyISRSolverSLE_methods[] = {
     {"save", (PyCFunction) PyISRSolverSLE_save, METH_VARARGS | METH_KEYWORDS,
      "Save results"
     },
-    {"bcs", (PyCFunction) PyISRSolverSLE_bcs, METH_NOARGS, "Get Born cross section"},
+    {"bcs", (PyCFunction) PyISRSolverSLE_bcs, METH_NOARGS, "Get numerical solution (Born cross section)"},
     {"ecm", (PyCFunction) PyISRSolverSLE_ecm, METH_NOARGS, "Get center-of-mass energy"},
+    {"ecm_err", (PyCFunction) PyISRSolverSLE_ecm_err, METH_NOARGS, "Get center-of-mass energy errors"},
+    {"vcs", (PyCFunction) PyISRSolverSLE_vcs, METH_NOARGS, "Get visible cross section"},
+    {"vcs_err", (PyCFunction) PyISRSolverSLE_vcs_err, METH_NOARGS, "Get visible cross section errors"},
     {"bcs_cov_matrix", (PyCFunction) PyISRSolverSLE_bcs_cov_matrix, METH_NOARGS,
-     "Get Born cross section covariance matrix"},
+     "Get covariance matrix of the numerical solution (Born cross section)"},
     {"bcs_inv_cov_matrix", (PyCFunction) PyISRSolverSLE_bcs_inv_cov_matrix, METH_NOARGS,
-     "Get Born cross section inverse covariance matrix"},
+     "Evaluate inverse covariance matrix of the numerical solution (Born cross section)"},
     {"intop_matrix", (PyCFunction) PyISRSolverSLE_intop_matrix, METH_NOARGS,
      "Integral operator matrix"},
     {NULL}  /* Sentinel */
@@ -311,7 +301,7 @@ static PyTypeObject PyISRSolverSLEType = {
     0, /* tp_iternext */
     PyISRSolverSLE_methods, /* tp_methods */
     0, //PyISRSolverSLE_members, /* tp_members */
-    0, //PyISRSolverSLE_getsetters, /* tp_getset  */
+    PyISRSolverSLE_getsetters, /* tp_getset  */
     0, /* tp_base */
     0, /* tp_dict */
     0, /* tp_descr_get */
