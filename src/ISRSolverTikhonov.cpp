@@ -15,6 +15,19 @@
 
 #include "Integration.hpp"
 
+ISRSolverTikhonov::ISRSolverTikhonov(std::size_t numberOfPoints,
+                                     double* energy, double* visibleCS,
+                                     double* energyErr, double* visibleCSErr,
+                                     double thresholdEnergy,
+                                     const std::function<double(double, double)>&
+                                     efficiency) :
+    ISRSolverSLE(numberOfPoints,
+                 energy, visibleCS,
+                 energyErr, visibleCSErr,
+                 thresholdEnergy, efficiency),
+    _enabledDerivNorm2Reg(true),
+    _lambda(1.) {}
+
 ISRSolverTikhonov::ISRSolverTikhonov(TGraphErrors* vcsGraph,
                                      double thresholdEnergy,
                                      double lambda) :

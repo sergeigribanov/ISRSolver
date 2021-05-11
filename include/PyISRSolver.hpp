@@ -40,6 +40,29 @@ PyISRSolver_n(PyISRSolverObject *self, void *closure)
   return PyLong_FromSsize_t(self->solver->getN());
 }
 
+static PyObject*
+PyISRSolver_get_energy_sread_enabled(PyISRSolverObject *self, void *closure) {
+  if (self->solver->isEnergySpreadEnabled()) {
+    return Py_True;
+  }
+  return Py_False;
+}
+
+static int
+PyISRSolverTikhonov_set_energy_sread_enabled(PyISRSolverObject *self, PyObject *value, void *closure)
+{
+  if (value == NULL) {
+    PyErr_SetString(PyExc_TypeError, "Cannot delete energy spread flag");
+    return -1;
+  }
+  if (PyObject_IsTrue(value)) {
+    self->solver->enableEnergySpread();
+  } else {
+    self->solver->disableEnergySpread();
+  }
+  return 0;
+}
+
 static PyObject *PyISRSolver_ecm(PyISRSolverObject *self) {
   const std::size_t n = self->solver->getN();
   npy_intp dims[1];

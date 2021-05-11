@@ -2,6 +2,7 @@
 #include "PyISRSolverSLE.hpp"
 #include "PyIterISRInterpSolver.hpp"
 #include "PyISRSolverTSVD.hpp"
+#include "PyISRSolverTikhonov.hpp"
 
 //
 //
@@ -226,6 +227,9 @@ PyMODINIT_FUNC PyInit_PyISR(void)
   if (PyType_Ready(&PyISRSolverTSVDType) < 0)
     return NULL;
 
+  if (PyType_Ready(&PyISRSolverTikhonovType) < 0)
+    return NULL;
+
   m = PyModule_Create(&PyISR);
   if (m == NULL)
     return NULL;
@@ -254,6 +258,13 @@ PyMODINIT_FUNC PyInit_PyISR(void)
   Py_INCREF(&PyISRSolverTSVDType);
   if (PyModule_AddObject(m, "ISRSolverTSVD", (PyObject *) &PyISRSolverTSVDType) < 0) {
     Py_DECREF(&PyISRSolverTSVDType);
+    Py_DECREF(m);
+    return NULL;
+  }
+
+  Py_INCREF(&PyISRSolverTikhonovType);
+  if (PyModule_AddObject(m, "ISRSolverTikhonov", (PyObject *) &PyISRSolverTikhonovType) < 0) {
+    Py_DECREF(&PyISRSolverTikhonovType);
     Py_DECREF(m);
     return NULL;
   }

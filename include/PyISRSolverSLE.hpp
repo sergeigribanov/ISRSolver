@@ -52,6 +52,8 @@ static PyObject *PyISRSolverSLE_set_interp_settings(PyISRSolverObject *self, PyO
 static PyGetSetDef PyISRSolverSLE_getsetters[] = {
     {"n", (getter) PyISRSolver_n, NULL,
      "Number of points", NULL},
+    {"energy_spread_enabled", (getter) PyISRSolver_get_energy_sread_enabled,
+     (setter) PyISRSolverTikhonov_set_energy_sread_enabled, "Energy spread flag", NULL},
     {NULL}  /* Sentinel */
 };
 

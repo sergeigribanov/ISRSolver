@@ -29,6 +29,8 @@ PyISRSolverTSVD_set_upper_TSVD_index(PyISRSolverObject *self, PyObject *value, v
 
 static PyGetSetDef PyISRSolverTSVD_getsetters[] = {
   {"n", (getter) PyISRSolver_n, NULL, "Number of points", NULL},
+  {"energy_spread_enabled", (getter) PyISRSolver_get_energy_sread_enabled,
+   (setter) PyISRSolverTikhonov_set_energy_sread_enabled, "Energy spread flag", NULL},
   {"upper_TSVD_index", (getter) PyISRSolverTSVD_get_upper_TSVD_index,
    (setter) PyISRSolverTSVD_set_upper_TSVD_index, "Upper TSVD index", NULL},
   {NULL}  /* Sentinel */

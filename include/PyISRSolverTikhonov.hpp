@@ -1,43 +1,42 @@
-#ifndef _PY_ITER_ISR_INTERP_SOLVER_HPP_
-#define _PY_ITER_ISR_INTERP_SOLVER_HPP_
+#ifndef _PY_ISRSOLVER_TIKHONOV_HPP_
+#define _PY_ISRSOLVER_TIKHONOV_HPP_
 #include "PyISRSolverSLE.hpp"
-#include "IterISRInterpSolver.hpp"
+#include "ISRSolverTikhonov.hpp"
 
 static PyObject *
-PyIterISRInterpSolver_getniter(PyISRSolverObject *self, void *closure)
+PyISRSolverTikhonov_get_lambda(PyISRSolverObject *self, void *closure)
 {
-  IterISRInterpSolver* solver = reinterpret_cast<IterISRInterpSolver*>(self->solver);
-  return PyLong_FromSsize_t(solver->getNumOfIters());
+  auto solver = reinterpret_cast<ISRSolverTikhonov*>(self->solver);
+  return PyFloat_FromDouble(solver->getLambda());
 }
 
 static int
-PyIterISRInterpSolver_setniter(PyISRSolverObject *self, PyObject *value, void *closure)
+PyISRSolverTikhonov_set_lambda(PyISRSolverObject *self, PyObject *value, void *closure)
 {
   if (value == NULL) {
-    PyErr_SetString(PyExc_TypeError, "Cannot delete the number of iterations");
+    PyErr_SetString(PyExc_TypeError, "Cannot delete regularization parameter");
     return -1;
   }
-  if (!PyLong_Check(value)) {
+  if (!PyFloat_Check(value)) {
     PyErr_SetString(PyExc_TypeError,
-                    "The number of iterations must be a long");
+                    "Regularization parameter must be float");
     return -1;
   }
-  IterISRInterpSolver* solver = reinterpret_cast<IterISRInterpSolver*>(self->solver);
-  solver->setNumOfIters(PyLong_AsUnsignedLong(value));
+  auto solver = reinterpret_cast<ISRSolverTikhonov*>(self->solver);
+  solver->setLambda(PyFloat_AS_DOUBLE(value));
   return 0;
 }
 
-static PyGetSetDef PyIterISRInterpSolver_getsetters[] = {
+static PyGetSetDef PyISRSolverTikhonov_getsetters[] = {
   {"n", (getter) PyISRSolver_n, NULL, "Number of points", NULL},
   {"energy_spread_enabled", (getter) PyISRSolver_get_energy_sread_enabled,
    (setter) PyISRSolverTikhonov_set_energy_sread_enabled, "Energy spread flag", NULL},
-  {"n_iter", (getter) PyIterISRInterpSolver_getniter,
-   (setter)  PyIterISRInterpSolver_setniter,
-   "Number of iterations", NULL},
+  {"reg_param", (getter) PyISRSolverTikhonov_get_lambda,
+   (setter) PyISRSolverTikhonov_set_lambda, "Regularization parameter", NULL},
   {NULL}  /* Sentinel */
 };
 
-static PyMethodDef PyIterISRInterpSolver_methods[] = {
+static PyMethodDef PyISRSolverTikhonov_methods[] = {
     {"solve", (PyCFunction) PyISRSolver_solve, METH_NOARGS,
      "Find solution"
     },
@@ -59,9 +58,9 @@ static PyMethodDef PyIterISRInterpSolver_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyTypeObject PyIterISRInterpSolverType = {
+static PyTypeObject PyISRSolverTikhonovType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "PyISR.IterISRInterpSolver", /* tp_name */
+    "PyISR.ISRSolverTikhonov", /* tp_name */
     sizeof(PyISRSolverObject),  /* tp_basicsize */
     0, /* tp_itemsize */
     (destructor) PyISRSolver_dealloc, /* .tp_dealloc  */
@@ -80,22 +79,22 @@ static PyTypeObject PyIterISRInterpSolverType = {
     0, /* tp_setattro */
     0, /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    "IterISRInterpSolver objects", /* tp_doc */
+    "ISRSolverTikhonov objects", /* tp_doc */
     0, /* tp_traverse */
     0, /* tp_clear */
     0, /* tp_richcompare */
     0, /* tp_weaklistoffset */
     0, /* tp_iter */
     0, /* tp_iternext */
-    PyIterISRInterpSolver_methods, /* tp_methods */
+    PyISRSolverTikhonov_methods, /* tp_methods */
     0, //PyISRSolverSLE_members, /* tp_members */
-    PyIterISRInterpSolver_getsetters, /* tp_getset  */
+    PyISRSolverTikhonov_getsetters, /* tp_getset  */
     0, /* tp_base */
     0, /* tp_dict */
     0, /* tp_descr_get */
     0, /* tp_descr_set */
     0, /* tp_dictoffset */
-    (initproc) PyISRSolver_init<IterISRInterpSolver>, /* tp_init */
+    (initproc) PyISRSolver_init<ISRSolverTikhonov>, /* tp_init */
     0, /* tp_alloc */
     PyISRSolver_new, /* tp_new */
 };
