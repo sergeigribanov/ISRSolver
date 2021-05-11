@@ -3,6 +3,21 @@
 #include <Eigen/SVD>
 #include "ISRSolverTSVD.hpp"
 
+ISRSolverTSVD::ISRSolverTSVD(
+    std::size_t numberOfPoints,
+    double* energy, double* visibleCS,
+    double* energyErr, double* visibleCSErr,
+    double thresholdEnergy,
+    const std::function<double(double, double)>&
+    efficiency) :
+    ISRSolverSLE(numberOfPoints,
+                 energy, visibleCS,
+                 energyErr, visibleCSErr,
+                 thresholdEnergy,
+                 efficiency),
+    _upperTSVDIndex(numberOfPoints),
+    _keepOne(false) {}
+
 ISRSolverTSVD::ISRSolverTSVD(TGraphErrors* vcsGraph,
                              double thresholdEnergy,
                              int upperTSVDIndex) :

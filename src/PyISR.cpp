@@ -1,6 +1,7 @@
 #include "PyKuraevFadin.hpp"
 #include "PyISRSolverSLE.hpp"
 #include "PyIterISRInterpSolver.hpp"
+#include "PyISRSolverTSVD.hpp"
 
 //
 //
@@ -222,6 +223,9 @@ PyMODINIT_FUNC PyInit_PyISR(void)
   if (PyType_Ready(&PyIterISRInterpSolverType) < 0)
     return NULL;
 
+  if (PyType_Ready(&PyISRSolverTSVDType) < 0)
+    return NULL;
+
   m = PyModule_Create(&PyISR);
   if (m == NULL)
     return NULL;
@@ -243,6 +247,13 @@ PyMODINIT_FUNC PyInit_PyISR(void)
   Py_INCREF(&PyIterISRInterpSolverType);
   if (PyModule_AddObject(m, "IterISRInterpSolver", (PyObject *) &PyIterISRInterpSolverType) < 0) {
     Py_DECREF(&PyIterISRInterpSolverType);
+    Py_DECREF(m);
+    return NULL;
+  }
+
+  Py_INCREF(&PyISRSolverTSVDType);
+  if (PyModule_AddObject(m, "ISRSolverTSVD", (PyObject *) &PyISRSolverTSVDType) < 0) {
+    Py_DECREF(&PyISRSolverTSVDType);
     Py_DECREF(m);
     return NULL;
   }
