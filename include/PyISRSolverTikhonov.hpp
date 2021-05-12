@@ -1,7 +1,10 @@
 #ifndef _PY_ISRSOLVER_TIKHONOV_HPP_
 #define _PY_ISRSOLVER_TIKHONOV_HPP_
+#include <vector>
+#include <nlopt.hpp>
 #include "PyISRSolverSLE.hpp"
 #include "ISRSolverTikhonov.hpp"
+#include "Utils.hpp"
 
 #include <iostream>
 
@@ -39,8 +42,6 @@ static PyGetSetDef PyISRSolverTikhonov_getsetters[] = {
 };
 
 static PyObject *PyISRSolverTikhonov_make_LCurve(PyISRSolverObject *self, PyObject *args, PyObject *kwds) {
-  // !!! TO-DO: return none
-  self->solver->solve();
   PyArrayObject *lambdas = NULL;
   static const char *kwlist[] = {"lambdas", NULL};
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!",
@@ -65,7 +66,7 @@ static PyObject *PyISRSolverTikhonov_make_LCurve(PyISRSolverObject *self, PyObje
     solver->solve();
     x[i] = solver->evalEqNorm2();
     y[i] = solver->evalSmoothnessConstraintNorm2();
-    curv[i] = solver->evalLCurveCurvature();
+    curv[i] = -solver->evalLCurveCurvature();
   }
   PyObject* aX = PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, x);
   PyObject* aY = PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, y);
@@ -74,6 +75,36 @@ static PyObject *PyISRSolverTikhonov_make_LCurve(PyISRSolverObject *self, PyObje
   PyDict_SetItemString(result, "x", aX);
   PyDict_SetItemString(result, "y", aY);
   PyDict_SetItemString(result, "c", aC);
+  return result;
+}
+
+static PyObject *PyISRSolverTikhonov_solve_LCurve(PyISRSolverObject *self, PyObject *args, PyObject *kwds) {
+  double lambda;
+  static const char *kwlist[] = {"initial_lambda", NULL};
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "d",
+                                   const_cast<char**>(kwlist),
+                                   &PyArray_Type, &lambda)) {
+    return 0;
+  }
+  /**
+   * Creating NLOPT optimizer
+   */
+  nlopt::opt opt(nlopt::LD_MMA, 1);
+  std::vector<double> z(1, lambda);
+  std::vector<double> lowerBounds(1, 0);
+  opt.set_lower_bounds(lowerBounds);
+  opt.set_min_objective(lambdaObjective, self->solver);
+  opt.set_xtol_rel(1.e-6);
+  double minf;
+  /**
+   * Run the L-curve curvature maximization
+   */
+  opt.optimize(z, minf);
+  PyObject* pyLambda = PyFloat_FromDouble(z[0]);
+  PyObject* pyMaxCurv = PyFloat_FromDouble(-minf);
+  PyObject* result = PyDict_New();
+  PyDict_SetItemString(result, "lambda", pyLambda);
+  PyDict_SetItemString(result, "max_curv", pyMaxCurv);
   return result;
 }
 
@@ -98,6 +129,8 @@ static PyMethodDef PyISRSolverTikhonov_methods[] = {
     {"set_interp_settings", (PyCFunction) PyISRSolverSLE_set_interp_settings, METH_VARARGS, "Set interpolation settings"},
     {"make_LCurve", (PyCFunction) PyISRSolverTikhonov_make_LCurve, METH_VARARGS | METH_KEYWORDS,
      "Obtaining L-curve and it's curvature"},
+    {"solve_LCurve", (PyCFunction) PyISRSolverTikhonov_solve_LCurve, METH_VARARGS | METH_KEYWORDS,
+    "Find solution using the L-curve criterion"},
     {NULL}  /* Sentinel */
 };
 

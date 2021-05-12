@@ -3,6 +3,7 @@
 #include <boost/program_options.hpp>
 #include <nlopt.hpp>
 #include "ISRSolverTikhonov.hpp"
+#include "Utils.hpp"
 namespace po = boost::program_options;
 
 /**
@@ -74,31 +75,6 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
  */
 void help(const po::options_description& desc) {
   std::cout << desc << std::endl;
-}
-
-/**
- * Objective function that return the L-curve curvature with a negative sign
- */
-double lambdaObjective(unsigned n, const double* plambda, double* grad, void* solver) {
-   auto sp = reinterpret_cast<ISRSolverTikhonov*>(solver);
-   /**
-    * Setting regularization parameter
-    */
-   sp->setLambda(*plambda);
-   /**
-    * Finding a numerical solution
-    */
-   sp->solve();
-   if (grad) {
-     /**
-      * Evaluate L-curve curvature gradient
-      */
-     grad[0] = sp->evalLCurveCurvatureDerivative();
-   }
-   /**
-    * Return L-curve curvature
-    */
-   return sp->evalLCurveCurvature();
 }
 
 int main(int argc, char* argv[]) {
