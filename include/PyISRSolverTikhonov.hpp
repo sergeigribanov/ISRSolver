@@ -3,6 +3,8 @@
 #include "PyISRSolverSLE.hpp"
 #include "ISRSolverTikhonov.hpp"
 
+#include <iostream>
+
 static PyObject *
 PyISRSolverTikhonov_get_lambda(PyISRSolverObject *self, void *closure)
 {
@@ -36,6 +38,45 @@ static PyGetSetDef PyISRSolverTikhonov_getsetters[] = {
   {NULL}  /* Sentinel */
 };
 
+static PyObject *PyISRSolverTikhonov_make_LCurve(PyISRSolverObject *self, PyObject *args, PyObject *kwds) {
+  // !!! TO-DO: return none
+  self->solver->solve();
+  PyArrayObject *lambdas = NULL;
+  static const char *kwlist[] = {"lambdas", NULL};
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!",
+                                   const_cast<char**>(kwlist),
+                                   &PyArray_Type, &lambdas)) {
+    return 0;
+  }
+  const int ndim = PyArray_NDIM(lambdas);
+  if (ndim != 1) {
+    PyErr_SetString(PyExc_TypeError, "Wrong dimension of the array with regularization parameter values. The array must be 1D array.");
+    return 0;
+  }
+  npy_intp *dims = PyArray_DIMS(lambdas);
+  npy_intp dim = dims[0];
+  double *lambdasC = (double*) PyArray_DATA(lambdas);
+  auto solver = reinterpret_cast<ISRSolverTikhonov*>(self->solver);
+  double* x = new double[dim];
+  double* y = new double[dim];
+  double* curv = new double[dim];
+  for (npy_intp i = 0; i < dim; ++i) {
+    solver->setLambda(lambdasC[i]);
+    solver->solve();
+    x[i] = solver->evalEqNorm2();
+    y[i] = solver->evalSmoothnessConstraintNorm2();
+    curv[i] = solver->evalLCurveCurvature();
+  }
+  PyObject* aX = PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, x);
+  PyObject* aY = PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, y);
+  PyObject* aC = PyArray_SimpleNewFromData(1, dims, NPY_FLOAT64, curv);
+  PyObject* result = PyDict_New();
+  PyDict_SetItemString(result, "x", aX);
+  PyDict_SetItemString(result, "y", aY);
+  PyDict_SetItemString(result, "c", aC);
+  return result;
+}
+
 static PyMethodDef PyISRSolverTikhonov_methods[] = {
     {"solve", (PyCFunction) PyISRSolver_solve, METH_NOARGS,
      "Find solution"
@@ -55,6 +96,8 @@ static PyMethodDef PyISRSolverTikhonov_methods[] = {
     {"intop_matrix", (PyCFunction) PyISRSolverSLE_intop_matrix, METH_NOARGS,
      "Integral operator matrix"},
     {"set_interp_settings", (PyCFunction) PyISRSolverSLE_set_interp_settings, METH_VARARGS, "Set interpolation settings"},
+    {"make_LCurve", (PyCFunction) PyISRSolverTikhonov_make_LCurve, METH_VARARGS | METH_KEYWORDS,
+     "Obtaining L-curve and it's curvature"},
     {NULL}  /* Sentinel */
 };
 
