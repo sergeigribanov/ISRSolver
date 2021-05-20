@@ -150,7 +150,8 @@ void ISRSolverSLE::evalEqMatrix() {
 
 TF1* ISRSolverSLE::_createInterpFunction() const {
   std::function<double(double*, double*)> fcn = [this](double* x, double* par) {
-    return this->_interp.eval(this->bcs(), x[0]);
+    double result = this->_interp.eval(this->bcs(), x[0]);
+    return result;
   };
   auto f1 = new TF1("interpFCN", fcn, _energyThreshold(), _ecm(_getN() - 1), 0);
   f1->SetNpx(1.e+4);

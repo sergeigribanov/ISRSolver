@@ -112,14 +112,14 @@ static PyObject *PyFitVCS_call(PyObject *callable, PyObject *args, PyObject* = N
   // // double tmpResult = self->bcsModelLambda(2.);
   double* energyC = (double*) PyArray_DATA(self->energy);
   // // double* energyErrC = (double*) PyArray_DATA(self->energyErr);
-  double* vcsC = (double*) PyArray_DATA(self->vcs);
+  //!!! double* vcsC = (double*) PyArray_DATA(self->vcs);
   // double* vcsErrC = (double*) PyArray_DATA(self->vcsErr);
   // // !!! dimension check
   npy_intp *dims = PyArray_DIMS(self->energy);
   npy_intp dim = dims[0];
   double result = 0;
   for (npy_intp i = 0; i < dim; ++i) {
-    double sT = self->threshold * self->threshold;
+    //!!! double sT = self->threshold * self->threshold;
     double energy = energyC[i];
     std::cout << "energy = " << energy << std::endl;
     std::cout << self->bcsModelLambda(energy) << std::endl;

@@ -98,6 +98,9 @@ target_link_libraries(isrsolver-radcorr-function ISR)
 add_executable(isrsolver-iterative ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-iterative.cpp)
 target_link_libraries(isrsolver-iterative ISR)
 
+add_executable(isrsolver-iterative-use-vcs-fit-fcn ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-iterative-use-vcs-fit-fcn.cpp)
+target_link_libraries(isrsolver-iterative-use-vcs-fit-fcn ISR)
+
 add_executable(isrsolver-KuraevFadin-convolution
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-KuraevFadin-convolution.cpp)
 target_link_libraries(isrsolver-KuraevFadin-convolution ISR)
@@ -129,6 +132,7 @@ install(TARGETS isrsolver-SLE-ratio-test DESTINATION bin)
 install(TARGETS isrsolver-Tikhonov-ratio-test DESTINATION bin)
 install(TARGETS isrsolver-condnum-test DESTINATION bin)
 install(TARGETS isrsolver-iterative DESTINATION bin)
+install(TARGETS isrsolver-iterative-use-vcs-fit-fcn DESTINATION bin)
 install(TARGETS isrsolver-radcorr DESTINATION bin)
 install(TARGETS isrsolver-radcorr-function DESTINATION bin)
 install(TARGETS isrsolver-draw-kernel DESTINATION bin)

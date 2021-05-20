@@ -99,10 +99,9 @@ int main(int argc, char* argv[]) {
   /**
    * Converting the function to a form of std::function
    */
-  std::function<double(double)> born_fcn = [&opts, &fcn](double s) {
-    double e0 = opts.thsd;
-    double e1 = fcn->GetXmin();
-    double en = std::sqrt(s);
+  std::function<double(double)> born_fcn = [&opts, &fcn](double en) {
+    const double e0 = opts.thsd;
+    const double e1 = fcn->GetXmin();
     if (e0 < e1 && en < e1) {
       return fcn->Eval(e1) * (en - e0) / (e1 - e0);
     }
@@ -122,13 +121,14 @@ int main(int argc, char* argv[]) {
    */
   std::function<double(double*, double*)> vcs_fcn =
       [opts, born_fcn, teff, eff](double* x, double* par) {
-        double s = x[0] * x[0];
-        double s_threshold = opts.thsd * opts.thsd;
+        const double en = x[0];
+        const double s = en * en;
+        const double s_threshold = opts.thsd * opts.thsd;
         double result = 0;
         if (teff) {
-          result = convolutionKuraevFadin(s, born_fcn, 0, 1 - s_threshold / s, eff);
+          result = convolutionKuraevFadin(en, born_fcn, 0, 1 - s_threshold / s, eff);
         } else {
-          result = convolutionKuraevFadin(s, born_fcn, 0, 1 - s_threshold / s);
+          result = convolutionKuraevFadin(en, born_fcn, 0, 1 - s_threshold / s);
         }
         return result;
       };
