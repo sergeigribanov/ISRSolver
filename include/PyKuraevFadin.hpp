@@ -17,14 +17,14 @@ static PyObject* pyKernelKuraevFadin(PyObject* self,
 
 static PyObject* pyConvolutionKuraevFadin(PyObject* self,
                                           PyObject* args,
-                                          PyObject* kw) {
+                                          PyObject* kwds) {
   PyObject *cb = nullptr;
   PyObject *efficiency = nullptr;
   double energyC;
   double minXC;
   double maxXC;
   static const char *kwlist[] = {"energy", "fcn", "min_x", "max_x", "efficiency", NULL};
-  if (!PyArg_ParseTupleAndKeywords(args, kw, "dOdd|O",
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "dOdd|O",
                                    const_cast<char**>(kwlist),
                                    &energyC, &cb, &minXC, &maxXC, &efficiency)) {
     return 0;

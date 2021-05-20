@@ -152,8 +152,8 @@ PyISRSolver_init(PyISRSolverObject *self, PyObject *args, PyObject *kwds)
   double thresholdC;
   self->eff = NULL;
   static const char *kwlist[] =
-      {"n", "energy", "vis_cs", "energy_err",
-       "vis_cs_err", "threshold", "efficiency",
+      {"n", "energy", "vcs", "energy_err",
+       "vcs_err", "threshold", "efficiency",
        "enableEnergySpread", NULL};
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "kO!O!O!O!d|OO",
                                    const_cast<char**>(kwlist),
@@ -173,7 +173,7 @@ PyISRSolver_init(PyISRSolverObject *self, PyObject *args, PyObject *kwds)
   }
   std::function<double(double, double)> effC =
       [self](double x, double en) {
-        PyObject *arglist = Py_BuildValue("(dd)", x, en);;
+        PyObject *arglist = Py_BuildValue("(dd)", x, en);
         PyObject *rv = PyObject_CallObject(self->eff, arglist);
         double result = PyFloat_AS_DOUBLE(rv);
         Py_CLEAR(rv);

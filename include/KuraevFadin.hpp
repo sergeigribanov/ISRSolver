@@ -11,11 +11,11 @@
  * @param efficiency a detection efficiency (default value = 1)
  */
 double convolutionKuraevFadin(double energy,
-                                const std::function<double(double)>& fcn,
-                                double min_x,
-                                double max_x,
-                                const std::function<double(double, double)>& efficiency =
-                                [](double, double) {return 1.;});
+                              const std::function<double(double)>& fcn,
+                              double min_x,
+                              double max_x,
+                              const std::function<double(double, double)>& efficiency =
+                              [](double, double) {return 1.;});
 
 /**
  * The Kuraev-Fadin kernel function.
