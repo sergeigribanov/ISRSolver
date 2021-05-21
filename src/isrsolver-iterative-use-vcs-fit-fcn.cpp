@@ -241,7 +241,7 @@ int main(int argc, char* argv[]) {
   TMatrixD bornCSInvCovMatrix(vcs->GetN(),vcs->GetN());
   Eigen::VectorXd tmpCovMDiag = csErr.array().pow(2.);
   Eigen::MatrixXd tmpCovM = tmpCovMDiag.asDiagonal();
-  Eigen::VectorXd tmpInvCovMDiag = csErr.array().pow(2.);
+  Eigen::VectorXd tmpInvCovMDiag = csErr.array().pow(-2.);
   Eigen::MatrixXd tmpInvCovM = tmpInvCovMDiag.asDiagonal();
   bornCSCovMatrix.SetMatrixArray(tmpCovM.data());
   bornCSInvCovMatrix.SetMatrixArray(tmpInvCovM.data());
