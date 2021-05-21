@@ -253,13 +253,13 @@ int main(int argc, char* argv[]) {
   bornCSCovMatrix.Write("covMatrixBornCS");
   bornCSInvCovMatrix.Write("invCovMatrixBornCS");
   ofl->Close();
-  delete fl;
   delete bornCS;
   delete vcs;
   delete fcn;
   if (teff) {
     delete teff;
   }
+  delete ofl;
   gsl_spline_free (spline);
   gsl_interp_accel_free (acc);
   return 0;
