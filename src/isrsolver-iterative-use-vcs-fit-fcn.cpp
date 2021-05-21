@@ -13,6 +13,7 @@
 #include <TGraphErrors.h>
 #include <TF1.h>
 #include <TFile.h>
+#include <TMatrixD.h>
 #include "Integration.hpp"
 #include "KuraevFadin.hpp"
 namespace po = boost::program_options;
@@ -224,26 +225,33 @@ int main(int argc, char* argv[]) {
       };
   TF1 rootRadCorrFCN("radCorrFCN", &rad_fcn, minen, maxen, 0);
   rootRadCorrFCN.SetNpx(100);
-  std::vector<double> radcorrs;
-  std::vector<double> cs;
-  std::vector<double> csErr;
-  radcorrs.reserve(vcs->GetN());
-  cs.reserve(vcs->GetN());
-  csErr.reserve(vcs->GetN());
+  Eigen::VectorXd radcorrs = Eigen::VectorXd(vcs->GetN());
+  Eigen::VectorXd cs = Eigen::VectorXd(vcs->GetN());
+  Eigen::VectorXd csErr = Eigen::VectorXd(vcs->GetN());
   for (int i = 0; i < vcs->GetN(); ++i) {
     double energy = (vcs->GetX())[i];
-    radcorrs.push_back(radFCN(energy));
-    cs.push_back((vcs->GetY())[i] /  (1. + radcorrs[i]));
-    csErr.push_back((vcs->GetEY())[i] /  (1. + radcorrs[i]));
+    radcorrs(i) = radFCN(energy);
+    cs(i) = (vcs->GetY())[i] /  (1. + radcorrs[i]);
+    csErr(i) = (vcs->GetEY())[i] /  (1. + radcorrs[i]);
   }
   TGraph radGraph(vcs->GetN(), vcs->GetX(), radcorrs.data());
   auto bornCS = new TGraphErrors(vcs->GetN(), vcs->GetX(), cs.data(), 0, csErr.data());
   auto ofl = TFile::Open(opts.ofname.c_str(), "recreate");
+  TMatrixD bornCSCovMatrix(vcs->GetN(),vcs->GetN());
+  TMatrixD bornCSInvCovMatrix(vcs->GetN(),vcs->GetN());
+  Eigen::VectorXd tmpCovMDiag = csErr.array().pow(2.);
+  Eigen::MatrixXd tmpCovM = tmpCovMDiag.asDiagonal();
+  Eigen::VectorXd tmpInvCovMDiag = csErr.array().pow(2.);
+  Eigen::MatrixXd tmpInvCovM = tmpInvCovMDiag.asDiagonal();
+  bornCSCovMatrix.SetMatrixArray(tmpCovM.data());
+  bornCSInvCovMatrix.SetMatrixArray(tmpInvCovM.data());
   ofl->cd();
   rootRadCorrFCN.Write();
   radGraph.Write("radcorr");
   vcs->Write("vcs");
   bornCS->Write("bcs");
+  bornCSCovMatrix.Write("covMatrixBornCS");
+  bornCSInvCovMatrix.Write("invCovMatrixBornCS");
   ofl->Close();
   delete fl;
   delete bornCS;
