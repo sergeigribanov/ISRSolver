@@ -6,6 +6,8 @@
 #include <Python.h>
 #include <structmember.h>
 #include <numpy/arrayobject.h>
+#include "Integration.hpp"
+#include "KuraevFadin.hpp"
 
 #include <iostream>
 
@@ -19,10 +21,15 @@ typedef struct {
   PyArrayObject* vcsErr;
   PyObject* bcsModelFCN;
   PyObject* effFCN;
-  PyObject* params;
-  std::function<double(double)> bcsModelLambda;
   std::function<double(double, double)> effLambda;
+  double errordef;
 } PyFitVCSObject;
+
+static PyMemberDef PyFitVCS_members[] = {
+  {"errordef", T_DOUBLE, offsetof(PyFitVCSObject, errordef), 0,
+   "errordef"},
+  {NULL}
+};
 
 static void
 PyFitVCS_dealloc(PyFitVCSObject *self)
@@ -33,7 +40,6 @@ PyFitVCS_dealloc(PyFitVCSObject *self)
   Py_XDECREF(self->vcsErr);
   Py_XDECREF(self->bcsModelFCN);
   Py_XDECREF(self->effFCN);
-  Py_XDECREF(self->params);
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -50,7 +56,6 @@ PyFitVCS_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->vcsErr = NULL;
     self->bcsModelFCN = NULL;
     self->effFCN = NULL;
-    self->params = NULL;
     self->effLambda =
         [self](double x, double en) {
           PyObject *arglist = Py_BuildValue("(dd)", x, en);
@@ -58,21 +63,6 @@ PyFitVCS_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
           double result = PyFloat_AS_DOUBLE(rv);
           Py_CLEAR(rv);
           Py_CLEAR(arglist);
-          return result;
-        };
-    self->bcsModelLambda =
-        [self](double en) {
-          Py_ssize_t paramsSize = PyTuple_Size(self->params);
-          PyObject* argtuple = PyTuple_New(paramsSize + 1);
-          PyTuple_SET_ITEM(argtuple, 0, PyFloat_FromDouble(en));
-          for (Py_ssize_t i = 0; i < paramsSize; ++i) {
-            PyObject* obj = PyTuple_GET_ITEM(self->params, i);
-            PyTuple_SET_ITEM(argtuple, i + 1, obj);
-          }
-          PyObject* rv = PyObject_Call(self->bcsModelFCN, argtuple, NULL);
-          double result = PyFloat_AS_DOUBLE(rv);
-          Py_XDECREF(rv);
-          Py_XDECREF(argtuple);
           return result;
         };
   }
@@ -106,32 +96,51 @@ PyFitVCS_init(PyFitVCSObject *self, PyObject *args, PyObject *kwds) {
 
 static PyObject *PyFitVCS_call(PyObject *callable, PyObject *args, PyObject* = NULL) {
   auto self = reinterpret_cast<PyFitVCSObject*>(callable);
-  Py_XDECREF(self->params);
-  self->params = args;
-  Py_XINCREF(self->params);
-  // // double tmpResult = self->bcsModelLambda(2.);
+  // self->params = args;
+  // Py_XINCREF(self->params);
+
+  // Py_ssize_t paramsSize = PyTuple_Size(self->params);
+  // for (Py_ssize_t i = 0; i < paramsSize; ++i) {
+  //   PyObject* obj = PyTuple_GET_ITEM(self->params, i);
+  //   Py_XINCREF(obj);
+  // }
+  Py_XINCREF(args);
   double* energyC = (double*) PyArray_DATA(self->energy);
-  // // double* energyErrC = (double*) PyArray_DATA(self->energyErr);
-  //!!! double* vcsC = (double*) PyArray_DATA(self->vcs);
-  // double* vcsErrC = (double*) PyArray_DATA(self->vcsErr);
-  // // !!! dimension check
+  double* energyErrC = (double*) PyArray_DATA(self->energyErr);
+  double* vcsC = (double*) PyArray_DATA(self->vcs);
+  double* vcsErrC = (double*) PyArray_DATA(self->vcsErr);
+  // !!! dimension check
   npy_intp *dims = PyArray_DIMS(self->energy);
   npy_intp dim = dims[0];
   double result = 0;
+  std::function<double(double)> bcsModelLambda =
+      [self, args](double en) {
+        Py_ssize_t paramsSize = PyTuple_Size(args);
+        PyObject* argtuple = PyTuple_New(paramsSize + 1);
+        PyTuple_SET_ITEM(argtuple, 0, PyFloat_FromDouble(en));
+        for (Py_ssize_t i = 0; i < paramsSize; ++i) {
+          PyObject* obj = PyTuple_GET_ITEM(args, i);
+          Py_XINCREF(obj);
+          PyTuple_SET_ITEM(argtuple, i + 1, obj);
+        }
+        PyObject* rv = PyObject_Call(self->bcsModelFCN, argtuple, NULL);
+        double result = PyFloat_AS_DOUBLE(rv);
+        Py_XDECREF(rv);
+        Py_XDECREF(argtuple);
+        return result;
+      };
   for (npy_intp i = 0; i < dim; ++i) {
-    //!!! double sT = self->threshold * self->threshold;
+    double sT = self->threshold * self->threshold;
     double energy = energyC[i];
-    std::cout << "energy = " << energy << std::endl;
-    std::cout << self->bcsModelLambda(energy) << std::endl;
-    // double modelVCS = convolutionKuraevFadin(
-   //     energy, self->bcsModelLambda,
-   //     0, 1. - sT / energy / energy,
-   //     self->effLambda);
-  //   double dchi2 = (vcsC[i] - modelVCS) / vcsErrC[i];
-  //   dchi2 *= dchi2;
-  //   result += dchi2;
+    double modelVCS = convolutionKuraevFadin(
+        energy, bcsModelLambda,
+        0, 1. - sT / energy / energy,
+        self->effLambda);
+    double dchi2 = (vcsC[i] - modelVCS) / vcsErrC[i];
+    dchi2 *= dchi2;
+    result += dchi2;
   }
-  result = 1;
+  Py_XDECREF(args);
   return PyFloat_FromDouble(result);
 }
 
@@ -164,7 +173,7 @@ static PyTypeObject PyFitVCSType = {
     0, /* tp_iter */
     0, /* tp_iternext */
     0, /* tp_methods */
-    0, /* tp_members */
+    PyFitVCS_members, /* tp_members */
     0, /* tp_getset  */
     0, /* tp_base */
     0, /* tp_dict */
