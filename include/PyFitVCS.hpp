@@ -3,6 +3,8 @@
 #define PY_SSIZE_T_CLEAN
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <functional>
+#include <vector>
+#include <string>
 #include <Python.h>
 #include <structmember.h>
 #include <numpy/arrayobject.h>
@@ -23,6 +25,8 @@ typedef struct {
   PyObject* effFCN;
   std::function<double(double, double)> effLambda;
   double errordef;
+  PyObject* param_names;
+  // std::vector<const char*> par_names;
 } PyFitVCSObject;
 
 static PyMemberDef PyFitVCS_members[] = {
@@ -40,6 +44,7 @@ PyFitVCS_dealloc(PyFitVCSObject *self)
   Py_XDECREF(self->vcsErr);
   Py_XDECREF(self->bcsModelFCN);
   Py_XDECREF(self->effFCN);
+  Py_XDECREF(self->param_names);
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -85,6 +90,27 @@ PyFitVCS_init(PyFitVCSObject *self, PyObject *args, PyObject *kwds) {
           &(self->bcsModelFCN), &(self->effFCN))) {
     return -1;
   }
+  PyObject* const inspect_module_name = PyUnicode_DecodeFSDefault("inspect");
+  PyObject* const inspect_module = PyImport_Import(inspect_module_name);
+  PyObject* const getargspec_function = PyObject_GetAttrString(inspect_module, "getfullargspec");
+  PyObject* const argspec_call_args = PyTuple_New(1);
+  PyTuple_SetItem(argspec_call_args, 0, self->bcsModelFCN);
+  PyObject* const argspec = PyObject_CallObject(getargspec_function, argspec_call_args);
+  //self->param_names = PyObject_GetAttrString(argspec, "args");
+  // Py_XINCREF(self->param_names);
+  PyObject* const f_args = PyObject_GetAttrString(argspec, "args");
+  Py_ssize_t const num_args = PyList_Size(f_args);
+  self->param_names = PyTuple_New(num_args - 1);
+  // self->par_names.reserve(num_args - 1);
+  for (Py_ssize_t i = 1; i < num_args; ++i)
+  {
+    PyObject* const arg = PyList_GetItem(f_args, i);
+    Py_XINCREF(arg);
+    PyTuple_SET_ITEM(self->param_names, i - 1, arg);
+  }
+  self->errordef = 1.;
+
+  Py_XDECREF(f_args);
   Py_XINCREF(self->energy);
   Py_XINCREF(self->vcs);
   Py_XINCREF(self->energyErr);
@@ -94,16 +120,8 @@ PyFitVCS_init(PyFitVCSObject *self, PyObject *args, PyObject *kwds) {
   return 0;
 }
 
-static PyObject *PyFitVCS_call(PyObject *callable, PyObject *args, PyObject* = NULL) {
+static PyObject *PyFitVCS_call(PyObject *callable, PyObject *args, PyObject* kwds) {
   auto self = reinterpret_cast<PyFitVCSObject*>(callable);
-  // self->params = args;
-  // Py_XINCREF(self->params);
-
-  // Py_ssize_t paramsSize = PyTuple_Size(self->params);
-  // for (Py_ssize_t i = 0; i < paramsSize; ++i) {
-  //   PyObject* obj = PyTuple_GET_ITEM(self->params, i);
-  //   Py_XINCREF(obj);
-  // }
   Py_XINCREF(args);
   double* energyC = (double*) PyArray_DATA(self->energy);
   double* energyErrC = (double*) PyArray_DATA(self->energyErr);
@@ -114,7 +132,7 @@ static PyObject *PyFitVCS_call(PyObject *callable, PyObject *args, PyObject* = N
   npy_intp dim = dims[0];
   double result = 0;
   std::function<double(double)> bcsModelLambda =
-      [self, args](double en) {
+      [self, args, kwds](double en) {
         Py_ssize_t paramsSize = PyTuple_Size(args);
         PyObject* argtuple = PyTuple_New(paramsSize + 1);
         PyTuple_SET_ITEM(argtuple, 0, PyFloat_FromDouble(en));
@@ -123,7 +141,7 @@ static PyObject *PyFitVCS_call(PyObject *callable, PyObject *args, PyObject* = N
           Py_XINCREF(obj);
           PyTuple_SET_ITEM(argtuple, i + 1, obj);
         }
-        PyObject* rv = PyObject_Call(self->bcsModelFCN, argtuple, NULL);
+        PyObject* rv = PyObject_Call(self->bcsModelFCN, argtuple, kwds);
         double result = PyFloat_AS_DOUBLE(rv);
         Py_XDECREF(rv);
         Py_XDECREF(argtuple);
@@ -143,6 +161,32 @@ static PyObject *PyFitVCS_call(PyObject *callable, PyObject *args, PyObject* = N
   Py_XDECREF(args);
   return PyFloat_FromDouble(result);
 }
+
+static PyObject *PyFitVCS_minuit(PyFitVCSObject *self, PyObject *args, PyObject *kwds) {
+  PyObject* const minuit_module_name = PyUnicode_DecodeFSDefault("iminuit");
+  PyObject* const minuit_module = PyImport_Import(minuit_module_name);
+  PyObject* self_obj = reinterpret_cast<PyObject*>(self);
+  PyObject* const minuit_function = PyObject_GetAttrString(minuit_module, "Minuit");
+  Py_ssize_t paramsSize = PyTuple_Size(args);
+  PyObject* argtuple = PyTuple_New(paramsSize + 1);
+  PyTuple_SetItem(argtuple, 0, self_obj);
+  for (Py_ssize_t i = 0; i < paramsSize; ++i) {
+    PyObject* obj = PyTuple_GET_ITEM(args, i);
+    Py_XINCREF(obj);
+    PyTuple_SET_ITEM(argtuple, i + 1, obj);
+  }
+  PyObject* kwdDict = PyDict_Copy(kwds);
+  PyDict_SetItemString(kwdDict, "name", self->param_names);
+  PyObject* result = PyObject_Call(minuit_function, argtuple, kwdDict);
+  Py_XDECREF(argtuple);
+  return result;
+  // return PyLong_FromSsize_t(0);
+}
+
+static PyMethodDef PyFitVCS_methods[] = {
+  {"minuit", (PyCFunction) PyFitVCS_minuit, METH_VARARGS | METH_KEYWORDS, "Create minuit object"},
+  {NULL}
+};
 
 static PyTypeObject PyFitVCSType = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -172,7 +216,7 @@ static PyTypeObject PyFitVCSType = {
     0, /* tp_weaklistoffset */
     0, /* tp_iter */
     0, /* tp_iternext */
-    0, /* tp_methods */
+    PyFitVCS_methods, /* tp_methods */
     PyFitVCS_members, /* tp_members */
     0, /* tp_getset  */
     0, /* tp_base */
