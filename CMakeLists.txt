@@ -13,6 +13,7 @@ find_package(NLOPT REQUIRED)
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 find_package(ROOT REQUIRED COMPONENTS RIO Net Core MathCore)
 include(${ROOT_USE_FILE})
+find_package(Minuit2 REQUIRED)
 find_package(GSL REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
 find_package(nlohmann_json REQUIRED)
@@ -40,6 +41,7 @@ target_link_libraries(ISR
   ${Boost_LIBRARIES}
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
+  Minuit2::Minuit2
   nlohmann_json::nlohmann_json)
 
 add_executable(isrsolver-SLE ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE.cpp)
