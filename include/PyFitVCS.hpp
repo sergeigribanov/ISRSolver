@@ -10,8 +10,7 @@
 #include <numpy/arrayobject.h>
 #include "Integration.hpp"
 #include "KuraevFadin.hpp"
-
-#include <iostream>
+#include "PyUtils.hpp"
 
 typedef struct {
   PyObject_HEAD
@@ -24,13 +23,13 @@ typedef struct {
   PyObject* bcsModelFCN;
   PyObject* effFCN;
   std::function<double(double, double)> effLambda;
+  bool energy_spread;
   double errordef;
   PyObject* param_names;
-  // std::vector<const char*> par_names;
 } PyFitVCSObject;
 
 static PyMemberDef PyFitVCS_members[] = {
-  {"errordef", T_DOUBLE, offsetof(PyFitVCSObject, errordef), 0,
+  {"errordef", T_DOUBLE, offset_of(PyFitVCSObject, errordef), 0,
    "errordef"},
   {NULL}
 };
@@ -108,6 +107,7 @@ PyFitVCS_init(PyFitVCSObject *self, PyObject *args, PyObject *kwds) {
     Py_XINCREF(arg);
     PyTuple_SET_ITEM(self->param_names, i - 1, arg);
   }
+  self->energy_spread = false;
   self->errordef = 1.;
 
   Py_XDECREF(f_args);
@@ -131,33 +131,53 @@ static PyObject *PyFitVCS_call(PyObject *callable, PyObject *args, PyObject* kwd
   npy_intp *dims = PyArray_DIMS(self->energy);
   npy_intp dim = dims[0];
   double result = 0;
+  Py_ssize_t paramsSize = PyTuple_Size(args);
+  PyObject* argtuple = PyTuple_New(paramsSize + 1);
+  PyTuple_SET_ITEM(argtuple, 0, PyFloat_FromDouble(0.));
+  for (Py_ssize_t i = 0; i < paramsSize; ++i) {
+    PyObject* obj = PyTuple_GET_ITEM(args, i);
+    Py_XINCREF(obj);
+    PyTuple_SET_ITEM(argtuple, i + 1, obj);
+  }
   std::function<double(double)> bcsModelLambda =
-      [self, args, kwds](double en) {
-        Py_ssize_t paramsSize = PyTuple_Size(args);
-        PyObject* argtuple = PyTuple_New(paramsSize + 1);
+      [&argtuple, self, kwds](double en) {
         PyTuple_SET_ITEM(argtuple, 0, PyFloat_FromDouble(en));
-        for (Py_ssize_t i = 0; i < paramsSize; ++i) {
-          PyObject* obj = PyTuple_GET_ITEM(args, i);
-          Py_XINCREF(obj);
-          PyTuple_SET_ITEM(argtuple, i + 1, obj);
-        }
         PyObject* rv = PyObject_Call(self->bcsModelFCN, argtuple, kwds);
         double result = PyFloat_AS_DOUBLE(rv);
         Py_XDECREF(rv);
-        Py_XDECREF(argtuple);
         return result;
       };
   for (npy_intp i = 0; i < dim; ++i) {
     double sT = self->threshold * self->threshold;
     double energy = energyC[i];
-    double modelVCS = convolutionKuraevFadin(
-        energy, bcsModelLambda,
-        0, 1. - sT / energy / energy,
-        self->effLambda);
+    double modelVCS = 0;
+    if (self->energy_spread) {
+      std::function<double(double)> fcnVCSNoSpread =
+          [bcsModelLambda, sT, self](double en) {
+            const double s = en * en;
+            double result = 0;
+            if (s <= sT) {
+              return result;
+            }
+            result = convolutionKuraevFadin(
+                en, bcsModelLambda,
+                0, 1. - sT / s,
+                self->effLambda);
+            return result;
+          };
+      const double sigmaEn2 = energyErrC[i] * energyErrC[i];
+      modelVCS = gaussian_conv(energy, sigmaEn2, fcnVCSNoSpread);
+    } else {
+      modelVCS = convolutionKuraevFadin(
+          energy, bcsModelLambda,
+          0, 1. - sT / energy / energy,
+          self->effLambda);
+    }
     double dchi2 = (vcsC[i] - modelVCS) / vcsErrC[i];
     dchi2 *= dchi2;
     result += dchi2;
   }
+  Py_XDECREF(argtuple);
   Py_XDECREF(args);
   return PyFloat_FromDouble(result);
 }
@@ -180,11 +200,22 @@ static PyObject *PyFitVCS_minuit(PyFitVCSObject *self, PyObject *args, PyObject 
   PyObject* result = PyObject_Call(minuit_function, argtuple, kwdDict);
   Py_XDECREF(argtuple);
   return result;
-  // return PyLong_FromSsize_t(0);
+}
+
+static PyObject *PyFitVCS_enable_energy_spread(PyFitVCSObject *self) {
+  self->energy_spread = true;
+  return PyLong_FromSsize_t(0);
+}
+
+static PyObject *PyFitVCS_disable_energy_spread(PyFitVCSObject *self) {
+  self->energy_spread = false;
+  return PyLong_FromSsize_t(0);
 }
 
 static PyMethodDef PyFitVCS_methods[] = {
   {"minuit", (PyCFunction) PyFitVCS_minuit, METH_VARARGS | METH_KEYWORDS, "Create minuit object"},
+  {"enable_energy_spread", (PyCFunction) PyFitVCS_enable_energy_spread, METH_NOARGS, "Enable energy spread"},
+  {"disable_energy_spread", (PyCFunction) PyFitVCS_disable_energy_spread, METH_NOARGS, "Disable energy spread"},
   {NULL}
 };
 

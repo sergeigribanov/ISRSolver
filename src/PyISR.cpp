@@ -4,7 +4,6 @@
 #include "PyISRSolverTSVD.hpp"
 #include "PyISRSolverTikhonov.hpp"
 #include "PyFitVCS.hpp"
-
 //
 //
 
