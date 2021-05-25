@@ -149,7 +149,7 @@ static PyObject *PyFitVCS_call(PyObject *callable, PyObject *args, PyObject* kwd
       };
   for (npy_intp i = 0; i < dim; ++i) {
     double sT = self->threshold * self->threshold;
-    double energy = energyC[i];
+    const double energy = energyC[i];
     double modelVCS = 0;
     if (self->energy_spread) {
       std::function<double(double)> fcnVCSNoSpread =
