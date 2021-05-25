@@ -3,9 +3,8 @@
 #include "PyIterISRInterpSolver.hpp"
 #include "PyISRSolverTSVD.hpp"
 #include "PyISRSolverTikhonov.hpp"
+#include "PyIterISRSolverUseVCSFit.hpp"
 #include "PyFitVCS.hpp"
-//
-//
 
 typedef struct {
     PyObject_HEAD
@@ -224,6 +223,9 @@ PyMODINIT_FUNC PyInit_PyISR(void)
   if (PyType_Ready(&PyIterISRInterpSolverType) < 0)
     return NULL;
 
+  if (PyType_Ready(&PyIterISRSolverUseVCSFitType) < 0)
+    return NULL;
+
   if (PyType_Ready(&PyISRSolverTSVDType) < 0)
     return NULL;
 
@@ -254,6 +256,13 @@ PyMODINIT_FUNC PyInit_PyISR(void)
   Py_INCREF(&PyIterISRInterpSolverType);
   if (PyModule_AddObject(m, "IterISRInterpSolver", (PyObject *) &PyIterISRInterpSolverType) < 0) {
     Py_DECREF(&PyIterISRInterpSolverType);
+    Py_DECREF(m);
+    return NULL;
+  }
+
+  Py_INCREF(&PyIterISRSolverUseVCSFitType);
+  if (PyModule_AddObject(m, "IterISRSolverUseVCSFit", (PyObject *) &PyIterISRSolverUseVCSFitType) < 0) {
+    Py_DECREF(&PyIterISRSolverUseVCSFitType);
     Py_DECREF(m);
     return NULL;
   }
