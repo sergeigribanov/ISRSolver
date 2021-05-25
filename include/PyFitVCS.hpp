@@ -89,6 +89,14 @@ PyFitVCS_init(PyFitVCSObject *self, PyObject *args, PyObject *kwds) {
           &(self->bcsModelFCN), &(self->effFCN))) {
     return -1;
   }
+  if (!PyCallable_Check(self->bcsModelFCN)) {
+    PyErr_SetString(PyExc_TypeError, "IterISRSolverUseVCSFit: a callable Born cross section object is required");
+    return -1;
+  }
+  if (!PyCallable_Check(self->effFCN)) {
+    PyErr_SetString(PyExc_TypeError, "IterISRSolverUseVCSFit: a callable efficiency object is required");
+    return -1;
+  }
   PyObject* const inspect_module_name = PyUnicode_DecodeFSDefault("inspect");
   PyObject* const inspect_module = PyImport_Import(inspect_module_name);
   PyObject* const getargspec_function = PyObject_GetAttrString(inspect_module, "getfullargspec");

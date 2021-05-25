@@ -75,7 +75,7 @@ PyIterISRSolverUseVCSFit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 PyIterISRSolverUseVCSFit_init(PyIterISRSolverUseVCSFitObject *self, PyObject *args, PyObject *kwds) {
   static const char *kwlist[] =
-      {"threshold", "energy", "vcs", "vcs_err", "vcs_fcn", "efficiency", "energy_spread", NULL};
+      {"threshold", "energy", "vcs", "vcs_err", "cs_fcn", "efficiency", "energy_spread", NULL};
   if (!PyArg_ParseTupleAndKeywords(
           args, kwds, "dO!O!O!OO|d",
           const_cast<char**>(kwlist),
@@ -87,7 +87,14 @@ PyIterISRSolverUseVCSFit_init(PyIterISRSolverUseVCSFitObject *self, PyObject *ar
           &(self->sigmaEn))) {
     return -1;
   }
-  // TO-DO: check callables !!!
+  if (!PyCallable_Check(self->vcsFitFCN)) {
+    PyErr_SetString(PyExc_TypeError, "IterISRSolverUseVCSFit: a callable cross section object is required");
+    return -1;
+  }
+  if (!PyCallable_Check(self->effFCN)) {
+    PyErr_SetString(PyExc_TypeError, "IterISRSolverUseVCSFit: a callable efficiency object is required");
+    return -1;
+  }
   Py_XINCREF(self->energy);
   Py_XINCREF(self->vcs);
   Py_XINCREF(self->vcsErr);
