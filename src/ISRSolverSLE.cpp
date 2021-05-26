@@ -226,7 +226,7 @@ double ISRSolverSLE::sConvolution(
   std::function<double(double)> ifcn =
       [fcn, this](double s) {
         const double en = std::sqrt(s);
-        const double result = this->_interp.eval(this->bcs(), s) * fcn(en);
+        const double result = this->_interp.eval(this->bcs(), en) * fcn(s);
         return result;
       };
   double error;
