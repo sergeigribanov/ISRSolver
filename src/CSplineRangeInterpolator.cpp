@@ -109,6 +109,21 @@ double CSplineRangeInterpolator::evalKuraevFadinBasisIntegral(
   return convolutionKuraevFadin(en, fcn, x_min, x_max, efficiency);
 }
 
+double CSplineRangeInterpolator::evalBasisSConvolution(
+    int csIndex,
+    const std::function<double(double)>& convKernel) const {
+  const int index = csIndex - _beginIndex;
+  std::function<double(double)> ifcn =
+      [index, convKernel, this] (double s) {
+        const double en = std::sqrt(s);
+        const double result =  gsl_spline_eval(this->_spline[index].get(), en, this->_acc[index].get()) *
+                               convKernel(s);
+        return result;
+      };
+  double error;
+  return integrate(ifcn, _minEnergy * _minEnergy, _maxEnergy * _maxEnergy, error);
+}
+
 /** Evaluate integral of basis interpolation function that correspond to
  * a csIndex-th cross section point
  * @param csIndex a cross section point index

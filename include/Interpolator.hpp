@@ -82,6 +82,9 @@ class Interpolator {
       int energyIndex,
       int csIndex,
       const std::function<double(double, double)>& efficiency) const;
+  double evalBasisSConvolution(
+      int csIndex,
+      const std::function<double(double)>& convKernel) const;
   /**
    * Evaluating integral with a basis interpolation function
    @param csIndex an index of a corresponding cross section point

@@ -237,16 +237,8 @@ Eigen::RowVectorXd ISRSolverSLE::sConvolutionOperator(
     const std::function<double(double)>& fcn,
     double lowerLimit, double upperLimit) const {
   Eigen::RowVectorXd result = Eigen::RowVectorXd::Zero(_getN());
-  std::size_t j;
-  std::function<double(double)> ifcn =
-      [&j, this, fcn](double s) {
-        const double en = std::sqrt(s);
-        const double result = this->_interp.basisEval(j, en) * fcn(s);
-        return result;
-      };
-  double error;
-  for (j = 0; j < _getN(); ++j) {
-    result(j) = integrate(ifcn, lowerLimit, upperLimit, error);
+  for (std::size_t j = 0; j < _getN(); ++j) {
+    result(j) = _interp.evalBasisSConvolution(j, fcn);
   }
   return result;
 }

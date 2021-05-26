@@ -57,6 +57,9 @@ class CSplineRangeInterpolator : public BaseRangeInterpolator {
       int energyIndex,
       int csIndex,
       const std::function<double(double, double)>& efficiency) const override final;
+  double evalBasisSConvolution(
+      int csIndex,
+      const std::function<double(double)>& convKernel) const override final;
   /** Evaluate integral of basis interpolation function that correspond to
    * a csIndex-th cross section point
    * @param csIndex a cross section point index

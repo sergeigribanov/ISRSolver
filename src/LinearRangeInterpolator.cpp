@@ -147,3 +147,54 @@ double LinearRangeInterpolator::_c10(int csIndex) const {
 double LinearRangeInterpolator::_c11(int csIndex) const {
   return 1. / (_extCMEnergies(csIndex + 1) - _extCMEnergies(csIndex + 2));
 }
+
+double LinearRangeInterpolator::evalBasisSConvolution(
+    int csIndex,
+    const std::function<double(double)>& convKernel) const {
+  double result = _evalBasisSConvolutionFirstTriangle(csIndex, convKernel);
+  result += _evalBasisSConvolutionSecondTriangle(csIndex, convKernel);
+  return result;
+}
+
+double LinearRangeInterpolator::_evalBasisSConvolutionFirstTriangle(
+    int csIndex,
+    const std::function<double(double)>& convKernel) const {
+  const double enc = _extCMEnergies(csIndex + 1);
+  if (enc > _maxEnergy || enc <= _minEnergy) {
+    return 0.;
+  }
+  std::function<double(double)> ifcn =
+      [this, csIndex, convKernel](double s) {
+        const double en = std::sqrt(s);
+        const double result = (this->_c00(csIndex) + this->_c01(csIndex) * en) *
+                              convKernel(s);
+        return result;
+      };
+  double error;
+  const double s_min = _extCMEnergies(csIndex) * _extCMEnergies(csIndex);
+  const double s_max = enc * enc;
+  return integrate(ifcn, s_min, s_max, error);
+}
+
+double LinearRangeInterpolator::_evalBasisSConvolutionSecondTriangle(
+    int csIndex,
+    const std::function<double(double)>& convKernel) const {
+  if (csIndex + 2 >= _extCMEnergies.rows()) {
+    return 0.;
+  }
+  const double encp = _extCMEnergies(csIndex + 2);
+  if (encp > _maxEnergy || encp <= _minEnergy) {
+    return 0.;
+  }
+  std::function<double(double)> ifcn =
+      [this, csIndex, convKernel](double s) {
+        const double en = std::sqrt(s);
+        const double result = (this->_c10(csIndex) + this->_c11(csIndex) * en) *
+                              convKernel(s);
+        return result;
+      };
+  double error;
+  const double s_min = _extCMEnergies(csIndex + 1) * _extCMEnergies(csIndex + 1);
+  const double s_max = encp * encp;
+  return integrate(ifcn, s_min, s_max, error);
+}

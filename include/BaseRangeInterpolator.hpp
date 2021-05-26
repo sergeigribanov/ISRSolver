@@ -106,6 +106,9 @@ class BaseRangeInterpolator {
       int energyIndex,
       int csIndex,
       const std::function<double(double, double)>& efficiency) const = 0;
+  virtual double evalBasisSConvolution(
+      int csIndex,
+      const std::function<double(double)>& convKernel) const = 0;
   /** Evaluate integral of basis interpolation function that correspond to
    * a csIndex-th cross section point
    * @param csIndex a cross section point index
