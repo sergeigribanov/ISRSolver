@@ -206,3 +206,29 @@ double ISRSolverSLE::evalConditionNumber() const {
 void ISRSolverSLE::printConditionNumber() const {
   std::cout << "condition number = " << evalConditionNumber() << std::endl;
 }
+
+
+double ISRSolverSLE::energyConvolution(
+    const std::function<double(double)>& fcn,
+    double lowerLimit, double upperLimit) const {
+  std::function<double(double)> ifcn =
+      [fcn, this](double en) {
+        const double result = this->_interp.eval(this->bcs(), en) * fcn(en);
+        return result;
+      };
+  double error;
+  return integrate(ifcn, lowerLimit, upperLimit, error);
+}
+
+double ISRSolverSLE::sConvolution(
+    const std::function<double(double)>& fcn,
+    double lowerLimit, double upperLimit) const {
+  std::function<double(double)> ifcn =
+      [fcn, this](double s) {
+        const double en = std::sqrt(s);
+        const double result = this->_interp.eval(this->bcs(), s) * fcn(en);
+        return result;
+      };
+  double error;
+  return integrate(ifcn, lowerLimit, upperLimit, error);
+}

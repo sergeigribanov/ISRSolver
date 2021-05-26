@@ -3,4 +3,4 @@
 include ( "${CMAKE_CURRENT_LIST_DIR}/ISRSolverTargets.cmake" )
 set(ISRSolver_ROOT_DIR @CMAKE_INSTALL_PREFIX@)
 set(ISRSolver_INCLUDE_DIRS ${ISRSolver_ROOT_DIR}/include)
-set(ISRSolver_LIBRARIES ${ISRSolver_ROOT_DIR}/lib/libisr.so)
+set(ISRSolver_LIBRARIES ${ISRSolver_ROOT_DIR}/lib/libISR.so)
