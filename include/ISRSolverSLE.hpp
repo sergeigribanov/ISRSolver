@@ -71,13 +71,9 @@ class ISRSolverSLE : public BaseISRSolver {
    (Born cross section)
    */
   const Eigen::MatrixXd& getBornCSCovMatrix() const;
-
-  double energyConvolution(const std::function<double(double)>&, double, double) const;
-  double sConvolution(const std::function<double(double)>&, double, double) const;
+  double sConvolution(const std::function<double(double)>&) const;
   Eigen::RowVectorXd sConvolutionOperator(
-      const std::function<double(double)>&, double, double) const;
-  Eigen::RowVectorXd energyConvolutionOperator(
-      const std::function<double(double)>&, double, double) const;
+      const std::function<double(double)>&) const;
   /**
    * Running the algorithm for finding a solution
    */

@@ -207,22 +207,8 @@ void ISRSolverSLE::printConditionNumber() const {
   std::cout << "condition number = " << evalConditionNumber() << std::endl;
 }
 
-
-double ISRSolverSLE::energyConvolution(
-    const std::function<double(double)>& fcn,
-    double lowerLimit, double upperLimit) const {
-  std::function<double(double)> ifcn =
-      [fcn, this](double en) {
-        const double result = this->_interp.eval(this->bcs(), en) * fcn(en);
-        return result;
-      };
-  double error;
-  return integrate(ifcn, lowerLimit, upperLimit, error);
-}
-
 double ISRSolverSLE::sConvolution(
-    const std::function<double(double)>& fcn,
-    double lowerLimit, double upperLimit) const {
+    const std::function<double(double)>& fcn) const {
   std::function<double(double)> ifcn =
       [fcn, this](double s) {
         const double en = std::sqrt(s);
@@ -230,32 +216,16 @@ double ISRSolverSLE::sConvolution(
         return result;
       };
   double error;
-  return integrate(ifcn, lowerLimit, upperLimit, error);
+  const double s_min = getThresholdEnergy() * getThresholdEnergy();
+  const double s_max = getMaxEnergy() * getMaxEnergy();
+  return integrate(ifcn, s_min, s_max, error);
 }
 
 Eigen::RowVectorXd ISRSolverSLE::sConvolutionOperator(
-    const std::function<double(double)>& fcn,
-    double lowerLimit, double upperLimit) const {
+    const std::function<double(double)>& fcn) const {
   Eigen::RowVectorXd result = Eigen::RowVectorXd::Zero(_getN());
   for (std::size_t j = 0; j < _getN(); ++j) {
     result(j) = _interp.evalBasisSConvolution(j, fcn);
-  }
-  return result;
-}
-
-Eigen::RowVectorXd ISRSolverSLE::energyConvolutionOperator(
-    const std::function<double(double)>& fcn,
-    double lowerLimit, double upperLimit) const {
-  Eigen::RowVectorXd result = Eigen::RowVectorXd::Zero(_getN());
-  std::size_t j;
-  std::function<double(double)> ifcn =
-      [&j, this, fcn](double en) {
-        const double result = this->_interp.basisEval(j, en) * fcn(en);
-        return result;
-      };
-  double error;
-  for (j = 0; j < _getN(); ++j) {
-    result(j) = integrate(ifcn, lowerLimit, upperLimit, error);
   }
   return result;
 }
