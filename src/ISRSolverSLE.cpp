@@ -232,3 +232,38 @@ double ISRSolverSLE::sConvolution(
   double error;
   return integrate(ifcn, lowerLimit, upperLimit, error);
 }
+
+Eigen::RowVectorXd ISRSolverSLE::sConvolutionOperator(
+    const std::function<double(double)>& fcn,
+    double lowerLimit, double upperLimit) const {
+  Eigen::RowVectorXd result = Eigen::RowVectorXd::Zero(_getN());
+  std::size_t j;
+  std::function<double(double)> ifcn =
+      [&j, this, fcn](double s) {
+        const double en = std::sqrt(s);
+        const double result = this->_interp.basisEval(j, en) * fcn(s);
+        return result;
+      };
+  double error;
+  for (j = 0; j < _getN(); ++j) {
+    result(j) = integrate(ifcn, lowerLimit, upperLimit, error);
+  }
+  return result;
+}
+
+Eigen::RowVectorXd ISRSolverSLE::energyConvolutionOperator(
+    const std::function<double(double)>& fcn,
+    double lowerLimit, double upperLimit) const {
+  Eigen::RowVectorXd result = Eigen::RowVectorXd::Zero(_getN());
+  std::size_t j;
+  std::function<double(double)> ifcn =
+      [&j, this, fcn](double en) {
+        const double result = this->_interp.basisEval(j, en) * fcn(en);
+        return result;
+      };
+  double error;
+  for (j = 0; j < _getN(); ++j) {
+    result(j) = integrate(ifcn, lowerLimit, upperLimit, error);
+  }
+  return result;
+}
