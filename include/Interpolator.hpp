@@ -85,6 +85,10 @@ class Interpolator {
   double evalBasisSConvolution(
       int csIndex,
       const std::function<double(double)>& convKernel) const;
+  double evalBasisSConvolution(
+      int csIndex,
+      const std::function<double(double)>& convKernel,
+      double s_min, double s_max) const;
   /**
    * Evaluating integral with a basis interpolation function
    @param csIndex an index of a corresponding cross section point

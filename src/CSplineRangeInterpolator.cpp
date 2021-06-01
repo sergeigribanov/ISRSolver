@@ -141,3 +141,21 @@ double CSplineRangeInterpolator::evalIntegralBasis(int csIndex) const {
    */
   return integrate(fcn, _minEnergy, _maxEnergy, error);
 }
+
+double CSplineRangeInterpolator::evalBasisSConvolution(
+    int csIndex,
+    const std::function<double(double)>& convKernel,
+    double s_min, double s_max) const {
+  const int index = csIndex - _beginIndex;
+  std::function<double(double)> ifcn =
+      [index, convKernel, this] (double s) {
+        const double en = std::sqrt(s);
+        const double result =  gsl_spline_eval(this->_spline[index].get(), en, this->_acc[index].get()) *
+                               convKernel(s);
+        return result;
+      };
+  double error;
+  const double s1_min = std::max(_minEnergy * _minEnergy, s_min);
+  const double s1_max = std::min(_maxEnergy * _maxEnergy, s_max);
+  return integrate(ifcn, s1_min, s1_max, error);
+}

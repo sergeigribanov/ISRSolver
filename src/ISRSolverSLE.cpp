@@ -221,11 +221,37 @@ double ISRSolverSLE::sConvolution(
   return integrate(ifcn, s_min, s_max, error);
 }
 
+double ISRSolverSLE::sConvolution(
+    const std::function<double(double)>& fcn,
+    double s_min, double s_max) const {
+  std::function<double(double)> ifcn =
+      [fcn, this](double s) {
+        const double en = std::sqrt(s);
+        const double result = this->_interp.eval(this->bcs(), en) * fcn(s);
+        return result;
+      };
+  double error;
+  const double s1_min = std::max(getThresholdEnergy() * getThresholdEnergy(), s_min);
+  const double s1_max = std::min(getMaxEnergy() * getMaxEnergy(), s_max);
+  return integrate(ifcn, s1_min, s1_max, error);
+}
+
+
 Eigen::RowVectorXd ISRSolverSLE::sConvolutionOperator(
     const std::function<double(double)>& fcn) const {
   Eigen::RowVectorXd result = Eigen::RowVectorXd::Zero(_getN());
   for (std::size_t j = 0; j < _getN(); ++j) {
     result(j) = _interp.evalBasisSConvolution(j, fcn);
+  }
+  return result;
+}
+
+Eigen::RowVectorXd ISRSolverSLE::sConvolutionOperator(
+    const std::function<double(double)>& fcn,
+    double s_min, double s_max) const {
+  Eigen::RowVectorXd result = Eigen::RowVectorXd::Zero(_getN());
+  for (std::size_t j = 0; j < _getN(); ++j) {
+    result(j) = _interp.evalBasisSConvolution(j, fcn, s_min, s_max);
   }
   return result;
 }

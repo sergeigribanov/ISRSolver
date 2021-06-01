@@ -490,3 +490,22 @@ double Interpolator::evalBasisSConvolution(
   }
   return result;
 }
+
+double Interpolator::evalBasisSConvolution(
+    int csIndex,
+    const std::function<double(double)>& convKernel,
+    double s_min, double s_max) const {
+  double result = 0;
+  /**
+   * Loop over all interpolation ranges
+   */
+  for (const auto& rinterp : _rangeInterpolators) {
+    if(rinterp.get()->hasCSIndex(csIndex)) {
+      /**
+       * Evaluate contribution of each interpolation range
+       */
+      result += rinterp.get()->evalBasisSConvolution(csIndex, convKernel, s_min, s_max);
+    }
+  }
+  return result;
+}

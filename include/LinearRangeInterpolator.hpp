@@ -55,9 +55,13 @@ class LinearRangeInterpolator : public BaseRangeInterpolator {
       int energyIndex,
       int csIndex,
       const std::function<double(double, double)>& efficiency) const override final;
-  double evalBasisSConvolution(
+  virtual double evalBasisSConvolution(
       int csIndex,
       const std::function<double(double)>& convKernel) const override final;
+  virtual double evalBasisSConvolution(
+      int csIndex,
+      const std::function<double(double)>& convKernel,
+      double s_min, double s_max) const override final;
   /**
    * Evaluate Kuraev-Fadin convolution inside the first triangle
    with basis interpolation
@@ -84,6 +88,14 @@ class LinearRangeInterpolator : public BaseRangeInterpolator {
   double _evalBasisSConvolutionSecondTriangle(
       int csIndex,
       const std::function<double(double)>& convKernel) const;
+  double _evalBasisSConvolutionFirstTriangle(
+      int csIndex,
+      const std::function<double(double)>& convKernel,
+      double s_min, double s_max) const;
+  double _evalBasisSConvolutionSecondTriangle(
+      int csIndex,
+      const std::function<double(double)>& convKernel,
+      double s_min, double s_max) const;
   /** Evaluate integral of basis interpolation function that correspond to
       a csIndex-th cross section point
       * @param csIndex a cross section point index
