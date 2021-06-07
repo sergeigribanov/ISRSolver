@@ -16,7 +16,10 @@ where <img src="https://render.githubusercontent.com/render/math?math=\large{\va
 center-of-mass energy <img src="https://render.githubusercontent.com/render/math?math=\large{\sqrt{s}}"> and the energy fraction carried
 away by initial state radiation (ISR). Equation (1) were first obtained by E.A. Kuraev amd V.S. Fadin in the work [1].
 
+It should be noted that the center-of-mass energy is known with some accuracy. This accuracy is determined by the spread of particle energies in each beam and the accuracy of energy measurement. Typical standard deviation of the center-of-mass energy in the case of VEPP-2000 is about 1-3 MeV. Thus, instead of equation (1), the relationship between the visible and Born cross sections is given by equation (2):
 ![equation Kuraev-Fadin](figures/equation2KuraevFadinBlured.png)
+
+where <img src="https://render.githubusercontent.com/render/math?math=\large{\sigma_{E}(s)}"> is the center-of-mass energy standard deviation. Note that for smooth energy dependences of the cross section, the energy spread can be neglected and equation (1) can be used to relate the visible and Born cross sections.
 
 ### Naive method
 
