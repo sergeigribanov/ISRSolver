@@ -1,5 +1,10 @@
-## Introduction
-### Relationship between Born and visible cross section
+## Overview
+
+The ISRSolver toolkit is a set of utilities for obtaining the Born cross section using the visible cross section data, as well as a set of utilities for checking the results. The Born cross section can be found using various methods. Some these methods are generally accepted, while other methods, such as the naive method and the Tikhonov regularization method, were first proposed for finding the Born cross section using the visible cross section data in article [] and then implemented in the ISRSolver toolkit.
+
+The utilities are available to the user in a form of executable files that can be run with a set of command line options. The ISRSolver can be also used in a custom C++ or Python project.
+
+## Relationship between Born and visible cross section
 Precise measurement of the inclusive cross section of an e+e- annihilation to hadrons is
 the main goal of the experiments carried out with the CMD-3 detector at the VEPP-2000 collider. 
 This cross section is of interest in connection with the measurement of the fine structure constant 
@@ -20,9 +25,6 @@ It should be noted that the center-of-mass energy is known with some accuracy. T
 ![equation Kuraev-Fadin](figures/equation2KuraevFadinBlured.png)
 
 where <img src="https://render.githubusercontent.com/render/math?math=\large{\sigma_{E}(s)}"> is the center-of-mass energy standard deviation. Note that for smooth energy dependences of the cross section, the energy spread can be neglected and equation (1) can be used to relate the visible and Born cross sections.
-
-### ISRSolver
-The ISRSolver package is a set of utilities for obtaining the Born cross section from the visible cross section data using various methods, as well as a set of utilities for checking the results. These utilities are available in the form of executable files with a set of command line options. Also it is possible to use the ISRSolver package in a custom C++ or python project.
 
 ## Methods for obtaining the Born cross section using the visible cross section data 
 
