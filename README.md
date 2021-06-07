@@ -1,5 +1,6 @@
-![](https://github.com/sergeigribanov/ISRSolver/figures/badge_license_gpl3.svg)
-![](https://github.com/sergeigribanov/ISRSolver/figures/badge_linux_passed.svg)
+
+![](figures/badge_license_gpl3.svg)
+![](figures/badge_linux_passed.svg)
 
 ## Overview
 
