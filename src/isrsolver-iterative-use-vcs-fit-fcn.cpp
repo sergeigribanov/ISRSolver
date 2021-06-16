@@ -161,7 +161,7 @@ int main(int argc, char* argv[]) {
       return result;
     }
     if (e0 < e1 && en < e1) {
-      result = fcn->Eval(e1) * (en - e0) / (e1 - e0);
+      result = fcn->Eval(e1) * (en - e0) / (e1 - e0) / (1. + radFCN(en));
       return result;
     }
     result = fcn->Eval(en) / (1. + radFCN(en));
