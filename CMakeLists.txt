@@ -61,6 +61,10 @@ add_executable(isrsolver-SLE-chi2-test
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE-chi2-test.cpp)
 target_link_libraries(isrsolver-SLE-chi2-test ISR)
 
+add_executable(isrsolver-iterative-chi2-test
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-iterative-chi2-test.cpp)
+target_link_libraries(isrsolver-iterative-chi2-test ISR)
+
 add_executable(isrsolver-Tikhonov-chi2-test
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov-chi2-test.cpp)
 target_link_libraries(isrsolver-Tikhonov-chi2-test ISR)
@@ -129,6 +133,7 @@ install(TARGETS isrsolver-LCurve-plot DESTINATION bin)
 install(TARGETS isrsolver-Tikhonov-LCurve DESTINATION bin)
 install(TARGETS isrsolver-calc-chi2 DESTINATION bin)
 install(TARGETS isrsolver-SLE-chi2-test DESTINATION bin)
+install(TARGETS isrsolver-iterative-chi2-test DESTINATION bin)
 install(TARGETS isrsolver-Tikhonov-chi2-test DESTINATION bin)
 install(TARGETS isrsolver-SLE-ratio-test DESTINATION bin)
 install(TARGETS isrsolver-Tikhonov-ratio-test DESTINATION bin)
