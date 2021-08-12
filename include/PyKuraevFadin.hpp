@@ -35,7 +35,7 @@ static PyObject* pyConvolutionKuraevFadin(PyObject* self,
   }
   std::function<double(double)> fcnC =
       [cb](double en) {
-        PyObject *arglist = Py_BuildValue("(d)", en);;
+        PyObject *arglist = Py_BuildValue("(d)", en);
         PyObject *rv = PyObject_CallObject(cb, arglist);
         double result = PyFloat_AS_DOUBLE(rv);
         Py_CLEAR(rv);
