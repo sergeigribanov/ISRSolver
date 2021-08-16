@@ -2,7 +2,7 @@
 ![](figures/badge_license_gpl3.svg)
 ![](figures/badge_linux_passed.svg)
 
-<span style="color: red"> Documentation in progress... </span>
+`Documentation in progress...`
 
 ## Overview
 
