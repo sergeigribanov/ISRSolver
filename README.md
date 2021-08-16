@@ -11,7 +11,7 @@ The utilities are available to the user in a form of executable files that can b
 ## Quick start using Docker
 1. Install and setup docker and docker-compose
 2. Make sure the Docker service is running. You can do this using systemctl, for example:
-  ``console
+  ```console
   systemctl status docker.service
   ```
 3. Go to the directory where you want to download the ISRSolver source code and run the following console commands:
