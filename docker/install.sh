@@ -31,3 +31,10 @@ cmake -DCMAKE_INSTALL_PREFIX=$PKG_DIR/ISRSolver -Dnlohmann_json_DIR=$PKG_DIR/jso
 make -j8
 make install
 rm -rf $SOURCE_DIR
+cd $HOME
+export NOTEBOOKS_PREFIX=$HOME/workdir/notebooks
+mkdir -p $NOTEBOOKS_PREFIX
+python yadisk.py https://disk.yandex.com/d/XEes97fR2OsAqQ -p $NOTEBOOKS_PREFIX
+cd $NOTEBOOKS_PREFIX
+tar -xf data.tar.gz
+chmod -R a=rX $NOTEBOOKS_PREFIX/data

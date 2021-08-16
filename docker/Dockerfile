@@ -3,8 +3,9 @@ FROM archlinux:latest
 MAINTAINER Sergei Gribanov <ssgribanov@gmail.com>
 
 RUN pacman -Syy --noconfirm && pacman -S --noconfirm git wget gcc gcc-fortran make cmake nlopt eigen gsl boost \
-    binutils libx11 libxpm libxft libxext openssl \
-    python python-pip vim
+    binutils libx11 libxpm libxft libxext openssl texlive-most \
+    python python-pip vim && \
+    pacman -Sc --noconfirm
 ENV USER isr
 RUN useradd -m -d /home/$USER $USER
 USER $USER
@@ -19,8 +20,9 @@ RUN pip install -q --upgrade pip && pip install -q numpy pandas matplotlib seabo
 	    echo "c.NotebookApp.allow_remote_access = True" >> ~/.jupyter/jupyter_notebook_config.py && \
 	    echo "c.NotebookApp.port = 8765" >> ~/.jupyter/jupyter_notebook_config.py
 ENV PKG_DIR /home/$USER/packages
+COPY yadisk.py yadisk.py
 COPY install.sh install.sh
-RUN sh install.sh && mkdir workdir
+RUN sh install.sh
 ENV PATH /home/$USER/packages/ISRSolver/bin:/home/$USER/packages/root/bin:$PATH
 ENV LD_LIBRARY_PATH /home/$USER/packages/ISRSolver/lib:/home/$USER/packages/root/lib:$LD_LIBRARY_PATH
 ENV PYTHONPATH /home/$USER/packages/ISRSolver/lib/python:/home/$USER/packages/root/lib:$PYTHONPATH
