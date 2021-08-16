@@ -10,7 +10,7 @@ The utilities are available to the user in a form of executable files that can b
 
 ## Quick start using Docker
 1. Install and setup docker and docker-compose
-2. Make sure the Docker service is running. You can do this using systemctl, for example:
+2. Make sure the Docker service is running. You can do this using ```systemctl```, for example:
   ```console
   systemctl status docker.service
   ```
@@ -58,8 +58,8 @@ The utilities are available to the user in a form of executable files that can b
   ```console
   cmake -DCMAKE_INSTALL_PREFIX=$HOME/packages/ISRSolver $HOME/source/ISRSolver
   ```
- Please note that smake sometimes cannot find some packages depending on how they were installed. If an error occurs that cmake cannot find a particular package, you should to run cmake with the appropriate options. **TO-DO: insert these commands and describe options**
-7. Build and install:
+7. Please note that smake sometimes cannot find some packages depending on how they were installed. If an error occurs that cmake cannot find a particular package, you should to run cmake with the appropriate options. **TO-DO: insert these commands and describe options**
+8. Build and install:
   ```console
   make -j8
   make install
