@@ -46,6 +46,11 @@ The utilities are available to the user in a form of executable files that can b
   ```console
   git clone https://github.com/sergeigribanov/ISRSolver $HOME/source/ISRSolver
   ```
+4. Create a directory ```$HOME/build/ISRSolver``` and change to it:
+  ```console
+  mkdir $HOME/build/ISRSolver
+  cd $HOME/build/ISRSolver
+  ```
 
 <!-- ## Relationship between Born and visible cross section -->
 <!-- Precise measurement of the inclusive cross section of an e+e- annihilation to hadrons is -->
