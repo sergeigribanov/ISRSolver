@@ -8,6 +8,10 @@ The ISRSolver toolkit is a set of utilities for obtaining the Born cross section
 
 The utilities are available to the user in a form of executable files that can be run with a set of command line options. The ISRSolver can be also used in a custom C++ or Python project.
 
+## Quick start using Docker
+
+## Installation
+
 <!-- ## Relationship between Born and visible cross section -->
 <!-- Precise measurement of the inclusive cross section of an e+e- annihilation to hadrons is -->
 <!-- the main goal of the experiments carried out with the CMD-3 detector at the VEPP-2000 collider.  -->
