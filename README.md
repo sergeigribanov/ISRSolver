@@ -37,6 +37,15 @@ The utilities are available to the user in a form of executable files that can b
 
 ## Installation
 1. Make sure that packages [ROOT](https://root.cern "ROOT - Data Analysis Framework"), [GSL](https://www.gnu.org/software/gsl "GSL - GNU Scientific Library"), [Eigen 3](https://eigen.tuxfamily.org/index.php?title=Main_Page "Eigen - C++ template library for linear algebra"), [Boost](https://www.boost.org "Boost - free peer-reviewed portable C++ source libraries"), [NLopt](https://nlopt.readthedocs.io/en/latest "NLopt - free/open-source library for nonlinear optimization"), [nlohmann_json](https://github.com/nlohmann/json "JSON for Modern C++") and [Minuit2 stand-alone](https://github.com/GooFit/Minuit2 "Stand-alone Minuit2") are installed.
+2. In the following we assume that you have the following directory tree:
+ - ```$HOME/source``` - the source code directory,
+ - ```$HOME/build``` - the build directory,
+ - ```$HOME/packages``` - the installation directory.
+
+3. Download the ISRSolver source code:
+  ```console
+  git clone https://github.com/sergeigribanov/ISRSolver $HOME/source/ISRSolver
+  ```
 
 <!-- ## Relationship between Born and visible cross section -->
 <!-- Precise measurement of the inclusive cross section of an e+e- annihilation to hadrons is -->
