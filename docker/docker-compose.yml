@@ -2,10 +2,7 @@ version: "3.9"
 services:
   isrsolver:
     build: .
-    environment:
-    - UID=1000
-    - GID=984
-    user: "${UID}:${GID}"
+    user: "1000:984"
     volumes:
       - ./shared:/home/isr/workdir/shared
     ports:
