@@ -51,6 +51,10 @@ The utilities are available to the user in a form of executable files that can b
   mkdir $HOME/build/ISRSolver
   cd $HOME/build/ISRSolver
   ```
+ 5. Run the following command:
+  ```console
+  cmake -DCMAKE_INSTALL_PREFIX=$HOME/packages/ISRSolver $HOME/source/ISRSolver
+  ```
 
 <!-- ## Relationship between Born and visible cross section -->
 <!-- Precise measurement of the inclusive cross section of an e+e- annihilation to hadrons is -->
