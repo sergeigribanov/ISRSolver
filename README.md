@@ -18,6 +18,7 @@ The utilities are available to the user in a form of executable files that can b
   ```console
   git clone https://github.com/sergeigribanov/ISRSolver
   cd ISRSolver/docker
+  mkdir shared
   docker-compose up -d
   ```
 4. After running the previous commands, check that the isrsolver_isrsolver image is in the list of images: 
