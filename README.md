@@ -20,6 +20,14 @@ The utilities are available to the user in a form of executable files that can b
   cd ISRSolver/docker
   docker-compose up -d
   ```
+4. After running the previous commands, check that the isrsolver_isrsolver image is in the list of images: 
+  ```console
+  docker images
+  ```
+5. Make sure the isrsolver_isrsolver_1 container is running:
+  ```console
+  docker ps
+  ```
 
 ## Installation
 
