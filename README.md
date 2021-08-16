@@ -65,6 +65,8 @@ The utilities are available to the user in a form of executable files that can b
   make install
   ```
 
+## Usage
+
 <!-- ## Relationship between Born and visible cross section -->
 <!-- Precise measurement of the inclusive cross section of an e+e- annihilation to hadrons is -->
 <!-- the main goal of the experiments carried out with the CMD-3 detector at the VEPP-2000 collider.  -->
