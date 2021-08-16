@@ -9,6 +9,17 @@ The ISRSolver toolkit is a set of utilities for obtaining the Born cross section
 The utilities are available to the user in a form of executable files that can be run with a set of command line options. The ISRSolver can be also used in a custom C++ or Python project.
 
 ## Quick start using Docker
+1. Install and setup docker and docker-compose
+2. Make sure the Docker service is running. You can do this using systemctl, for example:
+  ``console
+  systemctl status docker.service
+  ```
+3. Go to the directory where you want to download the ISRSolver source code and run the following console commands:
+  ```console
+  git clone https://github.com/sergeigribanov/ISRSolver
+  cd ISRSolver/docker
+  docker-compose up -d
+  ```
 
 ## Installation
 
