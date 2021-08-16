@@ -34,6 +34,7 @@ The utilities are available to the user in a form of executable files that can b
   docker inspect isrsolver_isrsolver_1
   ```
 7. Connect to Jupiter Notebook using your internet browser. In order to do this, use the ip-address from the last point and port 8765. For example, if the ip-address is 172.22.0.2, then you should enter the following URL request in the browser: 172.22.0.2:8765.
+8. The default password for Jupyter Notebook is  ```qwedcxzas```.
  
 **TO-DO: Describe how to run noteboks and how to use the docker container**
 
