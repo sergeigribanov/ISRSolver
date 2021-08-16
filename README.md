@@ -28,6 +28,10 @@ The utilities are available to the user in a form of executable files that can b
   ```console
   docker ps
   ```
+6. Find out the ip-address of the container isrsolver_isrsolvr_1:
+  ```console
+  docker inspect isrsolver_isrsolver_1
+  ```
 
 ## Installation
 
