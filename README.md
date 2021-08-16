@@ -51,7 +51,8 @@ The utilities are available to the user in a form of executable files that can b
   mkdir $HOME/build/ISRSolver
   cd $HOME/build/ISRSolver
   ```
- 5. Run the following command:
+5. Setup ```ROOT``` environment.
+6. Run the following command:
   ```console
   cmake -DCMAKE_INSTALL_PREFIX=$HOME/packages/ISRSolver $HOME/source/ISRSolver
   ```
