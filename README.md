@@ -56,6 +56,7 @@ The utilities are available to the user in a form of executable files that can b
   ```console
   cmake -DCMAKE_INSTALL_PREFIX=$HOME/packages/ISRSolver $HOME/source/ISRSolver
   ```
+ Please note that smake sometimes cannot find some packages depending on how they were installed. If an error occurs that cmake cannot find a particular package, you should to run cmake with the appropriate options.
 
 <!-- ## Relationship between Born and visible cross section -->
 <!-- Precise measurement of the inclusive cross section of an e+e- annihilation to hadrons is -->
