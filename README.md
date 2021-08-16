@@ -8,6 +8,66 @@ The ISRSolver toolkit is a set of utilities for obtaining the Born cross section
 
 The utilities are available to the user in a form of executable files that can be run with a set of command line options. The ISRSolver can be also used in a custom C++ or Python project.
 
+## Quick start using Docker
+1. Install and setup docker and docker-compose
+2. Make sure the Docker service is running. You can do this using ```systemctl```, for example:
+  ```console
+  systemctl status docker.service
+  ```
+3. Go to the directory where you want to download the ISRSolver source code and run the following console commands:
+  ```console
+  git clone https://github.com/sergeigribanov/ISRSolver
+  cd ISRSolver/docker
+  mkdir shared
+  docker-compose up -d
+  ```
+4. After running the previous commands, check that the isrsolver_isrsolver image is in the list of images: 
+  ```console
+  docker images
+  ```
+5. Make sure the isrsolver_isrsolver_1 container is running:
+  ```console
+  docker ps
+  ```
+6. Find out the ip-address of the container isrsolver_isrsolvr_1:
+  ```console
+  docker inspect isrsolver_isrsolver_1
+  ```
+7. Connect to Jupiter Notebook using your internet browser. In order to do this, use the ip-address from the last point and port 8765. For example, if the ip-address is 172.22.0.2, then you should enter the following URL request in the browser: 172.22.0.2:8765.
+8. The default password for Jupyter Notebook is  ```qwedcxzas```.
+ 
+**TO-DO: Describe how to run noteboks and how to use the docker container**
+
+## Installation
+1. Make sure that packages [ROOT](https://root.cern "ROOT - Data Analysis Framework") (```C++11```), [GSL](https://www.gnu.org/software/gsl "GSL - GNU Scientific Library"), [Eigen 3](https://eigen.tuxfamily.org/index.php?title=Main_Page "Eigen - C++ template library for linear algebra"), [Boost](https://www.boost.org "Boost - free peer-reviewed portable C++ source libraries"), [NLopt](https://nlopt.readthedocs.io/en/latest "NLopt - free/open-source library for nonlinear optimization"), [nlohmann_json](https://github.com/nlohmann/json "JSON for Modern C++") and [Minuit2 stand-alone](https://github.com/GooFit/Minuit2 "Stand-alone Minuit2") are installed.
+2. In the following we assume that you have the following directory tree:
+ - ```$HOME/source``` - the source code directory,
+ - ```$HOME/build``` - the build directory,
+ - ```$HOME/packages``` - the installation directory.
+
+3. Download the ISRSolver source code:
+  ```console
+  git clone https://github.com/sergeigribanov/ISRSolver $HOME/source/ISRSolver
+  ```
+4. Create a directory ```$HOME/build/ISRSolver``` and change to it:
+  ```console
+  mkdir $HOME/build/ISRSolver
+  cd $HOME/build/ISRSolver
+  ```
+5. Setup ```ROOT``` environment.
+6. Run the following command:
+  ```console
+  cmake -DCMAKE_INSTALL_PREFIX=$HOME/packages/ISRSolver $HOME/source/ISRSolver
+  ```
+7. Please note that smake sometimes cannot find some packages depending on how they were installed. If an error occurs that cmake cannot find a particular package, you should to run cmake with the appropriate options. **TO-DO: insert these commands and describe options**
+8. Build and install:
+  ```console
+  make -j8
+  make install
+  ```
+
+## Usage
+
 <!-- ## Relationship between Born and visible cross section -->
 <!-- Precise measurement of the inclusive cross section of an e+e- annihilation to hadrons is -->
 <!-- the main goal of the experiments carried out with the CMD-3 detector at the VEPP-2000 collider.  -->
