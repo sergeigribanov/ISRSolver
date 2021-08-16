@@ -36,7 +36,7 @@ The utilities are available to the user in a form of executable files that can b
 7. Connect to Jupiter Notebook using your internet browser. In order to do this, use the ip-address from the last point and port 8765. For example, if the ip-address is 172.22.0.2, then you should enter the following URL request in the browser: 172.22.0.2:8765.
 
 ## Installation
-1. Make sure that packages [ROOT](https://root.cern "ROOT: Data Analysis Framework"), gsl, Eigen 3, boost and nlopt are installed.
+1. Make sure that packages [ROOT](https://root.cern "ROOT - Data Analysis Framework"), [GSL](https://www.gnu.org/software/gsl "GSL - GNU Scientific Library"), Eigen 3, boost and nlopt are installed.
 
 <!-- ## Relationship between Born and visible cross section -->
 <!-- Precise measurement of the inclusive cross section of an e+e- annihilation to hadrons is -->
