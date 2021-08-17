@@ -19,7 +19,7 @@ The utilities are available to the user in a form of executable files that can b
 3. Go to the directory where you want to download the ISRSolver source code and run the following console commands:
   ```console
   git clone https://github.com/sergeigribanov/ISRSolver
-  cd ISRSolver/docker
+  cd ISRSolver
   mkdir shared
   docker-compose up -d
   ```
