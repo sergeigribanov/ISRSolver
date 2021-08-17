@@ -20,8 +20,8 @@ RUN pip install -q --upgrade pip && pip install -q numpy pandas matplotlib seabo
 	    echo "c.NotebookApp.allow_remote_access = True" >> ~/.jupyter/jupyter_notebook_config.py && \
 	    echo "c.NotebookApp.port = 8765" >> ~/.jupyter/jupyter_notebook_config.py
 ENV PKG_DIR /home/$USER/packages
-COPY yadisk.py yadisk.py
-COPY install.sh install.sh
+COPY docker/yadisk.py yadisk.py
+COPY docker/install.sh install.sh
 RUN sh install.sh
 ENV PATH /home/$USER/packages/ISRSolver/bin:/home/$USER/packages/root/bin:$PATH
 ENV LD_LIBRARY_PATH /home/$USER/packages/ISRSolver/lib:/home/$USER/packages/root/lib:$LD_LIBRARY_PATH
