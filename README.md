@@ -6,7 +6,7 @@
 
 ## Overview
 
-The ISRSolver toolkit is a set of utilities for obtaining the Born cross section using the visible cross section data, as well as a set of utilities for checking the results. The Born cross section can be found using various methods. Some these methods are generally accepted, while other methods, such as the naive method and the Tikhonov regularization method, were first proposed for finding the Born cross section using the visible cross section data in article [] and then implemented in the ISRSolver toolkit.
+The ISRSolver toolkit is a set of utilities for obtaining the Born cross section using the visible cross section data, as well as a set of utilities for checking the results. The Born cross section can be found using various methods. Some these methods are generally accepted, while other methods, such as the naive method and the Tikhonov regularization method, were first proposed for finding the Born cross section using the visible cross section data in article [https://arxiv.org/abs/2108.07539](https://arxiv.org/abs/2108.07539 "New method for obtaining a Born cross section using visible cross section data from e+e− colliders") and then implemented in the ISRSolver toolkit.
 
 The utilities are available to the user in a form of executable files that can be run with a set of command line options. The ISRSolver can be also used in a custom C++ or Python project.
 
