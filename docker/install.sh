@@ -30,12 +30,15 @@ cd $BUILD_DIR/ISRSolver
 cmake -DCMAKE_INSTALL_PREFIX=$PKG_DIR/ISRSolver -Dnlohmann_json_DIR=$PKG_DIR/json/lib/cmake/nlohmann_json -DCMAKE_CXX_STANDARD=11 $SOURCE_DIR/ISRSolver
 make -j8
 make install
-rm -rf $SOURCE_DIR
 cd $HOME
 export NOTEBOOKS_PREFIX=$HOME/workdir/notebooks
 mkdir -p $NOTEBOOKS_PREFIX
+cp -r $SOURCE_DIR/ISRSolver/notebooks/*.ipynb $NOTEBOOKS_PREFIX/.
 mv yadisk.py $NOTEBOOKS_PREFIX/.
 cd $NOTEBOOKS_PREFIX
 python yadisk.py https://disk.yandex.com/d/XEes97fR2OsAqQ -p $NOTEBOOKS_PREFIX
 tar -xf data.tar.gz
 chmod -R a=rX $NOTEBOOKS_PREFIX/data
+rm -f yadisk.py
+rm -f data.tar.gz
+rm -rf $SOURCE_DIR
