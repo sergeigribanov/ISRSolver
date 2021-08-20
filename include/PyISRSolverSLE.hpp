@@ -95,6 +95,19 @@ static PyObject *PyISRSolverSLE_intop_matrix(PyISRSolverObject *self) {
   return PyArray_Transpose(array, NULL);
 }
 
+static PyObject *PyISRSolverSLE_interp_eval(PyISRSolverObject *self, PyObject *args, PyObject *kwds) {
+  double energy;
+  static const char *kwlist[] = {"cm_energy", NULL};
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "d",
+                                   const_cast<char**>(kwlist),
+                                   &energy)) {
+    return 0;
+  }
+  ISRSolverSLE* solver = reinterpret_cast<ISRSolverSLE*>(self->solver);
+  const double value = solver->interpEval(solver->bcs(), energy);
+  return PyFloat_FromDouble(value);
+}
+
 static PyMethodDef PyISRSolverSLE_methods[] = {
     {"solve", (PyCFunction) PyISRSolver_solve, METH_NOARGS,
      "Find solution"
@@ -113,6 +126,8 @@ static PyMethodDef PyISRSolverSLE_methods[] = {
      "Evaluate inverse covariance matrix of the numerical solution (Born cross section)"},
     {"intop_matrix", (PyCFunction) PyISRSolverSLE_intop_matrix, METH_NOARGS,
      "Integral operator matrix"},
+    {"interp_eval", (PyCFunction) PyISRSolverSLE_interp_eval, METH_VARARGS | METH_KEYWORDS,
+     "Eval interpolation value at certain c.m. energy point"},
     {"set_interp_settings", (PyCFunction) PyISRSolverSLE_set_interp_settings, METH_VARARGS, "Set interpolation settings"},
     {NULL}  /* Sentinel */
 };
