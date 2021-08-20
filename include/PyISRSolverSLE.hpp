@@ -107,6 +107,13 @@ static PyObject *PyISRSolverSLE_interp_eval(PyISRSolverObject *self, PyObject *a
   return PyFloat_FromDouble(value);
 }
 
+
+static PyObject *PyISRSolverSLE_condnum_eval(PyISRSolverObject *self) {
+  ISRSolverSLE* solver = reinterpret_cast<ISRSolverSLE*>(self->solver);
+  const double value = solver->evalConditionNumber();
+  return PyFloat_FromDouble(value);
+}
+
 static PyMethodDef PyISRSolverSLE_methods[] = {
     {"solve", (PyCFunction) PyISRSolver_solve, METH_NOARGS,
      "Find solution"
@@ -125,6 +132,8 @@ static PyMethodDef PyISRSolverSLE_methods[] = {
      "Evaluate inverse covariance matrix of the numerical solution (Born cross section)"},
     {"intop_matrix", (PyCFunction) PyISRSolverSLE_intop_matrix, METH_NOARGS,
      "Integral operator matrix"},
+    {"condnum_eval", (PyCFunction) PyISRSolverSLE_condnum_eval, METH_NOARGS,
+     "Eval condition number of the integral operator matrix F or GF in the case, when c.m. energy spread is enabled."},
     {"interp_eval", (PyCFunction) PyISRSolverSLE_interp_eval, METH_VARARGS | METH_KEYWORDS,
      "Eval interpolation value at certain c.m. energy point"},
     {"set_interp_settings", (PyCFunction) PyISRSolverSLE_set_interp_settings, METH_VARARGS, "Set interpolation settings"},
