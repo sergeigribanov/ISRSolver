@@ -39,9 +39,8 @@ static PyObject *PyISRSolverSLE_set_interp_settings(PyISRSolverObject *self, PyO
     el2 = PyLong_AsLong(subitem);
     Py_DECREF(index);
     Py_DECREF(subitem);
-
-    Py_DECREF(item);
     result.push_back(std::make_tuple(el0, el1, el2));
+    Py_DECREF(item);
   }
   Py_DECREF(iterator);
   ISRSolverSLE* solver = reinterpret_cast<ISRSolverSLE*>(self->solver);
