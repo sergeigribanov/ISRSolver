@@ -154,7 +154,7 @@ class BaseISRSolver {
    * This method is used to reset center-of-mass energy errors.
    * @param vecECMErr a vector of center-of-mass energy errors.
    */
-  void resetECMErrors(const Eigen::VectorXd& vecECMErr);
+  void resetECMErrors(const Eigen::VectorXd& vecECMErr); // TO-DO reset inegral operator matrix in this case and similar cases
 
   std::size_t getN() const;
 

@@ -114,6 +114,12 @@ static PyObject *PyISRSolverSLE_condnum_eval(PyISRSolverObject *self) {
   return PyFloat_FromDouble(value);
 }
 
+static PyObject *PyISRSolverSLE_eval_equation_matrix(PyISRSolverObject *self) {
+  ISRSolverSLE* solver = reinterpret_cast<ISRSolverSLE*>(self->solver);
+  solver->evalEqMatrix();
+  return PyLong_FromSsize_t(0);
+}
+
 static PyMethodDef PyISRSolverSLE_methods[] = {
     {"solve", (PyCFunction) PyISRSolver_solve, METH_NOARGS,
      "Find solution"
@@ -136,6 +142,10 @@ static PyMethodDef PyISRSolverSLE_methods[] = {
      "Eval condition number of the integral operator matrix F or GF in the case, when c.m. energy spread is enabled."},
     {"interp_eval", (PyCFunction) PyISRSolverSLE_interp_eval, METH_VARARGS | METH_KEYWORDS,
      "Eval interpolation value at certain c.m. energy point"},
+    {"eval_equation_matrix", (PyCFunction) PyISRSolverSLE_eval_equation_matrix, METH_NOARGS,
+    "Eval equation matrix"},
+    {"reset_ecm_err", (PyCFunction) PyISRSolver_reset_ecm_err,  METH_VARARGS | METH_KEYWORDS,
+     "Reset c.m. energy spread"},
     {"set_interp_settings", (PyCFunction) PyISRSolverSLE_set_interp_settings, METH_VARARGS, "Set interpolation settings"},
     {NULL}  /* Sentinel */
 };

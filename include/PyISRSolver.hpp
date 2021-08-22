@@ -138,6 +138,21 @@ static PyObject *PyISRSolver_save(PyISRSolverObject *self, PyObject *args, PyObj
   return PyLong_FromSsize_t(0);
 }
 
+static PyObject *PyISRSolver_reset_ecm_err(PyISRSolverObject *self, PyObject *args, PyObject *kwds)
+{
+  PyArrayObject *energyErr = NULL;
+  static const char *kwlist[] = {"energy_err", NULL};
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!",
+                                   const_cast<char**>(kwlist),
+                                   &PyArray_Type, &energyErr)) {
+    return 0;
+  }
+  double *energyErrArrayC = (double*) PyArray_DATA(energyErr);
+  Eigen::Map<Eigen::VectorXd> energyErrVec(energyErrArrayC, self->solver->getN());
+  self->solver->resetECMErrors(energyErrVec);
+  return PyLong_FromSsize_t(0);
+}
+
 template <class T>
 static int
 PyISRSolver_init(PyISRSolverObject *self, PyObject *args, PyObject *kwds)
