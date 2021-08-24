@@ -85,3 +85,16 @@ source <path to ISRSolver installation>/bin/env.sh
 isrsolver-SLE -t <threshold energy> -g -v vcs -e efficiency -i <path to input.root> -o output.root
 ```
 Option ```-t``` is used to set a threshold energy in GeV, option ```-i``` is used to set a path to the input file and option ```-o``` is used to set an output file path. Option ```-v``` is used to set the name of the visible cross section graph stored in the input file. If this name is ```vcs``` this option can be omitted. Option ```-e``` is used to set the name of the detection efficiency object stored in the input file. If the option ```-e``` is omitted, then it is assumed that the detection is equalt to ```1``` or the visible cross section is already divided by the one-dimensional detection efficiency. Option ```-g``` is used to take into account c.m. energy spread. If this option is omitted, the c.m. energy spread is not taken into account even if the visible cross section graph has horizontal error bars.
+
+By default, the Born section is interpolated using a piecewise linear interpolation. To change the type of interpolation, option ```-r``` can be used to set a path to a ```.json``` file with interpolation settings:
+```console
+isrsolver-SLE -t <threshold energy> -g -v vcs -e efficiency -i <path to input.root> -o output.root -r interp-settings.json
+```
+Suppose there are 50 c.m. energy points at which a visible cross-section is measured. Suppose also that we want the interpolation to be piecewise linear on the interval from the threshold energy to the first measurement point, and interpolation using a cubic spline at the intervals between the other measurement points. In this case, the config file ```interp-settings.json``` will be like this
+```json
+[
+[false, 0, 0], 
+[true, 1, 49]
+]
+```
+Each inner list in this file describes interpolation type at a certain set of consecutive c.m. energy intervals. ```false``` means that the interpolation is piecewise linear, ```true``` means cubic spline interpolation. The first number in each inner list is the index of the first c.m. energy interval, and the second number is the index of the last interval. Index ```0``` is the index of c.m. energy interval between the threshold energy and the first c.m. energy point
