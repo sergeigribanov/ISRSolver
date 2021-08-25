@@ -4,6 +4,7 @@
 #include <functional>
 #include <Python.h>
 #include <structmember.h>
+#include "Integration.hpp"
 #include "KuraevFadin.hpp"
 static PyObject* pyKernelKuraevFadin(PyObject* self,
                                    PyObject* args) {
@@ -59,10 +60,68 @@ static PyObject* pyConvolutionKuraevFadin(PyObject* self,
   return PyFloat_FromDouble(result);
 }
 
+static PyObject* pyConvolutionKuraevFadinBlurred(PyObject* self,
+                                                 PyObject* args,
+                                                 PyObject* kwds) {
+  PyObject *cb = nullptr;
+  PyObject *efficiency = nullptr;
+  double energyC;
+  double thresholdEnergyC;
+  double cmEnergySpreadC;
+  static const char *kwlist[] = {"energy", "fcn",  "threshold_energy", "cm_energy_spread", "efficiency", NULL};
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "dOdd|O",
+                                   const_cast<char**>(kwlist),
+                                   &energyC, &cb, &thresholdEnergyC,
+                                   &cmEnergySpreadC, &efficiency)) {
+    return 0;
+  }
+  if (!PyCallable_Check(cb)) {
+    PyErr_SetString(PyExc_TypeError, "convolutionKuraevFadin: a callable is required");
+    return 0;
+  }
+  std::function<double(double)> fcnC =
+      [cb](double en) {
+        PyObject *arglist = Py_BuildValue("(d)", en);
+        PyObject *rv = PyObject_CallObject(cb, arglist);
+        double result = PyFloat_AS_DOUBLE(rv);
+        Py_CLEAR(rv);
+        Py_CLEAR(arglist);
+        return result;
+      };
+  std::function<double(double, double)> efficiencyC =
+      [efficiency](double x, double en) {
+        PyObject *arglist = Py_BuildValue("(dd)", x, en);;
+        PyObject *rv = PyObject_CallObject(efficiency, arglist);
+        double result = PyFloat_AS_DOUBLE(rv);
+        Py_CLEAR(rv);
+        Py_CLEAR(arglist);
+        return result;
+      };
+  std::function<double(double)> visCSNonBlurred =
+    [&efficiency, &efficiencyC, &fcnC, thresholdEnergyC](double en) {
+      const double enRatio = thresholdEnergyC / en;
+      double result;
+      if (!efficiency) {
+        result =
+          convolutionKuraevFadin(en, fcnC, 0., 1. - enRatio * enRatio);
+      } else {
+      result =
+        convolutionKuraevFadin(en, fcnC, 0., 1. - enRatio * enRatio, efficiencyC);
+      }
+      return result;
+    };
+  double result = gaussian_conv(energyC, cmEnergySpreadC * cmEnergySpreadC,
+                                visCSNonBlurred);
+  return PyFloat_FromDouble(result);
+}
+
 static char kernelKuraevFadin_docs[] =
     "kernelKuraevFadin(x, s): Any message you want to put here!!\n";
 
 static char convolutionKuraevFadin_docs[] =
     "convolutionKuraevFadin(energy, fcn, min_x, max_x, efficiency = lambda x, energy: 1.): Any message you want to put here!!\n";
+
+static char convolutionKuraevFadinBlurred_docs[] =
+  "convolutionKuraevFadin(energy, fcn, threshold_energy, cm_energy_spread, efficiency = lambda x, energy: 1.): Any message you want to put here!!\n";
 
 #endif
