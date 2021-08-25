@@ -199,6 +199,8 @@ static PyMethodDef PyISR_funcs[] = {
    METH_VARARGS, kernelKuraevFadin_docs},
   {"convolutionKuraevFadin", (PyCFunction)pyConvolutionKuraevFadin,
    METH_VARARGS | METH_KEYWORDS, convolutionKuraevFadin_docs},
+  {"convolutionKuraevFadinBlurred", (PyCFunction)pyConvolutionKuraevFadinBlurred,
+   METH_VARARGS | METH_KEYWORDS, convolutionKuraevFadinBlurred_docs},
   {NULL, NULL, 0, NULL}
 };
 
