@@ -67,6 +67,20 @@ The utilities are available to the user in a form of executable files that can b
   make -j8
   make install
   ```
+## Jupyter Notebooks without Docker
+1. Setup ```ROOT``` environment.
+2. Setup ```ISRSolver``` environment:
+```console
+source /path/to/ISRSolver/installation/bin/env.sh
+```
+3. Go to the notebooks directory:
+```console
+cd /path/to/ISRSolver/source/code/notebooks
+```
+4. Run Jupyter Notebook:
+```console
+jupyter notebook
+```
 
 ## Usage
 Suppose you have a ```.root``` file that stores a visible cross section in the form of ```TGraphErrors``` object and a detection efficiency in the form of 2D ```TEfficiency``` object. Suppose this file is called ```input.root```, the visible cross section graph is called ```vcs``` and the detection efficiency object is called ```efficiency```. In what follows, it is assumed that the vertical error bars on the ```vcs``` graph represent visible cross section uncertainties, and the horizontal error bars represent c.m. energy spread. The detection efficiency is a function of two variables. The first variable is ```x```, while the second variable is a ```c.m. energy```.
