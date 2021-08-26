@@ -85,8 +85,8 @@ cd /path/to/ISRSolver/source/code/notebooks
 ```console
 mkdir ../shared
 ```
-7. Download archive with data for numerical experiments https://disk.yandex.com/d/XEes97fR2OsAqQ to the ```notebooks``` directory.
-8. Decompress the archive:
+6. Download archive with data for numerical experiments https://disk.yandex.com/d/XEes97fR2OsAqQ to the ```notebooks``` directory.
+7. Decompress the archive:
 ```console
 tar -xf data.tar.gz
 ```
