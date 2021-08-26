@@ -71,7 +71,7 @@ The utilities are available to the user in a form of executable files that can b
 1. Setup ```ROOT``` environment.
 2. Setup ```ISRSolver``` environment:
 ```console
-source /path/to/ISRSolver/installation/bin/env.sh
+source <ISRSolver installation prefix>/bin/env.sh
 ```
 3. Install required python packages and modules:
 ```console
@@ -79,7 +79,7 @@ pip install --user numpy pandas matplotlib seaborn scikit-hep jupyter
 ```
 4. Go to the notebooks directory:
 ```console
-cd /path/to/ISRSolver/source/code/notebooks
+cd <ISRSolver source code prefix>/notebooks
 ```
 5. Make directory ```../shared```. This directory is used in some examples to save results.
 ```console
