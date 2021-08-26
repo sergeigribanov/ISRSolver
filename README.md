@@ -73,11 +73,20 @@ The utilities are available to the user in a form of executable files that can b
 ```console
 source /path/to/ISRSolver/installation/bin/env.sh
 ```
-3. Go to the notebooks directory:
+3. Install required python packages and modules:
+```console
+pip install --user numpy pandas matplotlib seaborn scikit-hep jupyter
+```
+4. Go to the notebooks directory:
 ```console
 cd /path/to/ISRSolver/source/code/notebooks
 ```
-4. Run Jupyter Notebook:
+5. Download archive with data for numerical experiments https://disk.yandex.com/d/XEes97fR2OsAqQ to the ```notebooks``` directory.
+6. Decompress the archive:
+```console
+tar -xf data.tar.gz
+```
+7. Run Jupyter Notebook:
 ```console
 jupyter notebook
 ```
