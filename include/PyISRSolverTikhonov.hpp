@@ -140,7 +140,9 @@ static PyMethodDef PyISRSolverTikhonov_methods[] = {
     {"solve_LCurve", (PyCFunction) PyISRSolverTikhonov_solve_LCurve, METH_VARARGS | METH_KEYWORDS,
     "Find solution using the L-curve criterion"},
     {"chi2_test_model", (PyCFunction) PyISRSolverSLE_chi2_test_model, METH_VARARGS | METH_KEYWORDS,
-     "Chi2 test using model Born and Visible cross sections"},
+     "Chi2 test of the numerical solution with respect to the modle Born cross section. Visible cross section is generated multiple times using model visible cross section."},
+    {"ratio_test_model", (PyCFunction) PyISRSolverSLE_ratio_test_model, METH_VARARGS | METH_KEYWORDS,
+     "Ratio test (test of interpolation quality). Ratio of the numerical solution to the model Born cross section. Visible cross section is generated multiple times using model visible cross section."},
     {NULL}  /* Sentinel */
 };
 

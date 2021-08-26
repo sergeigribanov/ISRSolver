@@ -1,6 +1,7 @@
 #ifndef _PY_ISRSOLVER_SLE_HPP_
 #define _PY_ISRSOLVER_SLE_HPP_
 #include "Chi2Test.hpp"
+#include "RatioTest.hpp"
 #include "PyISRSolver.hpp"
 
 static PyObject *PyISRSolverSLE_set_interp_settings(PyISRSolverObject *self, PyObject *args) {
@@ -151,6 +152,34 @@ static PyObject *PyISRSolverSLE_chi2_test_model(PyISRSolverObject *self, PyObjec
   return PyLong_FromSsize_t(0);
 }
 
+static PyObject *PyISRSolverSLE_ratio_test_model(PyISRSolverObject *self, PyObject *args, PyObject *kwds) {
+  int n;
+  char *modelPath = NULL;
+  char *modelVCsName = NULL;
+  char *modelBCsName = NULL;
+  char *outputPath = NULL;
+  static const char *kwlist[] =
+    {"n", "model_path", "model_visible_cs_name",
+     "model_born_cs_name", "output_path", NULL};
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "issss",
+                                   const_cast<char**>(kwlist),
+                                   &n,
+                                   &modelPath,
+                                   &modelVCsName,
+                                   &modelBCsName,
+                                   &outputPath)) {
+    return 0;
+  }
+  auto solver = reinterpret_cast<ISRSolverSLE*>(self->solver);
+  ratioTestModel(solver,
+                 {.n = n,
+                  .modelPath = modelPath,
+                  .modelVCSName = modelVCsName,
+                  .modelBCSName = modelBCsName,
+                  .outputPath = outputPath});
+  return PyLong_FromSsize_t(0);
+}
+
 static PyMethodDef PyISRSolverSLE_methods[] = {
     {"solve", (PyCFunction) PyISRSolver_solve, METH_NOARGS,
      "Find solution"
@@ -179,7 +208,9 @@ static PyMethodDef PyISRSolverSLE_methods[] = {
      "Reset c.m. energy spread"},
     {"set_interp_settings", (PyCFunction) PyISRSolverSLE_set_interp_settings, METH_VARARGS, "Set interpolation settings"},
     {"chi2_test_model", (PyCFunction) PyISRSolverSLE_chi2_test_model, METH_VARARGS | METH_KEYWORDS,
-    "Chi2 test using model Born and Visible cross sections"},
+    "Chi2 test of the numerical solution with respect to the modle Born cross section. Visible cross section is generated multiple times using model visible cross section."},
+    {"ratio_test_model", (PyCFunction) PyISRSolverSLE_ratio_test_model, METH_VARARGS | METH_KEYWORDS,
+     "Ratio test (test of interpolation quality). Ratio of the numerical solution to the model Born cross section. Visible cross section is generated multiple times using model visible cross section."},
     {NULL}  /* Sentinel */
 };
 
