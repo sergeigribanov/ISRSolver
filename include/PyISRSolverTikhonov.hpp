@@ -139,6 +139,8 @@ static PyMethodDef PyISRSolverTikhonov_methods[] = {
      "Obtaining L-curve and it's curvature"},
     {"solve_LCurve", (PyCFunction) PyISRSolverTikhonov_solve_LCurve, METH_VARARGS | METH_KEYWORDS,
     "Find solution using the L-curve criterion"},
+    {"chi2_test_model", (PyCFunction) PyISRSolverSLE_chi2_test_model, METH_VARARGS | METH_KEYWORDS,
+     "Chi2 test using model Born and Visible cross sections"},
     {NULL}  /* Sentinel */
 };
 
