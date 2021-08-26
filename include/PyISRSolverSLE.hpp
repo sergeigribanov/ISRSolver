@@ -1,5 +1,6 @@
 #ifndef _PY_ISRSOLVER_SLE_HPP_
 #define _PY_ISRSOLVER_SLE_HPP_
+#include "Chi2Test.hpp"
 #include "PyISRSolver.hpp"
 
 static PyObject *PyISRSolverSLE_set_interp_settings(PyISRSolverObject *self, PyObject *args) {
@@ -120,6 +121,36 @@ static PyObject *PyISRSolverSLE_eval_equation_matrix(PyISRSolverObject *self) {
   return PyLong_FromSsize_t(0);
 }
 
+static PyObject *PyISRSolverSLE_chi2_test_model(PyISRSolverObject *self, PyObject *args, PyObject *kwds) {
+  int n;
+  double ampl;
+  char *modelPath = NULL;
+  char *modelVCsName = NULL;
+  char *modelBCsName = NULL;
+  char *outputPath = NULL;
+  static const char *kwlist[] =
+    {"n", "initial_ampl", "model_path", "model_visible_cs_name",
+    "model_born_cs_name", "output_path", NULL};
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "idssss",
+                                   const_cast<char**>(kwlist),
+                                   &n, &ampl,
+                                   &modelPath,
+                                   &modelVCsName,
+                                   &modelBCsName,
+                                   &outputPath)) {
+    return 0;
+  }
+  auto solver = reinterpret_cast<ISRSolverSLE*>(self->solver);
+  chi2TestModel(solver,
+                {.n = n,
+                 .initialChi2Ampl = ampl,
+                 .modelPath = modelPath,
+                 .modelVCSName = modelVCsName,
+                 .modelBCSName = modelBCsName,
+                 .outputPath = outputPath});
+  return PyLong_FromSsize_t(0);
+}
+
 static PyMethodDef PyISRSolverSLE_methods[] = {
     {"solve", (PyCFunction) PyISRSolver_solve, METH_NOARGS,
      "Find solution"
@@ -147,6 +178,8 @@ static PyMethodDef PyISRSolverSLE_methods[] = {
     {"reset_ecm_err", (PyCFunction) PyISRSolver_reset_ecm_err,  METH_VARARGS | METH_KEYWORDS,
      "Reset c.m. energy spread"},
     {"set_interp_settings", (PyCFunction) PyISRSolverSLE_set_interp_settings, METH_VARARGS, "Set interpolation settings"},
+    {"chi2_test_model", (PyCFunction) PyISRSolverSLE_chi2_test_model, METH_VARARGS | METH_KEYWORDS,
+    "Chi2 test using model Born and Visible cross sections"},
     {NULL}  /* Sentinel */
 };
 
