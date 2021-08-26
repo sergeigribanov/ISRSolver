@@ -81,12 +81,16 @@ pip install --user numpy pandas matplotlib seaborn scikit-hep jupyter
 ```console
 cd /path/to/ISRSolver/source/code/notebooks
 ```
-5. Download archive with data for numerical experiments https://disk.yandex.com/d/XEes97fR2OsAqQ to the ```notebooks``` directory.
-6. Decompress the archive:
+5. Make directory ```../shared```. This directory is used in some examples to save results.
+```console
+mkdir ../shared
+```
+7. Download archive with data for numerical experiments https://disk.yandex.com/d/XEes97fR2OsAqQ to the ```notebooks``` directory.
+8. Decompress the archive:
 ```console
 tar -xf data.tar.gz
 ```
-7. Run Jupyter Notebook:
+8. Run Jupyter Notebook:
 ```console
 jupyter notebook
 ```
