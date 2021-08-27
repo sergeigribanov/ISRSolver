@@ -8,7 +8,7 @@
 
 The ISRSolver toolkit is a set of utilities for obtaining the Born cross section using the visible cross section data, as well as a set of utilities for checking the results. The Born cross section can be found using various methods. Some these methods are generally accepted, while other methods, such as the naive method and the Tikhonov regularization method, were first proposed for finding the Born cross section using the visible cross section data in article [https://arxiv.org/abs/2108.07539](https://arxiv.org/abs/2108.07539 "New method for obtaining a Born cross section using visible cross section data from e+e− colliders") and then implemented in the ISRSolver toolkit.
 
-The utilities are available to the user in a form of executable files that can be run with a set of command line options. The ISRSolver can be also used in a custom C++ or Python project.
+The utilities are available to the user in the form of executable files that can be run with a set of command line options. The ISRSolver can be also used in a custom C++ or Python project.
 
 ## Quick start using Docker
 1. Install and setup docker and docker-compose
@@ -148,3 +148,19 @@ Options ```-m``` and ```-x``` are used to set minimum and maximum values of the 
 isrsolver-Tikhonov-LCurve -t <threshold energy> -l <initial reg. param.> -i <path to input.root> -o output.root
 ```
 Option ```-l``` is used to set an initial value of the regularization parameter. It is better to choose this value close to the point of maximum curvature of the L-Curve. Options ```-t```,  ```-i``` and ```-o``` are the same as in the case of the ```isrsolver-Tikhonov``` utility. Options ```-g```, ```-e```, ```-v```, ```-r``` and ```-s``` are also the same as in the case of the ```isrsolver-Tikhonov``` utility and should be used if needed.
+
+### Validation
+The numerical solution validation can be performed using the model data. The model data should be prepared as follows:
+1. Model dependence of the Born crosss section on c.m. energy is known.
+2. The model visible cross section is calculated using the model Born cross section, efficiency, and energy spread at a given c.m. energy points.
+3. "Experimental visible cross section" values at points are generated according to the model visible cross section and a given uncertainties of the visible cross section.
+4. The "experimental visible cross section" and the detection efficiency are recorded to a file (cross section - ```TGraphErrors```, efficiency - ```TEfficiecny```).
+5. The model Born cross section is evaluated at the given c.m. energy points and stored in the form of ```TGraphErrors``` to a file. The model visible cross section is also stored to the same file in the form of ```TGraphErrors```. 
+#### Chi-square test
+##### Naive method
+1. Setup ```ROOT``` and ```ISRSolver``` environments.
+2. Run the following command:
+```console
+isrsolver-SLE-chi2-test -t <threshold energy> -u <path to the file with model Born and visible cross sections> -b <name of the model Born C.S. graph> -c <name of the model visible C.S. graph> -i <path to the file with the "experimental visible C.S." and the detection eff. (if the efficiecny is used)> -v <name of the "experimental visible C.S. graph> -e <name of the detection eff. object (if the efficiency is used)> -n <number of toy Monte-Carlo draws> -o output.root
+```
+Option ```-u``` is used to set the path to the file with model Born and visible cross section graphs. Option ```-b``` is used to set the name of the model Born cross section graph in this file, while option ```-c``` is used to set the name of the model visible cross section, which is also stored in this file. Option ```-i``` is used to set the path to the "experimental visible cross section" and the detection efficiency (in case if the detection efficiency is used). Option ```-v``` is used to set the name of the "experimental visible cross section" graph, while option ```-e``` is used to set the name of the detection efficiency object. In the case if the detection efficiency not used, the option ```-e``` should be omitted. Option ```-n``` is used to set a number of toy Monte-Carlo evants. The utility creates a chi-square histogram. This histogram is then fitted with the appropriate distribution. To set the initial amplitude of this distribution, option ```-l``` can be used. Options ```-g``` and ```-r``` are the same as in the case of the ```isrsolver-SLE``` utility and should be used if needed.
