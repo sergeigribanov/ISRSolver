@@ -169,8 +169,9 @@ Option ```-u``` is used to set the path to the file with model Born and visible 
 1. Setup ```ROOT``` and ```ISRSolver``` environments.
 2. Run the following command:
 ```console
-
+isrsolver-Tikhonov-chi2-test -l <reg. param.> -t <threshold energy> -u <path to the file with model Born and visible cross sections> -b <name of the model Born C.S. graph> -c <name of the model visible C.S. graph> -i <path to the file with the "experimental visible C.S." and the detection eff. (if the efficiecny is used)> -v <name of the "experimental visible C.S. graph> -e <name of the detection eff. object (if the efficiency is used)> -n <number of toy Monte-Carlo draws> -o output.root
 ```
+Option ```-l``` is used to set the regularization parameter. Other options are the same as in the ```isrsolver-SLE-chi2-test``` utility. Options ```-a```, ```-g```, ```-r``` and ```-s``` can be used if needed.
 #### Ratio test
 ##### Naive method
 1. Setup ```ROOT``` and ```ISRSolver``` environments.
