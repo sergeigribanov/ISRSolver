@@ -124,4 +124,27 @@ Suppose there are 50 c.m. energy points at which a visible cross-section is meas
 [true, 1, 49]
 ]
 ```
-Each inner list in this file describes interpolation type at a certain set of consecutive c.m. energy intervals. ```false``` means that the interpolation is piecewise linear, ```true``` means cubic spline interpolation. The first number in each inner list is the index of the first c.m. energy interval, and the second number is the index of the last interval. Index ```0``` is the index of c.m. energy interval between the threshold energy and the first c.m. energy point
+Each inner list in this file describes interpolation type at a certain set of consecutive c.m. energy intervals. ```false``` means that the interpolation is piecewise linear, ```true``` means cubic spline interpolation. The first number in each inner list is the index of the first c.m. energy interval, and the second number is the index of the last interval. Index ```0``` is the index of c.m. energy interval between the threshold energy and the first c.m. energy point.
+
+### Tikhonov regularization
+#### Solving using the manual regularization parameter 
+1. Setup ```ROOT``` and ```ISRSolver``` environments.
+2. Run the following command:
+```console
+isrsolver-Tikhonov -t <threshold energy> -l 1.0 -i <path to input.root> -o output.root
+```
+Option ```-l``` is used to set regularization parameter. Options ```-t```, ```-i``` and ```-o``` are the same as in the case of the ```isrsolver-SLE``` utility. Options ```-g```, ```-e```, ```-v``` and ```-r``` are also the same as in the case of the ```isrsolver-SLE``` utility and should be used if needed. By default, the regularization term contains the square of the norm of the numerical solution derivative. To use the square of the norm of the numerical solution as a regularization term, option ```-s``` should be enabled.
+#### L-Curve and L-Curve curvature plots
+1. Setup ```ROOT``` and ```ISRSolver``` environments.
+2. Run the following command:
+```console
+isrsolver-LCurve-plot -t <threshold energy> -m <min reg. param.> -x <max reg. param.> -n <number of reg. param. points> -i <path to input.root> -o output.root
+```
+Options ```-m``` and ```-x``` are used to set minimum and maximum values of the regularization parameter, respectively. Option ```-n``` is used to set number of steps in the regularization parameter. Options ```-t```, ```-i``` and ```-o``` are the same as in the case of ```isrsolver-Tikhonov``` utility. Options ```-g```, ```-e```, ```-v```, ```-r``` and ```-s``` are also the same as in the case of ```isrsolver-Tikhonov``` utility and should be used if needed.
+#### Solving using the L-Curve criterion
+1. Setup ```ROOT``` and ```ISRSolver``` environments.
+2. Run the following command:
+```console
+isrsolver-Tikhonov-LCurve -t <threshold energy> -l <initial reg. param.> -i <path to input.root> -o output.root
+```
+Option ```-l``` is used to set an initial value of the regularization parameter. It is better to choose this value close to the point of maximum curvature of the L-Curve. Options ```-t```,  ```-i``` and ```-o``` are the same as in the case of the ```isrsolver-Tikhonov``` utility. Options ```-g```, ```-e```, ```-v```, ```-r``` and ```-s``` are also the same as in the case of the ```isrsolver-Tikhonov``` utility and should be used if needed.
