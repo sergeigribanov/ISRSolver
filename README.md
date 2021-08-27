@@ -127,13 +127,14 @@ Suppose there are 50 c.m. energy points at which a visible cross-section is meas
 Each inner list in this file describes interpolation type at a certain set of consecutive c.m. energy intervals. ```false``` means that the interpolation is piecewise linear, ```true``` means cubic spline interpolation. The first number in each inner list is the index of the first c.m. energy interval, and the second number is the index of the last interval. Index ```0``` is the index of c.m. energy interval between the threshold energy and the first c.m. energy point.
 
 ### Tikhonov regularization
+Regularization leads to a biased numerical solution, so the covariance matrix of the Born cross section is incorrect. 
 #### Solving using the manual regularization parameter 
 1. Setup ```ROOT``` and ```ISRSolver``` environments.
 2. Run the following command:
 ```console
 isrsolver-Tikhonov -t <threshold energy> -l 1.0 -i <path to input.root> -o output.root
 ```
-Option ```-l``` is used to set regularization parameter. Options ```-t```, ```-i``` and ```-o``` are the same as in the case of the ```isrsolver-SLE``` utility. Options ```-g```, ```-e```, ```-v``` and ```-r``` are also the same as in the case of the ```isrsolver-SLE``` utility and should be used if needed. By default, the regularization term contains the square of the norm of the numerical solution derivative. To use the square of the norm of the numerical solution as a regularization term, option ```-s``` should be enabled.
+Option ```-l``` is used to set the regularization parameter manually. Options ```-t```, ```-i``` and ```-o``` are the same as in the case of the ```isrsolver-SLE``` utility. Options ```-g```, ```-e```, ```-v``` and ```-r``` are also the same as in the case of the ```isrsolver-SLE``` utility and should be used if needed. By default, the regularization term contains the square of the norm of the numerical solution derivative. To use the square of the norm of the numerical solution as a regularization term, option ```-s``` should be enabled.
 #### L-Curve and L-Curve curvature plots
 1. Setup ```ROOT``` and ```ISRSolver``` environments.
 2. Run the following command:
@@ -164,3 +165,9 @@ The numerical solution validation can be performed using the model data. The mod
 isrsolver-SLE-chi2-test -t <threshold energy> -u <path to the file with model Born and visible cross sections> -b <name of the model Born C.S. graph> -c <name of the model visible C.S. graph> -i <path to the file with the "experimental visible C.S." and the detection eff. (if the efficiecny is used)> -v <name of the "experimental visible C.S. graph> -e <name of the detection eff. object (if the efficiency is used)> -n <number of toy Monte-Carlo draws> -o output.root
 ```
 Option ```-u``` is used to set the path to the file with model Born and visible cross section graphs. Option ```-b``` is used to set the name of the model Born cross section graph in this file, while option ```-c``` is used to set the name of the model visible cross section, which is also stored in this file. Option ```-i``` is used to set the path to the "experimental visible cross section" and the detection efficiency (in case if the detection efficiency is used). Option ```-v``` is used to set the name of the "experimental visible cross section" graph, while option ```-e``` is used to set the name of the detection efficiency object. In the case if the detection efficiency not used, the option ```-e``` should be omitted. Option ```-n``` is used to set a number of toy Monte-Carlo evants. The utility creates a chi-square histogram. This histogram is then fitted with the appropriate distribution. To set the initial amplitude of this distribution, option ```-l``` can be used. Options ```-g``` and ```-r``` are the same as in the case of the ```isrsolver-SLE``` utility and should be used if needed.
+##### Tikhonov regularization
+1. Setup ```ROOT``` and ```ISRSolver``` environments.
+2. Run the following command:
+```console
+
+```
