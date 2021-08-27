@@ -68,7 +68,7 @@ void setOptions(po::options_description* desc, CmdOptions* opts) {
       ("help,h", "help message")
       ("thsd,t", po::value<double>(&(opts->thsd)), "threshold (GeV)")
       ("enable-energy-spread,g", "enable energy spread")
-      ("ampl,l", po::value<double>(&(opts->ampl))->default_value(1.e+4),
+      ("ampl,a", po::value<double>(&(opts->ampl))->default_value(1.e+4),
        "initial chi-square amplitude")
       ("num-rnd-draws,n", po::value<int>(&(opts->n))->default_value(100),
        "number of visible cross section random draws")
