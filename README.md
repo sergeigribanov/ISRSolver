@@ -171,3 +171,14 @@ Option ```-u``` is used to set the path to the file with model Born and visible 
 ```console
 
 ```
+#### Ratio test
+##### Naive method
+1. Setup ```ROOT``` and ```ISRSolver``` environments.
+2. Run the following command:
+```console
+```
+##### Tikhonov regularization
+1. Setup ```ROOT``` and ```ISRSolver``` environments.
+2. Run the following command:
+```console
+```
