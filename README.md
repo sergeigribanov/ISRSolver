@@ -24,7 +24,7 @@ The accuracy of the naive method depends on the presence of cross-section measur
 ```console
 docker pull ssgribanov/isrsolver
 ```
-4. Check that the ``ssgribanov/isrsolver``` image is actually downloaded:
+4. Check that the ```ssgribanov/isrsolver``` image is actually downloaded:
 ```console
 docker images
 ```
