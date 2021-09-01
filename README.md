@@ -86,11 +86,11 @@ The ```shared``` directory is intended for files that you want to export or impo
 ```console
 docker exec -it isrsolver_isrsolver_1 /bin/bash
 ```
-2. Now you able run any ISRSolver executable files, for example:
+2. Now you able run any ```ISRSolver``` executable files, for example:
 ```console
 isrsolver-SLE -t 0.827 -i notebooks/data/gen_visible_cs_etapipi_simple_model_no_energy_spread.root -o shared/test.root
 ```
-The ```shared``` directory has the same meaning as in the section above. Detailed information on running ISRSolver executable files is given below in section ***Usage***.
+The ```shared``` directory has the same meaning as in the section above. Detailed information on running ```ISRSolver``` executable files is given below in section ***Usage***.
 
 ## Installation
 1. Make sure that packages [ROOT](https://root.cern "ROOT - Data Analysis Framework") (```C++11```), [GSL](https://www.gnu.org/software/gsl "GSL - GNU Scientific Library"), [Eigen 3](https://eigen.tuxfamily.org/index.php?title=Main_Page "Eigen - C++ template library for linear algebra"), [Boost](https://www.boost.org "Boost - free peer-reviewed portable C++ source libraries"), [NLopt](https://nlopt.readthedocs.io/en/latest "NLopt - free/open-source library for nonlinear optimization"), [nlohmann_json](https://github.com/nlohmann/json "JSON for Modern C++") and [Minuit2 stand-alone](https://github.com/GooFit/Minuit2 "Stand-alone Minuit2") are installed.
