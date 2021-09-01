@@ -40,7 +40,7 @@ docker images
 docker ps
 ```
  
-### Manual build
+### Manual image build
 1. Install and setup docker and docker-compose.
 2. Make sure the Docker service is running. You can do this using ```systemctl```, for example:
   ```console
