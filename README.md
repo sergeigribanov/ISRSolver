@@ -11,7 +11,31 @@ The ISRSolver toolkit is a set of utilities for obtaining a Born cross section u
 The utilities are available to the user in the form of executable files that can be run with a set of command line options. The ISRSolver can be also used in a custom C++ or Python project.
 
 ## Quick start using Docker
-1. Install and setup docker and docker-compose
+### Installation using a pre-built image 
+1. Install and setup docker and docker-compose.
+2. Make sure the Docker service is running. You can do this using ```systemctl```, for example:
+  ```console
+  systemctl status docker.service
+  ```
+3. Download ```ssgribanov/isrsolver``` image from the official Docker repository:
+```console
+docker pull ssgribanov/isrsolver
+```
+4. Check that the ``ssgribanov/isrsolver``` image is actually downloaded:
+```console
+docker images
+```
+5. Go to the directory where you want to download the ISRSolver source code and run the following console commands:
+  ```console
+  git clone https://github.com/sergeigribanov/ISRSolver
+  cd ISRSolver
+  mkdir shared
+  docker-compose up -d
+  ```
+6. Check that the container ```isrsolver_isrsolver_1``` is actually running.
+ 
+### Manual build
+1. Install and setup docker and docker-compose.
 2. Make sure the Docker service is running. You can do this using ```systemctl```, for example:
   ```console
   systemctl status docker.service
@@ -21,24 +45,42 @@ The utilities are available to the user in the form of executable files that can
   git clone https://github.com/sergeigribanov/ISRSolver
   cd ISRSolver
   mkdir shared
-  docker-compose up -d
   ```
-4. After running the previous commands, check that the isrsolver_isrsolver image is in the list of images: 
+4. Start image building:
+```console
+docker build -t ssgribanov/isrsolver:latest .
+```
+5. After the build is complete, check that the ```ssgribanov/isrsolver``` image was actually built:
   ```console
   docker images
   ```
-5. Make sure the isrsolver_isrsolver_1 container is running:
-  ```console
-  docker ps
-  ```
-6. Find out the ip-address of the container isrsolver_isrsolvr_1:
-  ```console
-  docker inspect isrsolver_isrsolver_1
-  ```
-7. Connect to Jupiter Notebook using your internet browser. In order to do this, use the ip-address from the last point and port 8765. For example, if the ip-address is 172.22.0.2, then you should enter the following URL request in the browser: 172.22.0.2:8765.
-8. The default password for Jupyter Notebook is  ```qwedcxzas```.
- 
-**TO-DO: Describe how to run noteboks and how to use the docker container**
+6. Run container using the following command:
+```console
+docker-compose up -d
+```
+7. Check that the container ```isrsolver_isrsolver_1``` is actually running.
+  
+### Usage (Jupyter Notebooks)
+1. Check the container ```IP```:
+```console
+docker inspect isrsolver_isrsolver_1 | grep IPAddress
+````
+The container tag may differ from the standard one (```isrsolver_isrsolver_```) if it was launched in a directory other than ```ISRSolver```. In the previous command, you need to use the actual container tag.
+2. Connect to Jupiter Notebook using your internet browser. In order to do this, use the ip-address from the last point and port 8765. For example, if the ip-address is ```172.24.0.2```, then you should enter the following URL request in the browser: ```172.24.0.2:8765```.
+4. Enter the default password for Jupyter Notebook is  ```qwedcxzas```.
+5. After the previous command, two directories will be available in the browser window: ```notebooks``` and ```shared```.
+The ```shared``` directory is intended for files that you want to export or import into the container. This directory corresponds to the host directory created at the step 5 of the ***Installation using a pre-built image*** section or at the step 3 of the ***Manual build*** section. The ```notebooks``` directory contains a collection of Jupiter Notebooks that you can open and run.
+
+### Usage (Console)
+1. Run the ```/bin/bash``` command inside the existing container:
+```console
+docker exec -it isrsolver_isrsolver_1 /bin/bash
+```
+2. Now you able run any ISRSolver executable files, for example:
+```console
+isrsolver-SLE -t 0.827 -i notebooks/data/gen_visible_cs_etapipi_simple_model_no_energy_spread.root -o shared/test.root
+```
+Detailed information on running ISRSolver executable files is given below in section ***Usage***
 
 ## Installation
 1. Make sure that packages [ROOT](https://root.cern "ROOT - Data Analysis Framework") (```C++11```), [GSL](https://www.gnu.org/software/gsl "GSL - GNU Scientific Library"), [Eigen 3](https://eigen.tuxfamily.org/index.php?title=Main_Page "Eigen - C++ template library for linear algebra"), [Boost](https://www.boost.org "Boost - free peer-reviewed portable C++ source libraries"), [NLopt](https://nlopt.readthedocs.io/en/latest "NLopt - free/open-source library for nonlinear optimization"), [nlohmann_json](https://github.com/nlohmann/json "JSON for Modern C++") and [Minuit2 stand-alone](https://github.com/GooFit/Minuit2 "Stand-alone Minuit2") are installed.
@@ -73,7 +115,7 @@ The utilities are available to the user in the form of executable files that can
 ```console
 source <ISRSolver installation prefix>/bin/env.sh
 ```
-3. Install required python packages and modules:
+3. Install required python (Python 3) packages and modules:
 ```console
 pip install --user numpy pandas matplotlib seaborn scikit-hep jupyter
 ```
