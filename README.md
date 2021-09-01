@@ -35,7 +35,10 @@ docker images
   mkdir shared
   docker-compose up -d
   ```
-6. Check that the container ```isrsolver_isrsolver_1``` is actually running.
+6. Check that the container ```isrsolver_isrsolver_1``` is actually running:
+```console
+docker ps
+```
  
 ### Manual build
 1. Install and setup docker and docker-compose.
@@ -61,7 +64,10 @@ docker build -t ssgribanov/isrsolver:latest .
 ```console
 docker-compose up -d
 ```
-7. Check that the container ```isrsolver_isrsolver_1``` is actually running.
+7. Check that the container ```isrsolver_isrsolver_1``` is actually running:
+```console
+docker ps
+```
   
 ### Usage (Jupyter Notebooks)
 1. Check the container ```IP```:
