@@ -70,14 +70,15 @@ docker ps
 ```
   
 ### Usage (Jupyter Notebooks)
-Check the container ```IP```:
+1. Check the container ```IP```:
 ```console
 docker inspect isrsolver_isrsolver_1 | grep IPAddress
 ````
 The container tag may differ from the standard one (```isrsolver_isrsolver_```) if it was launched in a directory other than ```ISRSolver```. In the previous command, you need to use the actual container tag.
+
 2. Connect to Jupiter Notebook using your internet browser. In order to do this, use the ip-address from the last point and port 8765. For example, if the ip-address is ```172.24.0.2```, then you should enter the following URL request in the browser: ```172.24.0.2:8765```.
-4. Enter the default password for Jupyter Notebook is  ```qwedcxzas```.
-5. After the previous command, two directories will be available in the browser window: ```notebooks``` and ```shared```.
+3. Enter the default password for Jupyter Notebook is  ```qwedcxzas```.
+4. After the previous command, two directories will be available in the browser window: ```notebooks``` and ```shared```.
 The ```shared``` directory is intended for files that you want to export or import into the container. This directory corresponds to the host directory created at the step 5 of the ***Installation using a pre-built image*** section or at the step 3 of the ***Manual build*** section. The ```notebooks``` directory contains a collection of Jupiter Notebooks that you can open and run.
 
 ### Usage (Console)
