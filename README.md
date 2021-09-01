@@ -10,6 +10,9 @@ The ISRSolver toolkit is a set of utilities for obtaining a Born cross section u
 
 The utilities are available to the user in the form of executable files that can be run with a set of command line options. The ISRSolver can be also used in a custom C++ or Python project.
 
+## Important
+The accuracy of the naive method depends on the presence of cross-section measurement points near the threshold. The farther from the threshold are the points with the lowest c.m. energy, the lower the accuracy. 
+
 ## Quick start using Docker
 ### Installation using a pre-built image 
 1. Install and setup docker and docker-compose.
@@ -80,7 +83,7 @@ docker exec -it isrsolver_isrsolver_1 /bin/bash
 ```console
 isrsolver-SLE -t 0.827 -i notebooks/data/gen_visible_cs_etapipi_simple_model_no_energy_spread.root -o shared/test.root
 ```
-Detailed information on running ISRSolver executable files is given below in section ***Usage***
+Detailed information on running ISRSolver executable files is given below in section ***Usage***.
 
 ## Installation
 1. Make sure that packages [ROOT](https://root.cern "ROOT - Data Analysis Framework") (```C++11```), [GSL](https://www.gnu.org/software/gsl "GSL - GNU Scientific Library"), [Eigen 3](https://eigen.tuxfamily.org/index.php?title=Main_Page "Eigen - C++ template library for linear algebra"), [Boost](https://www.boost.org "Boost - free peer-reviewed portable C++ source libraries"), [NLopt](https://nlopt.readthedocs.io/en/latest "NLopt - free/open-source library for nonlinear optimization"), [nlohmann_json](https://github.com/nlohmann/json "JSON for Modern C++") and [Minuit2 stand-alone](https://github.com/GooFit/Minuit2 "Stand-alone Minuit2") are installed.
