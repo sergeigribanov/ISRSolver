@@ -6,12 +6,20 @@
 
 ## Overview
 
-The ISRSolver toolkit is a set of utilities for obtaining a Born cross section using visible cross section data, as well as a set of utilities for checking the results. The Born cross section can be found using various methods. Some these methods are generally accepted, while other methods, such as the naive method and the Tikhonov regularization method, were first proposed for finding the Born cross section using the visible cross section data in the paper [JHEP11(2021)203](https://doi.org/10.1007/JHEP11(2021)203 "A new method for obtaining a Born cross section using visible cross section data from e+e− colliders") [arXiv:2108.07539](https://arxiv.org/abs/2108.07539 "A new method for obtaining a Born cross section using visible cross section data from e+e− colliders") and implemented in the ISRSolver toolkit.
+One of the problems that often has to be solved when analyzing data from electron-positron colliders is obtaining a Born cross section using visible cross section data. There are a number of generally accepted methods for solving this problem. Paper [JHEP11(2021)203](https://doi.org/10.1007/JHEP11(2021)203 "A new method for obtaining a Born cross section using visible cross section data from e+e− colliders") ([arXiv:2108.07539](https://arxiv.org/abs/2108.07539 "A new method for obtaining a Born cross section using visible cross section data from e+e− colliders")) presents a new method for obtaining a Born cross section using visible cross section data. This method is based on the approximate reduction of the integral equation connecting visible and Born cross sections to a system of linear equations. Since the integral equation is an integral equation of the first kind, the problem of finding its numerical solution is ill-posed. However, under certain conditions, the effects of ill-posedness can be neglected. The new method for obtaining a Born section is called the naive method.
 
-The utilities are available to the user in the form of executable files that can be run with a set of command line options. The ISRSolver can be also used in a custom C++ or Python project.
+ISRSolver toolkit was developed in order to implement the naive method for obtaining of a Born cross section. Also, to obtain a regularized numerical solution of the corresponding integral equation, an implementation of the Tikhonov regularization method was added to the ISRSolver toolkit. However, it should be noted that the Tikhonov method cannot be used for precise obtaining of a Born cross section, in contrast to the naive method. The reason lies in the bias of a regularized numerical solution. The bias of a regularized numerical solution leads to a non-correct covariance matrix of a Born cross section. Nevertheless, the Tikhonov regularization method is convenient to use in order to demonstrate the difference between a regularized and an unregularized numerical solutions (it is assumed that an unregularized numerical solution is obtained using the naive method).
+
+It should be noted that the naive method is model-independent if a two-dimensional detecton efficiency ```epsilon(x, s)``` is used.
+
+The ISRSolver toolkit can also be used to verify the results of finding a numerical solution, as well as for convolution of an arbitrary line shape of a Born crosss section with the kernel function ```F(x, s)```.
+
+The utilities are available to the user in the form of executable files that can be run with a set of command line options. The ISRSolver can be also used in a custom C++ (cmake) or Python project.
 
 ## Important
-The accuracy of the naive method depends on the presence of cross-section measurement points near the threshold. The farther from the threshold are the points with the lowest c.m. energy, the lower the accuracy. 
+1. The accuracy of the naive method depends on the presence of cross section measurement points near the threshold. The farther from the threshold are the points with the lowest c.m. energy, the lower the accuracy.
+2. Since the naive method relies entirely on visible cross section data, the smaller the statistics, the lower the accuracy of the method.
+3. The naive method can be used only if the energy spread is significantly less than the distance between the energy points. 
 
 ## Quick start using Docker
 ### Installation using a pre-built image 
