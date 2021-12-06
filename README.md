@@ -19,7 +19,7 @@ The utilities are available to the user in the form of executable files that can
 ## Important
 1. The accuracy of the naive method depends on the presence of cross section measurement points near the threshold. The farther from the threshold are the points with the lowest c.m. energy, the lower the accuracy.
 2. Since the naive method relies entirely on visible cross section data, the smaller the statistics, the lower the accuracy of the method.
-3. The naive method can be used only if the energy spread is significantly less than the distance between the energy points.
+3. The naive method can be used only if the energy spread is significantly less than the distance between the energy points. On the other hand, the density of the energy points should be sufficient in order to provide the desired quality of interpolation of a numerical solution. Otherwise, one of the conventional methods should be used.
 4. There are several typos in the function ```F(x,s)``` from eq. (1.3) in the paper [JHEP11(2021)203](https://doi.org/10.1007/JHEP11(2021)203 "A new method for obtaining a Born cross section using visible cross section data from e+e− colliders"). There are no such typos in the source code and in the arXiv version [arXiv:2108.07539](https://arxiv.org/abs/2108.07539 "A new method for obtaining a Born cross section using visible cross section data from e+e− colliders").
 
 ## Quick start using Docker
