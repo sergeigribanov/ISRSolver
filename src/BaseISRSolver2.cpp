@@ -200,6 +200,7 @@ void BaseISRSolver2::push_back_eff(const std::string& path) {
   _effHists.push_back(hist);
   fl->Close();
   delete fl;
+  _setupEfficiency();
 }
 
 /**

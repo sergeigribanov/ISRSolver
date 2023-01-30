@@ -47,6 +47,9 @@ target_link_libraries(ISR
 add_executable(isrsolver-SLE ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE.cpp)
 target_link_libraries(isrsolver-SLE ISR)
 
+add_executable(isrsolver-SLE2 ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE2.cpp)
+target_link_libraries(isrsolver-SLE2 ISR)
+
 add_executable(isrsolver-Tikhonov ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-Tikhonov.cpp)
 target_link_libraries(isrsolver-Tikhonov ISR)
 
@@ -127,6 +130,7 @@ PROPERTIES
 PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS isrsolver-SLE DESTINATION bin)
+install(TARGETS isrsolver-SLE2 DESTINATION bin)
 install(TARGETS isrsolver-Tikhonov DESTINATION bin)
 install(TARGETS isrsolver-TSVD DESTINATION bin)
 install(TARGETS isrsolver-LCurve-plot DESTINATION bin)
