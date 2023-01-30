@@ -71,3 +71,22 @@ double convolutionKuraevFadin(double energy,
   }
   return result;
 }
+
+double convolutionKuraevFadin_1d(double energy,
+                                 const std::function<double(double)>& fcn,
+                                 double min_x, double max_x,
+                                 const std::function<double(double)>& efficiency) {
+  std::function<double(double)> fcnConv = [energy, &fcn, &efficiency](double x) {
+    return kernelMultiplicationKuraevFadin(x, energy, fcn) * efficiency(x);
+  };
+  double error;
+  double x0 = 4 * ELECTRON_M / energy;
+  double result;
+  if (min_x < x0) {
+    result = integrateS(fcnConv, min_x, x0, error) +
+             integrate(fcnConv, x0, max_x, error);
+  } else {
+    result = integrate(fcnConv, min_x, max_x, error);
+  }
+  return result;
+}

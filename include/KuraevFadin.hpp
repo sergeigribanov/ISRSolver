@@ -17,6 +17,13 @@ double convolutionKuraevFadin(double energy,
                               const std::function<double(double, double)>& efficiency =
                               [](double, double) {return 1.;});
 
+double convolutionKuraevFadin_1d(double energy,
+                              const std::function<double(double)>& fcn,
+                              double min_x,
+                              double max_x,
+                              const std::function<double(double)>& efficiency =
+                              [](double) {return 1.;});
+
 /**
  * The Kuraev-Fadin kernel function.
  * @param x an argument x
