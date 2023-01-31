@@ -76,7 +76,7 @@ double LinearRangeInterpolator2::_evalKuraevFadinBasisIntegralFirstTriangle(
   }
   const double en = _extCMEnergies(energyIndex + 1);
   std::function<double(double)> eff_1d = [efficiency, energyIndex](double x) {
-    return efficiency(x, energyIndex + 1);
+    return efficiency(x, energyIndex);
   };
   const double x0 = std::max(0., 1 - std::pow(enc / en, 2));
   const double x1 = 1 - std::pow(_extCMEnergies(csIndex) / en, 2);
@@ -97,7 +97,7 @@ double LinearRangeInterpolator2::_evalKuraevFadinBasisIntegralSecondTriangle(
   }
   const double en = _extCMEnergies(energyIndex + 1);
   std::function<double(double)> eff_1d = [efficiency, energyIndex](double x) {
-    return efficiency(x, energyIndex + 1);
+    return efficiency(x, energyIndex);
   };
   const double x0 = std::max(0., 1 - std::pow(encp / en, 2));
   const double x1 = 1 - std::pow(_extCMEnergies(csIndex + 1) / en, 2);

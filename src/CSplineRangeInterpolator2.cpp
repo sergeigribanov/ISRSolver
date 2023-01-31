@@ -97,7 +97,7 @@ double CSplineRangeInterpolator2::evalKuraevFadinBasisIntegral(
     return 0;
   }
   std::function<double(double)> eff_1d = [efficiency, energyIndex](double x) {
-    return efficiency(x, energyIndex + 1);
+    return efficiency(x, energyIndex);
   };
   std::function<double(double)> fcn =
       [index, this] (double energy) {
