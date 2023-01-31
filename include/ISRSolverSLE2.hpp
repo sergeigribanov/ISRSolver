@@ -3,7 +3,7 @@
 
 #include <TF1.h>
 #include <nlohmann/json.hpp>
-#include "Interpolator.hpp"
+#include "Interpolator2.hpp"
 #include "BaseISRSolver2.hpp"
 
 using json = nlohmann::json;
@@ -160,7 +160,7 @@ class ISRSolverSLE2 : public BaseISRSolver2 {
   /**
    * Interpolator that interpolates the numerical solution
    */
-  Interpolator _interp;
+  Interpolator2 _interp;
   /**
    * A boolean flag that is true when integral operator matrix is
    prepared and false otherwise

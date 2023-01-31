@@ -22,13 +22,13 @@ typedef struct {
   std::string vcs_name;
   /**
    * Name of the detection efficiency object
-   * (TEfficiency)
+   * (TH1D)
    */
   std::string efficiency_name;
   std::string eff_json_path;
   /**
    * Path to that input .root file that contains
-   * the visible cross section and detection efficiency
+   * the visible cross section
    */
   std::string ifname;
   /**

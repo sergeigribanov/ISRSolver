@@ -39,26 +39,26 @@ ISRSolverSLE2::ISRSolverSLE2(std::size_t numberOfPoints,
                   visibleCSErr,
                   thresholdEnergy,
                   efficiency),
-    _interp(Interpolator(ecm(), getThresholdEnergy())),
+    _interp(Interpolator2(ecm(), getThresholdEnergy())),
     _isEqMatrixPrepared(false) {}
 
 ISRSolverSLE2::ISRSolverSLE2(TGraphErrors* vcsGraph,
                              double thresholdEnergy) :
     BaseISRSolver2(vcsGraph, thresholdEnergy),
-    _interp(Interpolator(ecm(), getThresholdEnergy())),
+    _interp(Interpolator2(ecm(), getThresholdEnergy())),
     _isEqMatrixPrepared(false) {}
 
 ISRSolverSLE2::ISRSolverSLE2(TGraphErrors* vcsGraph,
                              const std::vector<TH1D*>& eff,
                              double thresholdEnergy) :
     BaseISRSolver2(vcsGraph, eff, thresholdEnergy),
-    _interp(Interpolator(ecm(), getThresholdEnergy())),
+    _interp(Interpolator2(ecm(), getThresholdEnergy())),
     _isEqMatrixPrepared(false) {}
 
 ISRSolverSLE2::ISRSolverSLE2(const std::string& inputPath,
                              const InputOptions& inputOpts) :
     BaseISRSolver2(inputPath, inputOpts),
-    _interp(Interpolator(ecm(), getThresholdEnergy())),
+    _interp(Interpolator2(ecm(), getThresholdEnergy())),
     _isEqMatrixPrepared(false) {}
 
 ISRSolverSLE2::ISRSolverSLE2(const ISRSolverSLE2& solver) :
@@ -128,15 +128,15 @@ void ISRSolverSLE2::save(const std::string& outputPath,
 
 void ISRSolverSLE2::setRangeInterpSettings(
     const std::vector<std::tuple<bool, int, int>>& interpRangeSettings) {
-  _interp = Interpolator(interpRangeSettings, ecm(), getThresholdEnergy());
+  _interp = Interpolator2(interpRangeSettings, ecm(), getThresholdEnergy());
 }
 
 void ISRSolverSLE2::setRangeInterpSettingsJSON(const json& interpRangeSettings) {
-  _interp = Interpolator(interpRangeSettings, ecm(), getThresholdEnergy());
+  _interp = Interpolator2(interpRangeSettings, ecm(), getThresholdEnergy());
 }
 
 void ISRSolverSLE2::setRangeInterpSettings(const std::string& pathToJSON) {
-  _interp = Interpolator(pathToJSON, ecm(), getThresholdEnergy());
+  _interp = Interpolator2(pathToJSON, ecm(), getThresholdEnergy());
 }
 
 void ISRSolverSLE2::evalEqMatrix() {
