@@ -11,9 +11,9 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(NLOPT REQUIRED)
 
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
-find_package(ROOT REQUIRED COMPONENTS RIO Net Core MathCore)
+find_package(ROOT REQUIRED COMPONENTS RIO Net Core MathCore Minuit2)
 include(${ROOT_USE_FILE})
-find_package(Minuit2 REQUIRED)
+# find_package(Minuit2 REQUIRED)
 find_package(GSL REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
 find_package(nlohmann_json REQUIRED)
@@ -35,13 +35,12 @@ target_include_directories(ISR
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(ISR
+target_link_libraries(ISR PUBLIC
   GSL::gsl GSL::gslcblas
   Eigen3::Eigen
   ${Boost_LIBRARIES}
   ${NLOPT_LIBRARIES}
   ${ROOT_LIBRARIES}
-  Minuit2::Minuit2
   nlohmann_json::nlohmann_json)
 
 add_executable(isrsolver-SLE ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE.cpp)
@@ -109,6 +108,9 @@ target_link_libraries(isrsolver-radcorr-function ISR)
 
 add_executable(isrsolver-iterative ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-iterative.cpp)
 target_link_libraries(isrsolver-iterative ISR)
+
+add_executable(isrsolver-test-fit ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-test-fit.cpp)
+target_link_libraries(isrsolver-test-fit ISR)
 
 add_executable(isrsolver-iterative-use-vcs-fit-fcn ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-iterative-use-vcs-fit-fcn.cpp)
 target_link_libraries(isrsolver-iterative-use-vcs-fit-fcn ISR)

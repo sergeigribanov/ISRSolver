@@ -1,8 +1,11 @@
 #ifndef _ISRSOLVER_VCS_FITTER_HPP_
 #define _ISRSOLVER_VCS_FITTER_HPP_
-#include <vector>
-#include <functional>
 #include <Minuit2/FCNBase.h>
+#include <Minuit2/FunctionMinimizer.h>
+#include <Minuit2/FunctionMinimum.h>
+#include <functional>
+#include <string>
+#include <vector>
 
 class ISRSolverVCSFitFunction : public ROOT::Minuit2::FCNBase {
  public:
@@ -19,6 +22,7 @@ class ISRSolverVCSFitFunction : public ROOT::Minuit2::FCNBase {
   void setErrorDef(double def);
   void enableEnergySpread();
   void disableEnergySpread();
+  void saveResults(const ROOT::Minuit2::FunctionMinimum&, const std::string&) const;
  private:
   bool _energySpread;
   double _threshold;

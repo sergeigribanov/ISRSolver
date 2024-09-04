@@ -130,8 +130,8 @@ int main(int argc, char* argv[]) {
   fl->Close();
   delete fl;
   Eigen::VectorXd ecm = Eigen::VectorXd::Zero(opts.n);
-  const double minen = fcn->GetXmin();
-  const double maxen = fcn->GetXmax();
+  // const double minen = 1.3;
+  const double maxen = 2.2;
   const double eh = (maxen - opts.thsd) / (opts.n - 1);
   for (std::size_t i = 0; i < opts.n; ++i) {
     ecm(i) = opts.thsd + eh * i;
@@ -141,26 +141,31 @@ int main(int argc, char* argv[]) {
   gsl_spline *spline = gsl_spline_alloc(gsl_interp_linear, opts.n);
   gsl_spline_init (spline, ecm.data(), radCorr.data(), opts.n);
   std::function<double(double)> radFCN =
-      [&spline, &acc](double en) {
+      [&spline, &acc, &opts](double en) {
+        if (en <= opts.thsd) {
+          return 0.;
+        }
+        // std::cout << en << std::endl;
         double result = gsl_spline_eval(spline, en, acc);
+        // std::cout << "ok : " << result << std::endl;
         return result;
       };
   /**
    * Converting the function to a form of std::function
    */
   std::function<double(double)> born_fcn =
-      [opts, maxen, &fcn, &radFCN](double en) {
+      [opts, &fcn, &radFCN](double en) {
     const double e0 = opts.thsd;
     const double e1 = fcn->GetXmin();
     if (en <= e0) {
       return 0.;
     }
     double result = 0;
-    if (en >= maxen) {
-      result = fcn->Eval(maxen) / (1. + radFCN(maxen));
+    if (en >= fcn->GetXmax()) {
+      result = fcn->Eval(fcn->GetXmax()) / (1. + radFCN(fcn->GetXmax()));
       return result;
     }
-    if (e0 < e1 && en < e1) {
+    if (e0 < e1 && en <= e1) {
       result = fcn->Eval(e1) * (en - e0) / (e1 - e0) / (1. + radFCN(en));
       return result;
     }
@@ -187,7 +192,7 @@ int main(int argc, char* argv[]) {
         if (teff) {
           result = convolutionKuraevFadin(en, born_fcn, 0, 1. - s_threshold / s, eff);
         } else {
-            result = convolutionKuraevFadin(en, born_fcn, 0, 1. - s_threshold / s);
+          result = convolutionKuraevFadin(en, born_fcn, 0, 1. - s_threshold / s);
         }
         return result;
       };
@@ -206,6 +211,14 @@ int main(int argc, char* argv[]) {
   for (std::size_t iter = 0; iter < opts.niter; ++iter) {
     std::cout << "ITER: " << iter << " / " << opts.niter << std::endl;
     for (std::size_t i = 0; i < opts.n; ++i) {
+      // std::cout << "ecm = " << ecm(i) << std::endl;
+      // std::cout << "bcs = " << born_fcn(ecm(i)) << std::endl;
+      // std::cout << "vcs = " << vcs_fcn(ecm(i)) << std::endl;
+      // std::cout << "__" << std::endl;
+      if (born_fcn(ecm(i))==0) {
+        tmpRad(i) = 0;
+        continue;
+      }
       tmpRad(i) = vcs_fcn(ecm(i)) / born_fcn(ecm(i)) - 1;
       if (std::isnan(tmpRad(i))) {
         tmpRad(i) = 0;
@@ -217,50 +230,55 @@ int main(int argc, char* argv[]) {
     acc = gsl_interp_accel_alloc ();
     spline = gsl_spline_alloc(gsl_interp_linear, opts.n);
     gsl_spline_init (spline, ecm.data(), radCorr.data(), opts.n);
+    // for (std::size_t k = 0; k < opts.n; ++k) {
+    //   std::cout << "ecm = " << ecm(k) << std::endl;
+    //   std::cout << "rad = " << radFCN(ecm(k)) << std::endl;
+    // }
   }
   std::function<double(double*, double*)> rad_fcn =
       [&radFCN](double* x, double*) {
        double result = radFCN(x[0]);
        return result;
       };
-  TF1 rootRadCorrFCN("radCorrFCN", &rad_fcn, minen, maxen, 0);
-  rootRadCorrFCN.SetNpx(100);
+  TF1 rootRadCorrFCN("radCorrFCN", &rad_fcn, 1.399, 2.010, 0);
+  rootRadCorrFCN.SetNpx(1000);
   Eigen::VectorXd radcorrs = Eigen::VectorXd(vcs->GetN());
   Eigen::VectorXd cs = Eigen::VectorXd(vcs->GetN());
   Eigen::VectorXd csErr = Eigen::VectorXd(vcs->GetN());
   for (int i = 0; i < vcs->GetN(); ++i) {
     double energy = (vcs->GetX())[i];
     radcorrs(i) = radFCN(energy);
-    cs(i) = (vcs->GetY())[i] /  (1. + radcorrs[i]);
-    csErr(i) = (vcs->GetEY())[i] /  (1. + radcorrs[i]);
+    cs(i) = (vcs->GetY())[i] / (1. + radcorrs[i]);
+    csErr(i) = (vcs->GetEY())[i] / (1. + radcorrs[i]);
+    }
+    TGraph radGraph(vcs->GetN(), vcs->GetX(), radcorrs.data());
+    auto bornCS =
+        new TGraphErrors(vcs->GetN(), vcs->GetX(), cs.data(), 0, csErr.data());
+    auto ofl = TFile::Open(opts.ofname.c_str(), "recreate");
+    TMatrixD bornCSCovMatrix(vcs->GetN(), vcs->GetN());
+    TMatrixD bornCSInvCovMatrix(vcs->GetN(), vcs->GetN());
+    Eigen::VectorXd tmpCovMDiag = csErr.array().pow(2.);
+    Eigen::MatrixXd tmpCovM = tmpCovMDiag.asDiagonal();
+    Eigen::VectorXd tmpInvCovMDiag = csErr.array().pow(-2.);
+    Eigen::MatrixXd tmpInvCovM = tmpInvCovMDiag.asDiagonal();
+    bornCSCovMatrix.SetMatrixArray(tmpCovM.data());
+    bornCSInvCovMatrix.SetMatrixArray(tmpInvCovM.data());
+    ofl->cd();
+    rootRadCorrFCN.Write();
+    radGraph.Write("radcorr");
+    vcs->Write("vcs");
+    bornCS->Write("bcs");
+    bornCSCovMatrix.Write("covMatrixBornCS");
+    bornCSInvCovMatrix.Write("invCovMatrixBornCS");
+    ofl->Close();
+    delete bornCS;
+    delete vcs;
+    delete fcn;
+    if (teff) {
+      delete teff;
+    }
+    delete ofl;
+    gsl_spline_free(spline);
+    gsl_interp_accel_free(acc);
+    return 0;
   }
-  TGraph radGraph(vcs->GetN(), vcs->GetX(), radcorrs.data());
-  auto bornCS = new TGraphErrors(vcs->GetN(), vcs->GetX(), cs.data(), 0, csErr.data());
-  auto ofl = TFile::Open(opts.ofname.c_str(), "recreate");
-  TMatrixD bornCSCovMatrix(vcs->GetN(),vcs->GetN());
-  TMatrixD bornCSInvCovMatrix(vcs->GetN(),vcs->GetN());
-  Eigen::VectorXd tmpCovMDiag = csErr.array().pow(2.);
-  Eigen::MatrixXd tmpCovM = tmpCovMDiag.asDiagonal();
-  Eigen::VectorXd tmpInvCovMDiag = csErr.array().pow(-2.);
-  Eigen::MatrixXd tmpInvCovM = tmpInvCovMDiag.asDiagonal();
-  bornCSCovMatrix.SetMatrixArray(tmpCovM.data());
-  bornCSInvCovMatrix.SetMatrixArray(tmpInvCovM.data());
-  ofl->cd();
-  rootRadCorrFCN.Write();
-  radGraph.Write("radcorr");
-  vcs->Write("vcs");
-  bornCS->Write("bcs");
-  bornCSCovMatrix.Write("covMatrixBornCS");
-  bornCSInvCovMatrix.Write("invCovMatrixBornCS");
-  ofl->Close();
-  delete bornCS;
-  delete vcs;
-  delete fcn;
-  if (teff) {
-    delete teff;
-  }
-  delete ofl;
-  gsl_spline_free (spline);
-  gsl_interp_accel_free (acc);
-  return 0;
-}
