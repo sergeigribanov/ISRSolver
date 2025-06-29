@@ -1,5 +1,5 @@
-#ifndef _INTERPOLATOR2_HPP_
-#define _INTERPOLATOR2_HPP_
+#pragma once
+
 #include <string>
 #include <exception>
 #include <memory>
@@ -174,5 +174,3 @@ class Interpolator2 {
    */
   std::vector<std::shared_ptr<BaseRangeInterpolator2>> _rangeInterpolator2s;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _ISRSOLVER_STRUCTS_HPP_
-#define _ISRSOLVER_STRUCTS_HPP_
+#pragma once
 
 #include <exception>
 #include <Eigen/Dense>
@@ -172,5 +171,3 @@ typedef struct : std::exception {
     return "[!] Wrong size of interpolation settings vector.\n";
   }
 } InterpSettingsSizeException;
-
-#endif

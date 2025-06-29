@@ -1,5 +1,5 @@
-#ifndef _INTEGRATION_HPP_
-#define _INTEGRATION_HPP_
+#pragma once
+
 #include <functional>
 
 /**
@@ -25,5 +25,3 @@ double integrateS(std::function<double(double)>& fcn, double a, double b, double
  * @param fcn an integrand
  */
 double gaussian_conv(double energy, double sigma2, std::function<double(double)>& fcn);
-
-#endif

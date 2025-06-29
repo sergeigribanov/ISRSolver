@@ -1,5 +1,5 @@
-#ifndef _PY_ISRSOLVER_TIKHONOV_HPP_
-#define _PY_ISRSOLVER_TIKHONOV_HPP_
+#pragma once
+
 #include <vector>
 #include <nlopt.hpp>
 #include "PyISRSolverSLE.hpp"
@@ -186,5 +186,3 @@ static PyTypeObject PyISRSolverTikhonovType = {
     0, /* tp_alloc */
     PyISRSolver_new, /* tp_new */
 };
-
-#endif

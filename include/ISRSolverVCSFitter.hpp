@@ -1,5 +1,5 @@
-#ifndef _ISRSOLVER_VCS_FITTER_HPP_
-#define _ISRSOLVER_VCS_FITTER_HPP_
+#pragma once
+
 #include <Minuit2/FCNBase.h>
 #include <Minuit2/FunctionMinimizer.h>
 #include <Minuit2/FunctionMinimum.h>
@@ -34,5 +34,3 @@ class ISRSolverVCSFitFunction : public ROOT::Minuit2::FCNBase {
   std::vector<double> _vcs;
   std::vector<double> _vcsErr;
 };
-
-#endif

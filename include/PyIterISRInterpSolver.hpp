@@ -1,5 +1,5 @@
-#ifndef _PY_ITER_ISR_INTERP_SOLVER_HPP_
-#define _PY_ITER_ISR_INTERP_SOLVER_HPP_
+#pragma once
+
 #include "PyISRSolverSLE.hpp"
 #include "IterISRInterpSolver.hpp"
 
@@ -99,5 +99,3 @@ static PyTypeObject PyIterISRInterpSolverType = {
     0, /* tp_alloc */
     PyISRSolver_new, /* tp_new */
 };
-
-#endif

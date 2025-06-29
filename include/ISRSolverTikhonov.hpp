@@ -1,5 +1,4 @@
-#ifndef _ISRSOLVER_TIKHONOV_HPP_
-#define _ISRSOLVER_TIKHONOV_HPP_
+#pragma once
 
 #include "ISRSolverSLE.hpp"
 
@@ -151,5 +150,3 @@ class ISRSolverTikhonov : public ISRSolverSLE {
   Eigen::FullPivLU<Eigen::MatrixXd> _luT;
   Eigen::FullPivLU<Eigen::MatrixXd> _luL;
 };
-
-#endif

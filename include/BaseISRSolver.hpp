@@ -1,5 +1,4 @@
-#ifndef _BASE_ISRSOLVER_HPP_
-#define _BASE_ISRSOLVER_HPP_
+#pragma once
 
 #include <Eigen/Dense>
 #include <string>
@@ -264,5 +263,3 @@ class BaseISRSolver {
   friend double* extractVCSErrPointer(BaseISRSolver*);
   friend double* extractBCSPointer(BaseISRSolver*);
 };
-
-#endif

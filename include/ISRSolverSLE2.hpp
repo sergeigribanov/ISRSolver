@@ -1,5 +1,4 @@
-#ifndef _ISRSOLVER_SLE2_HPP_
-#define _ISRSOLVER_SLE2_HPP_
+#pragma once
 
 #include <TF1.h>
 #include <nlohmann/json.hpp>
@@ -183,5 +182,3 @@ class ISRSolverSLE2 : public BaseISRSolver2 {
   friend double* extractIntOpMatrix(ISRSolverSLE2*);
   friend double* extractBCSCovMatrix(ISRSolverSLE2*);
 };
-
-#endif

@@ -6,18 +6,20 @@ endif()
 set(CMAKE_CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS OFF)
+add_compile_definitions(_GLIBCXX_USE_CXX11_ABI=1)
 find_package(Eigen3 REQUIRED NO_MODULE)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(NLOPT REQUIRED)
 
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
-find_package(ROOT REQUIRED COMPONENTS RIO Net Core MathCore Minuit2)
+find_package(ROOT REQUIRED COMPONENTS RIO Net Core Eve EG Geom Ged RGL MathCore Minuit Minuit2)
 include(${ROOT_USE_FILE})
-# find_package(Minuit2 REQUIRED)
 find_package(GSL REQUIRED)
 find_package(Boost COMPONENTS program_options REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package (Python3 COMPONENTS Development NumPy)
+# find_package (Python3 COMPONENTS Development NumPy)
 include_directories(${GSL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${NLOPT_INCLUDE_DIRS})
@@ -119,16 +121,16 @@ add_executable(isrsolver-KuraevFadin-convolution
   ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-KuraevFadin-convolution.cpp)
 target_link_libraries(isrsolver-KuraevFadin-convolution ISR)
 
-add_library(PyISR SHARED ${PYSOURCES})
-target_include_directories(PyISR
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/ISRSolver>
-  PRIVATE
-  ${Python3_INCLUDE_DIRS}
-  ${Python3_NumPy_INCLUDE_DIRS})
-target_link_libraries(PyISR ISR ${Python3_LIBRARIES})
-set_target_properties(PyISR PROPERTIES PREFIX "")
+# add_library(PyISR SHARED ${PYSOURCES})
+# target_include_directories(PyISR
+#   PUBLIC
+#   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#   $<INSTALL_INTERFACE:include/ISRSolver>
+#   PRIVATE
+#   ${Python3_INCLUDE_DIRS}
+#   ${Python3_NumPy_INCLUDE_DIRS})
+# target_link_libraries(PyISR ISR ${Python3_LIBRARIES})
+# set_target_properties(PyISR PROPERTIES PREFIX "")
 
 set_target_properties(ISR
 PROPERTIES
@@ -160,8 +162,8 @@ install(TARGETS ISR
   EXPORT ISRSolverTargets
   LIBRARY DESTINATION lib
   PUBLIC_HEADER DESTINATION include/ISRSolver)
-install(TARGETS PyISR
-  LIBRARY DESTINATION lib/python)
+# install(TARGETS PyISR
+#   LIBRARY DESTINATION lib/python)
 
 install(EXPORT ISRSolverTargets
   FILE ISRSolverTargets.cmake

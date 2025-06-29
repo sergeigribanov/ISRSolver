@@ -1,5 +1,5 @@
-#ifndef _BASE_RANGE_ITERPOLATOR_HPP_
-#define _BASE_RANGE_ITERPOLATOR_HPP_
+#pragma once
+
 #include <functional>
 #include <Eigen/Dense>
 
@@ -154,5 +154,3 @@ class BaseRangeInterpolator {
    */
   double _maxEnergy;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _BASE_ISRSOLVER2_HPP_
-#define _BASE_ISRSOLVER2_HPP_
+#pragma once
 
 #include <Eigen/Dense>
 #include <string>
@@ -274,4 +273,3 @@ class BaseISRSolver2 {
   friend double* extractBCSPointer(BaseISRSolver2*);
 };
 
-#endif

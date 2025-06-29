@@ -90,3 +90,80 @@ double convolutionKuraevFadin_1d(double energy,
   }
   return result;
 }
+
+
+// mX = 1 - x
+double funcDGamma(double mX, double s) {
+  const double fL = fLog(s);
+  const double beta = fBeta(s);
+  const double x = 1. - mX;
+  const double lnX = std::log(x);
+  const double lnMX = std::log(mX);
+  return 0.5 * beta * std::pow(mX, 0.5 * beta - 1.) *
+      (1. + 3. / 8 * beta - 1. / 48 * beta * beta * (1. / 3 * fL + M_PI * M_PI - 47. / 8))
+      - 0.25 * beta * (1. + x) - 1. / 32 * beta * beta *
+      (4. * (1. + x) * lnMX + (1. + 3. * std::pow(x, 2.)) / mX * lnX + 5. + x);
+}
+
+// mX = 1 - x
+double funcDEE(double mX, double s) {
+  const double E = 0.5 * std::sqrt(s);
+  if (mX - 2. * ELECTRON_M / E < 0) {
+    return 0.;
+  }
+  const double fL = fLog(s);
+  const double beta = fBeta(s);
+  const double x = 1. - mX;
+  const double sL = fL + 2. * std::log(mX);
+  const double lnX = std::log(x);
+  return std::pow(ALPHA_QED / M_PI, 2.) * (
+      1. / 12 / mX * std::pow(mX - 2. * ELECTRON_M / E, 0.5 * beta) *
+      std::pow(sL - 5. / 3, 2) * (1. + std::pow(x, 2.) + 1. / 6 * beta * (sL - 5. / 3))
+      + 0.25 * fL * fL * (2. / 3 * (1. - std::pow(x, 3)) / x + 0.5 * mX + (1. + x) * lnX));
+}
+
+// mX = 1 - x
+double funcD(double mX, double s) {
+  return funcDGamma(mX, s) + funcDEE(mX, s);
+}
+
+double funcDIntegral(double mX, double s, double s_threshold) {
+  const double mX_max = 1. - s_threshold / s;
+  if (mX >= mX_max) {
+    return 0.;
+  }
+  std::function<double(double)> fcn = [s, mX_max](double mY) {
+    if (mY >= mX_max) {
+      return 0.;
+    }
+    return funcD(mY, s);
+  };
+  double error;
+  const double E = 0.5 * std::sqrt(s);
+  const double mX0 = 2. * ELECTRON_M / E;
+  if (mX < mX0) {
+    return integrateS(fcn, mX, mX0, error) +
+        integrate(fcn, mX0, mX_max, error);
+  }
+  return integrate(fcn, mX, mX_max, error);
+}
+
+double funcFIntegral(double x_min, double x_max, double s) {
+  std::function<double(double)> fcn = [s](double y) {
+    return kernelKuraevFadin(y, s);
+  };
+  double error;
+  const double E = 0.5 * std::sqrt(s);
+  const double x0 = 2. * ELECTRON_M / E;
+  if (x_min < x0) {
+    return integrateS(fcn, x_min, x0, error) +
+        integrate(fcn, x0, x_max, error);
+  }
+  return integrate(fcn, x_min, x_max, error);
+}
+
+// mX = 1 - x
+double majorantDFunction(double mX, double s, double koeff) {
+  const double beta = fBeta(s);
+  return koeff * 0.5 * beta * std::pow(mX, 0.5 * beta - 1.);
+}

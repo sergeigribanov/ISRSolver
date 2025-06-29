@@ -1,5 +1,5 @@
-#ifndef _PY_FIT_VCS_HPP_
-#define _PY_FIT_VCS_HPP_
+#pragma once
+
 #define PY_SSIZE_T_CLEAN
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <functional>
@@ -267,5 +267,3 @@ static PyTypeObject PyFitVCSType = {
     0, /* tp_alloc */
     PyFitVCS_new, /* tp_new */
 };
-
-#endif

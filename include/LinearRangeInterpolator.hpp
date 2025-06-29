@@ -1,5 +1,5 @@
-#ifndef _LINEAR_RANGE_INTERPOLATOR_HPP_
-#define _LINEAR_RANGE_INTERPOLATOR_HPP_
+#pragma once
+
 #include "BaseRangeInterpolator.hpp"
 
 /**
@@ -132,5 +132,3 @@ class LinearRangeInterpolator : public BaseRangeInterpolator {
    */
   static std::function<double(double)> _fcn1;
 };
-
-#endif

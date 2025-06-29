@@ -1,5 +1,5 @@
-#ifndef _CHI2_TEST_HPP_
-#define _CHI2_TEST_HPP_
+#pragma once
+
 #include <string>
 #include <exception>
 #include "ISRSolverStructs.hpp"
@@ -50,5 +50,3 @@ class DifferentModelCrossSectionSizes : public std::exception {
         "Center-of-mass energy points of these cross sections must be the same.\n";
   }
 };
-
-#endif

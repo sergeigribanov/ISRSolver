@@ -1,5 +1,4 @@
-#ifndef _ISRSOLVER_TSVD_HPP_
-#define _ISRSOLVER_TSVD_HPP_
+#pragma once
 
 #include "ISRSolverSLE.hpp"
 
@@ -99,5 +98,3 @@ class ISRSolverTSVD : public ISRSolverSLE {
   Eigen::MatrixXd _mV;
   Eigen::VectorXd _mSing;
 };
-
-#endif

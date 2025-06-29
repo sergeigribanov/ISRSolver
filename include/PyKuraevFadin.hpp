@@ -1,5 +1,5 @@
-#ifndef _PY_KURAEV_FADIN_HPP_
-#define _PY_KURAEV_FADIN_HPP_
+#pragma once
+
 #define PY_SSIZE_T_CLEAN
 #include <functional>
 #include <Python.h>
@@ -123,5 +123,3 @@ static char convolutionKuraevFadin_docs[] =
 
 static char convolutionKuraevFadinBlurred_docs[] =
   "convolutionKuraevFadin(energy, fcn, threshold_energy, cm_energy_spread, efficiency = lambda x, energy: 1.): Any message you want to put here!!\n";
-
-#endif

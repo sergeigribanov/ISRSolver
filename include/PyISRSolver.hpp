@@ -1,5 +1,5 @@
-#ifndef _PY_ISRSOLVER_HPP_
-#define _PY_ISRSOLVER_HPP_
+#pragma once
+
 #define PY_SSIZE_T_CLEAN
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <Python.h>
@@ -212,5 +212,3 @@ PyISRSolver_init(PyISRSolverObject *self, PyObject *args, PyObject *kwds)
   return 0;
 }
 
-
-#endif

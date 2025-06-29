@@ -1,5 +1,4 @@
-#ifndef _PHYSICAL_CONSTANTS_HPP_
-#define _PHYSICAL_CONSTANTS_HPP_
+#pragma once
 
 /**
  * Fine structure constant
@@ -13,5 +12,3 @@
  * GeV to nb conversion factor
  */
 #define GEV_TO_NB 0.3894e+06
-
-#endif

@@ -1,5 +1,5 @@
-#ifndef _ITER_ISR_INTERP_SOLVER_HPP_
-#define _ITER_ISR_INTERP_SOLVER_HPP_
+#pragma once
+
 #include "ISRSolverSLE.hpp"
 #include "Interpolator.hpp"
 
@@ -84,5 +84,3 @@ class IterISRInterpSolver : public ISRSolverSLE {
    */
   Eigen::VectorXd _radcorr;
 };
-
-#endif

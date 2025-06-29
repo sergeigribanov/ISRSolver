@@ -1,5 +1,5 @@
-#ifndef _PY_ISRSOLVER_SLE_HPP_
-#define _PY_ISRSOLVER_SLE_HPP_
+#pragma once
+
 #include "Chi2Test.hpp"
 #include "RatioTest.hpp"
 #include "PyISRSolver.hpp"
@@ -254,5 +254,3 @@ static PyTypeObject PyISRSolverSLEType = {
     0, /* tp_alloc */
     PyISRSolver_new, /* tp_new */
 };
-
-#endif

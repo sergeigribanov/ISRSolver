@@ -1,5 +1,5 @@
-#ifndef _CSPLINE_RANGE_INTERPOLATOR2_HPP_
-#define _CSPLINE_RANGE_INTERPOLATOR2_HPP_
+#pragma once
+
 #include <vector>
 #include <memory>
 #include <gsl/gsl_spline.h>
@@ -79,5 +79,3 @@ class CSplineRangeInterpolator2 : public BaseRangeInterpolator2 {
    */
   std::vector<std::shared_ptr<gsl_spline>> _spline;
 };
-
-#endif

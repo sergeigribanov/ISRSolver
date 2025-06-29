@@ -1,5 +1,5 @@
-#ifndef _PY_ISRSOLVER_TSVD_HPP_
-#define _PY_ISRSOLVER_TSVD_HPP_
+#pragma once
+
 #include "PyISRSolverSLE.hpp"
 #include "ISRSolverTSVD.hpp"
 
@@ -120,5 +120,3 @@ static PyTypeObject PyISRSolverTSVDType = {
     0, /* tp_alloc */
     PyISRSolver_new, /* tp_new */
 };
-
-#endif
