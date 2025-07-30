@@ -10,7 +10,7 @@
 #include <TF1.h>
 #include <TGraph.h>
 #include <TH1D.h>
-#include "KuraevFadin.hpp"
+#include "ISRSolver/KuraevFadin.hpp"
 namespace po = boost::program_options;
 using json = nlohmann::json;
 

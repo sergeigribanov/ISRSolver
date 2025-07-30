@@ -4,8 +4,8 @@
 #include <functional>
 #include <Python.h>
 #include <structmember.h>
-#include "Integration.hpp"
-#include "KuraevFadin.hpp"
+#include "ISRSolver/Integration.hpp"
+#include "ISRSolver/KuraevFadin.hpp"
 static PyObject* pyKernelKuraevFadin(PyObject* self,
                                    PyObject* args) {
   double xC;

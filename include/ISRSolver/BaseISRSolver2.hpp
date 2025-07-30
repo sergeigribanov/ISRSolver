@@ -6,7 +6,7 @@
 #include <vector>
 #include <TH1D.h>
 #include <TGraphErrors.h>
-#include "ISRSolverStructs.hpp"
+#include "ISRSolver/ISRSolverStructs.hpp"
 
 
 class BaseISRSolver2;

@@ -7,8 +7,8 @@
 #include <TH1F.h>
 #include <TGraphErrors.h>
 #include <TRandom3.h>
-#include "RatioTest.hpp"
-#include "Utils.hpp"
+#include "ISRSolver/RatioTest.hpp"
+#include "ISRSolver/Utils.hpp"
 
 void ratioTestModel(ISRSolverSLE* solver,
                     const RatioTestModelArgs& args) {

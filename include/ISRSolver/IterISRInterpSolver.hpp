@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ISRSolverSLE.hpp"
-#include "Interpolator.hpp"
+#include "ISRSolver/ISRSolverSLE.hpp"
+#include "ISRSolver/Interpolator.hpp"
 
 /**
  * Solver that solving integral equation using iterative method

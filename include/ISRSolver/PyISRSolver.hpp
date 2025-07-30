@@ -5,7 +5,7 @@
 #include <Python.h>
 #include <structmember.h>
 #include <numpy/arrayobject.h>
-#include "ISRSolverSLE.hpp"
+#include "ISRSolver/ISRSolverSLE.hpp"
 
 typedef struct {
   PyObject_HEAD

@@ -1,7 +1,7 @@
 #include <nlopt.hpp>
 #include <TRandom3.h>
-#include "ISRSolverTikhonov.hpp"
-#include "Utils.hpp"
+#include "ISRSolver/ISRSolverTikhonov.hpp"
+#include "ISRSolver/Utils.hpp"
 
 Eigen::VectorXd randomDrawVisCS(const Eigen::VectorXd& vcs,
                                 const Eigen::VectorXd& vcsErr) {

@@ -5,7 +5,7 @@
 #include <boost/format.hpp>
 #include <TGraph.h>
 #include <TFile.h>
-#include "ISRSolverTikhonov.hpp"
+#include "ISRSolver/ISRSolverTikhonov.hpp"
 namespace po = boost::program_options;
 
 /**

@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 #include <gsl/gsl_spline.h>
-#include "BaseRangeInterpolator2.hpp"
+#include "ISRSolver/BaseRangeInterpolator2.hpp"
 
 /*
  * This class is designed in order to perform a cubic spline interpolation

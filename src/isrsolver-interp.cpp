@@ -5,7 +5,7 @@
 #include <TFile.h>
 #include <TF1.h>
 #include <TGraphErrors.h>
-#include "Interpolator.hpp"
+#include "ISRSolver/Interpolator.hpp"
 namespace po = boost::program_options;
 
 /**

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "PyISRSolverSLE.hpp"
-#include "ISRSolverTSVD.hpp"
+#include "ISRSolver/PyISRSolverSLE.hpp"
+#include "ISRSolver/ISRSolverTSVD.hpp"
 
 static PyObject *
 PyISRSolverTSVD_get_upper_TSVD_index(PyISRSolverObject *self, void *closure)

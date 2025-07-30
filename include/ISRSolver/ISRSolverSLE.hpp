@@ -2,31 +2,29 @@
 
 #include <TF1.h>
 #include <nlohmann/json.hpp>
-#include "Interpolator2.hpp"
-#include "BaseISRSolver2.hpp"
+#include "ISRSolver/Interpolator.hpp"
+#include "ISRSolver/BaseISRSolver.hpp"
 
 using json = nlohmann::json;
 
-class ISRSolverSLE2;
-double* extractIntOpMatrix(ISRSolverSLE2*);
-double* extractBCSCovMatrix(ISRSolverSLE2*);
+class ISRSolverSLE;
+double* extractIntOpMatrix(ISRSolverSLE*);
+double* extractBCSCovMatrix(ISRSolverSLE*);
 
 /**
  * Solver that solving integral equation using the naive method (without
  regularization). In this case the integral equation is reduced to a system of
  linear equations and then these equations are solved directly
  */
-class ISRSolverSLE2 : public BaseISRSolver2 {
+class ISRSolverSLE : public BaseISRSolver {
  public:
 
-  ISRSolverSLE2(std::size_t numberOfPoints,
-                double* energy,
-                double* visibleCS,
-                double* energyErr,
-                double* visibleCSErr,
-                double thresholdEnergy,
-                const std::function<double(double, std::size_t)>&
-                efficiency);
+  ISRSolverSLE(std::size_t numberOfPoints,
+               double* energy, double* visibleCS,
+               double* energyErr, double* visibleCSErr,
+               double thresholdEnergy,
+               const std::function<double(double, double)>&
+               efficiency);
   /**
    * Constructor
    * @param inputPath an input path to .root file that contains visible
@@ -37,14 +35,14 @@ class ISRSolverSLE2 : public BaseISRSolver2 {
    cross section TGraphErrors object, a threshold energy
    @see InputOptions
    */
-  ISRSolverSLE2(const std::string& inputPath,
+  ISRSolverSLE(const std::string& inputPath,
                const InputOptions& inputOpts);
   /**
    * Constructor
    * @param vcsGraph a visible cross section in a form of TGraphErrors
    * @param thresholdEnergy a threshold energy (GeV)
    */
-  ISRSolverSLE2(TGraphErrors* vcsGraph,
+  ISRSolverSLE(TGraphErrors* vcsGraph,
                double thresholdEnergy);
   /**
    * Constructor
@@ -52,17 +50,17 @@ class ISRSolverSLE2 : public BaseISRSolver2 {
    * @param eff a detection efficiency in a form of TEfficiency
    * @param thresholdEnergy a threshold energy (GeV)
    */
-  ISRSolverSLE2(TGraphErrors* vcsGraph,
-                const std::vector<TH1D*>& eff,
-                double thresholdEnergy);
+  ISRSolverSLE(TGraphErrors* vcsGraph,
+               TEfficiency* eff,
+               double thresholdEnergy);
   /**
    * Copy constructor
    */
-  ISRSolverSLE2(const ISRSolverSLE2&);
+  ISRSolverSLE(const ISRSolverSLE&);
   /**
    * Destructor
    */
-  virtual ~ISRSolverSLE2();
+  virtual ~ISRSolverSLE();
   /**
    * This method returns integral operator matrix
    */
@@ -159,7 +157,7 @@ class ISRSolverSLE2 : public BaseISRSolver2 {
   /**
    * Interpolator that interpolates the numerical solution
    */
-  Interpolator2 _interp;
+  Interpolator _interp;
   /**
    * A boolean flag that is true when integral operator matrix is
    prepared and false otherwise
@@ -179,6 +177,6 @@ class ISRSolverSLE2 : public BaseISRSolver2 {
    * Dot product weights
    */
   Eigen::RowVectorXd _dotProdOp;
-  friend double* extractIntOpMatrix(ISRSolverSLE2*);
-  friend double* extractBCSCovMatrix(ISRSolverSLE2*);
+  friend double* extractIntOpMatrix(ISRSolverSLE*);
+  friend double* extractBCSCovMatrix(ISRSolverSLE*);
 };

@@ -10,8 +10,8 @@
 #include <gsl/gsl_spline.h>
 #include <algorithm>
 #include <functional>
-#include "Integration.hpp"
-#include "KuraevFadin.hpp"
+#include "ISRSolver/Integration.hpp"
+#include "ISRSolver/KuraevFadin.hpp"
 
 #include <iostream>
 

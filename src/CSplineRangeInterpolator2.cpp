@@ -1,7 +1,7 @@
 #include <iostream>
-#include "Integration.hpp"
-#include "KuraevFadin.hpp"
-#include "CSplineRangeInterpolator2.hpp"
+#include "ISRSolver/Integration.hpp"
+#include "ISRSolver/KuraevFadin.hpp"
+#include "ISRSolver/CSplineRangeInterpolator2.hpp"
 
 /**
  * Constructor

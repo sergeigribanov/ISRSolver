@@ -4,7 +4,7 @@
 #include <TGraph.h>
 #include <TGraphErrors.h>
 #include <TMatrixD.h>
-#include "IterISRInterpSolver.hpp"
+#include "ISRSolver/IterISRInterpSolver.hpp"
 using json = nlohmann::json;
 
 IterISRInterpSolver::IterISRInterpSolver(

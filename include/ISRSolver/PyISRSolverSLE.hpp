@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Chi2Test.hpp"
-#include "RatioTest.hpp"
-#include "PyISRSolver.hpp"
+#include "ISRSolver/Chi2Test.hpp"
+#include "ISRSolver/RatioTest.hpp"
+#include "ISRSolver/PyISRSolver.hpp"
 
 static PyObject *PyISRSolverSLE_set_interp_settings(PyISRSolverObject *self, PyObject *args) {
   // !!! TO-DO: return none

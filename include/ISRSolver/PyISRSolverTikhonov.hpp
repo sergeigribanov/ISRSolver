@@ -2,9 +2,9 @@
 
 #include <vector>
 #include <nlopt.hpp>
-#include "PyISRSolverSLE.hpp"
-#include "ISRSolverTikhonov.hpp"
-#include "Utils.hpp"
+#include "ISRSolver/PyISRSolverSLE.hpp"
+#include "ISRSolver/ISRSolverTikhonov.hpp"
+#include "ISRSolver/Utils.hpp"
 
 #include <iostream>
 

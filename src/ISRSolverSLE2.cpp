@@ -1,4 +1,4 @@
-#include "ISRSolverSLE2.hpp"
+#include "ISRSolver/ISRSolverSLE2.hpp"
 
 #include <TFile.h>
 #include <TGraphErrors.h>
@@ -13,8 +13,8 @@
 #include <Eigen/Core>
 #include <Eigen/SVD>
 
-#include "Integration.hpp"
-#include "KuraevFadin.hpp"
+#include "ISRSolver/Integration.hpp"
+#include "ISRSolver/KuraevFadin.hpp"
 
 double* extractIntOpMatrix(ISRSolverSLE2* solver) {
   return solver->_integralOperatorMatrix.data();

@@ -2,8 +2,8 @@
 #include <string>
 #include <boost/program_options.hpp>
 #include <nlopt.hpp>
-#include "ISRSolverTikhonov.hpp"
-#include "Utils.hpp"
+#include "ISRSolver/ISRSolverTikhonov.hpp"
+#include "ISRSolver/Utils.hpp"
 namespace po = boost::program_options;
 
 /**

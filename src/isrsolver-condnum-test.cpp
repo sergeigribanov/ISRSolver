@@ -5,8 +5,8 @@
 #include <Eigen/SVD>
 #include <TGraph.h>
 #include <TFile.h>
-#include "ISRSolverSLE.hpp"
-#include "Utils.hpp"
+#include "ISRSolver/ISRSolverSLE.hpp"
+#include "ISRSolver/Utils.hpp"
 namespace po = boost::program_options;
 
 /**

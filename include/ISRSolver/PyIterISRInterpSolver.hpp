@@ -1,7 +1,7 @@
 #pragma once
 
-#include "PyISRSolverSLE.hpp"
-#include "IterISRInterpSolver.hpp"
+#include "ISRSolver/PyISRSolverSLE.hpp"
+#include "ISRSolver/IterISRInterpSolver.hpp"
 
 static PyObject *
 PyIterISRInterpSolver_getniter(PyISRSolverObject *self, void *closure)

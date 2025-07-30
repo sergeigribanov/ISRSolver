@@ -14,8 +14,8 @@
 #include <TF1.h>
 #include <TFile.h>
 #include <TMatrixD.h>
-#include "Integration.hpp"
-#include "KuraevFadin.hpp"
+#include "ISRSolver/Integration.hpp"
+#include "ISRSolver/KuraevFadin.hpp"
 namespace po = boost::program_options;
 
 /**

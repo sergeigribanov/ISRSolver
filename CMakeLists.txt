@@ -27,7 +27,7 @@ file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 file(GLOB PYSOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/Py*.cpp)
 list(FILTER SOURCES EXCLUDE REGEX "isrsolver.+.cpp")
 list(FILTER SOURCES EXCLUDE REGEX "Py.+.cpp")
-file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
+file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/ISRSolver/*.hpp)
 list(FILTER HEADERS EXCLUDE REGEX "Py.+.hpp")
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/env.sh.in env.sh)
@@ -37,13 +37,13 @@ target_include_directories(ISR
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/ISRSolver>)
-target_link_libraries(ISR PUBLIC
-  GSL::gsl GSL::gslcblas
-  Eigen3::Eigen
-  ${Boost_LIBRARIES}
-  ${NLOPT_LIBRARIES}
-  ${ROOT_LIBRARIES}
-  nlohmann_json::nlohmann_json)
+target_link_libraries(ISR
+  PUBLIC GSL::gsl GSL::gslcblas
+  PUBLIC Eigen3::Eigen
+  PUBLIC ${Boost_LIBRARIES}
+  PUBLIC ${NLOPT_LIBRARIES}
+  PUBLIC ${ROOT_LIBRARIES}
+  PUBLIC nlohmann_json::nlohmann_json)
 
 add_executable(isrsolver-SLE ${CMAKE_CURRENT_SOURCE_DIR}/src/isrsolver-SLE.cpp)
 target_link_libraries(isrsolver-SLE ISR)

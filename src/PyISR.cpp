@@ -1,10 +1,10 @@
-#include "PyKuraevFadin.hpp"
-#include "PyISRSolverSLE.hpp"
-#include "PyIterISRInterpSolver.hpp"
-#include "PyISRSolverTSVD.hpp"
-#include "PyISRSolverTikhonov.hpp"
-#include "PyIterISRSolverUseVCSFit.hpp"
-#include "PyFitVCS.hpp"
+#include "ISRSolver/PyKuraevFadin.hpp"
+#include "ISRSolver/PyISRSolverSLE.hpp"
+#include "ISRSolver/PyIterISRInterpSolver.hpp"
+#include "ISRSolver/PyISRSolverTSVD.hpp"
+#include "ISRSolver/PyISRSolverTikhonov.hpp"
+#include "ISRSolver/PyIterISRSolverUseVCSFit.hpp"
+#include "ISRSolver/PyFitVCS.hpp"
 
 typedef struct {
     PyObject_HEAD

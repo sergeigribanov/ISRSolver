@@ -1,7 +1,7 @@
 #include <iostream>
 #include <Eigen/Core>
 #include <Eigen/SVD>
-#include "ISRSolverTSVD.hpp"
+#include "ISRSolver/ISRSolverTSVD.hpp"
 
 ISRSolverTSVD::ISRSolverTSVD(
     std::size_t numberOfPoints,

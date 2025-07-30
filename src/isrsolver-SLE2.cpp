@@ -3,7 +3,7 @@
 #include <string>
 #include <boost/program_options.hpp>
 #include <nlohmann/json.hpp>
-#include "ISRSolverSLE2.hpp"
+#include "ISRSolver/ISRSolverSLE2.hpp"
 namespace po = boost::program_options;
 using json = nlohmann::json;
 

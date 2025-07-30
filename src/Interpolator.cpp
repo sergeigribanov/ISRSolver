@@ -1,8 +1,8 @@
 #include <algorithm>
 #include <fstream>
-#include "Interpolator.hpp"
-#include "LinearRangeInterpolator.hpp"
-#include "CSplineRangeInterpolator.hpp"
+#include "ISRSolver/Interpolator.hpp"
+#include "ISRSolver/LinearRangeInterpolator.hpp"
+#include "ISRSolver/CSplineRangeInterpolator.hpp"
 
 /**
  * Default constructor

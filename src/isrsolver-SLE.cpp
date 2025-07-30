@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <boost/program_options.hpp>
-#include "ISRSolverSLE.hpp"
+#include "ISRSolver/ISRSolverSLE.hpp"
 namespace po = boost::program_options;
 
 /**

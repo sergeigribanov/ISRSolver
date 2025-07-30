@@ -1,12 +1,12 @@
 #pragma once
 
-#include "BaseRangeInterpolator.hpp"
+#include "ISRSolver/BaseRangeInterpolator2.hpp"
 
 /**
  * This class is designed in order to perform a linear spline
  interpolation of the numerical solution in a certain range
  */
-class LinearRangeInterpolator : public BaseRangeInterpolator {
+class LinearRangeInterpolator2 : public BaseRangeInterpolator2 {
  public:
   /**
    * Constructor
@@ -18,18 +18,18 @@ class LinearRangeInterpolator : public BaseRangeInterpolator {
    * @param extCMEnergies extended vector of center-of-mass energies (contains
    threshold energy)
    */
-  LinearRangeInterpolator(
+  LinearRangeInterpolator2(
       int rangeIndexMin,
       int rangeIndexMax,
       const Eigen::VectorXd& extCMEnergies);
   /**
    * Copy constructor
    */
-  LinearRangeInterpolator(const LinearRangeInterpolator&);
+  LinearRangeInterpolator2(const LinearRangeInterpolator2&);
   /**
    * Destructor
    */
-  virtual ~LinearRangeInterpolator();
+  virtual ~LinearRangeInterpolator2();
   /**
    * Evaluate basis interpolation around center-of-mass energy that
      corresponds to the cross section point with index the csIndex
@@ -54,7 +54,7 @@ class LinearRangeInterpolator : public BaseRangeInterpolator {
   double evalKuraevFadinBasisIntegral(
       int energyIndex,
       int csIndex,
-      const std::function<double(double, double)>& efficiency) const override final;
+      const std::function<double(double, std::size_t)>& efficiency) const override final;
   virtual double evalBasisSConvolution(
       int csIndex,
       const std::function<double(double)>& convKernel) const override final;
@@ -71,7 +71,7 @@ class LinearRangeInterpolator : public BaseRangeInterpolator {
    */
   double _evalKuraevFadinBasisIntegralFirstTriangle(
       int energyIndex, int csIndex,
-      const std::function<double(double, double)>& efficiency) const;
+      const std::function<double(double, std::size_t)>& efficiency) const;
   /**
    * Evaluate Kuraev-Fadin convolution inside the second triangle
    with basis interpolation
@@ -81,7 +81,7 @@ class LinearRangeInterpolator : public BaseRangeInterpolator {
    */
   double _evalKuraevFadinBasisIntegralSecondTriangle(
       int energyIndex, int csIndex,
-      const std::function<double(double, double)>& efficiency) const;
+      const std::function<double(double, std::size_t)>& efficiency) const;
   double _evalBasisSConvolutionFirstTriangle(
       int csIndex,
       const std::function<double(double)>& convKernel) const;

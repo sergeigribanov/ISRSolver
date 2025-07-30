@@ -1,6 +1,6 @@
 #include <iostream>
 #include <boost/program_options.hpp>
-#include "Chi2Test.hpp"
+#include "ISRSolver/Chi2Test.hpp"
 namespace po = boost::program_options;
 
 /**

@@ -3,9 +3,9 @@
 #include <cmath>
 #include <functional>
 
-#include "Integration.hpp"
-#include "PhysicalConstants.hpp"
-#include "KuraevFadin.hpp"
+#include "ISRSolver/Integration.hpp"
+#include "ISRSolver/PhysicalConstants.hpp"
+#include "ISRSolver/KuraevFadin.hpp"
 
 double fLog(double s) { return std::log(s / ELECTRON_M / ELECTRON_M); }
 

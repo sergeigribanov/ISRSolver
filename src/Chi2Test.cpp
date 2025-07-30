@@ -12,8 +12,8 @@
 #include <TGraphErrors.h>
 #include <TRandom3.h>
 #include <Math/PdfFuncMathCore.h>
-#include "Chi2Test.hpp"
-#include "Utils.hpp"
+#include "ISRSolver/Chi2Test.hpp"
+#include "ISRSolver/Utils.hpp"
 namespace bacc = boost::accumulators;
 
 /**

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ISRSolverSLE.hpp"
+#include "ISRSolver/ISRSolverSLE.hpp"
 
 /**
  * Solver that solving integral equation using Tikhonov regularization

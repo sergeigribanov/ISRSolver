@@ -3,7 +3,7 @@
 #include <iostream>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_integration.h>
-#include "Integration.hpp"
+#include "ISRSolver/Integration.hpp"
 
 /**
  * Wrapper that converts std::function to appropriate format

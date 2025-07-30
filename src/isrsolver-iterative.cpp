@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <boost/program_options.hpp>
-#include "IterISRInterpSolver.hpp"
+#include "ISRSolver/IterISRInterpSolver.hpp"
 namespace po = boost::program_options;
 
 /**

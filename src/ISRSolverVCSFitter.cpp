@@ -1,8 +1,8 @@
 #include <TGraphErrors.h>
 #include <algorithm>
-#include "Integration.hpp"
-#include "KuraevFadin.hpp"
-#include "ISRSolverVCSFitter.hpp"
+#include "ISRSolver/Integration.hpp"
+#include "ISRSolver/KuraevFadin.hpp"
+#include "ISRSolver/ISRSolverVCSFitter.hpp"
 
 #include <iostream>
 #include <iterator>

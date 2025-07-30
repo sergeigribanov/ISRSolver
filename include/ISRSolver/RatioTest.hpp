@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ISRSolverStructs.hpp"
-#include "ISRSolverSLE.hpp"
+#include "ISRSolver/ISRSolverStructs.hpp"
+#include "ISRSolver/ISRSolverSLE.hpp"
 
 /**
  * This function is used to get ratio of a numerical solution to

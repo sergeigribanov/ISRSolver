@@ -1,4 +1,4 @@
-#include "ISRSolverTikhonov.hpp"
+#include "ISRSolver/ISRSolverTikhonov.hpp"
 
 #include <TFile.h>
 #include <TGraphErrors.h>
@@ -13,7 +13,7 @@
 #include <nlopt.hpp>
 #include <set>
 
-#include "Integration.hpp"
+#include "ISRSolver/Integration.hpp"
 
 ISRSolverTikhonov::ISRSolverTikhonov(std::size_t numberOfPoints,
                                      double* energy, double* visibleCS,

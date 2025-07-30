@@ -1,7 +1,7 @@
 #include <string>
 #include <boost/program_options.hpp>
-#include "ISRSolverTikhonov.hpp"
-#include "RatioTest.hpp"
+#include "ISRSolver/ISRSolverTikhonov.hpp"
+#include "ISRSolver/RatioTest.hpp"
 namespace po = boost::program_options;
 
 /**

@@ -1,4 +1,4 @@
-#include "ISRSolverVCSFitter.hpp"
+#include "ISRSolver/ISRSolverVCSFitter.hpp"
 #include <Minuit2/MnMigrad.h>
 #include <Minuit2/MnMinos.h>
 #include <Minuit2/MnUserParameters.h>

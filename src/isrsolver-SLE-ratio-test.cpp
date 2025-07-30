@@ -1,6 +1,6 @@
 #include <string>
 #include <boost/program_options.hpp>
-#include "RatioTest.hpp"
+#include "ISRSolver/RatioTest.hpp"
 namespace po = boost::program_options;
 
 /**

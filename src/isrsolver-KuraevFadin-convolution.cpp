@@ -6,8 +6,8 @@
 #include <TF1.h>
 #include <TFile.h>
 #include <TEfficiency.h>
-#include "KuraevFadin.hpp"
-#include "Utils.hpp"
+#include "ISRSolver/KuraevFadin.hpp"
+#include "ISRSolver/Utils.hpp"
 namespace po = boost::program_options;
 
 //!!! TO DO: insert efficiency

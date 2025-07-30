@@ -2,7 +2,7 @@
 #include <TFile.h>
 #include <TH1F.h>
 #include <TH2F.h>
-#include "BaseISRSolver2.hpp"
+#include "ISRSolver/BaseISRSolver2.hpp"
 
 double* extractECMPointer(BaseISRSolver2* solver) {
   return solver->_visibleCSData.cmEnergy.data();

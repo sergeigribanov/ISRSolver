@@ -8,9 +8,9 @@
 #include <Python.h>
 #include <structmember.h>
 #include <numpy/arrayobject.h>
-#include "Integration.hpp"
-#include "KuraevFadin.hpp"
-#include "PyUtils.hpp"
+#include "ISRSolver/Integration.hpp"
+#include "ISRSolver/KuraevFadin.hpp"
+#include "ISRSolver/PyUtils.hpp"
 
 typedef struct {
   PyObject_HEAD

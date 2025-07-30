@@ -4,7 +4,7 @@
 #include <exception>
 #include <memory>
 #include <nlohmann/json.hpp>
-#include "BaseRangeInterpolator2.hpp"
+#include "ISRSolver/BaseRangeInterpolator2.hpp"
 
 using json = nlohmann::json;
 

@@ -4,7 +4,7 @@
 #include <boost/program_options.hpp>
 #include <TF1.h>
 #include <TFile.h>
-#include "KuraevFadin.hpp"
+#include "ISRSolver/KuraevFadin.hpp"
 namespace po = boost::program_options;
 
 /**

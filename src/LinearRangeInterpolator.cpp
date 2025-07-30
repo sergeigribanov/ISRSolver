@@ -1,7 +1,7 @@
 #include <algorithm>
-#include "Integration.hpp"
-#include "KuraevFadin.hpp"
-#include "LinearRangeInterpolator.hpp"
+#include "ISRSolver/Integration.hpp"
+#include "ISRSolver/KuraevFadin.hpp"
+#include "ISRSolver/LinearRangeInterpolator.hpp"
 
 std::function<double(double)> LinearRangeInterpolator::_fcn0 =
     [](double) {return 1.;};

@@ -2,8 +2,8 @@
 
 #include <string>
 #include <exception>
-#include "ISRSolverStructs.hpp"
-#include "ISRSolverSLE.hpp"
+#include "ISRSolver/ISRSolverStructs.hpp"
+#include "ISRSolver/ISRSolverSLE.hpp"
 
 /**
  * Chi-square test
